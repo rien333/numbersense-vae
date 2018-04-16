@@ -33,6 +33,8 @@ parser.add_argument('--start-epoch', type=int, default=1, metavar='N',
                     help='epoch to start at (only affects logging)')
 parser.add_argument('--test-epoch', type=int, default=1, metavar='N', 
                     help='when to run a test epoch')
+parser.add_argument('--full_con_size', type=int, default=400, metavar='N', 
+                    help='size of the fully connected layer (prob. leave it)')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -160,19 +162,19 @@ class VAE(nn.Module):
 
         # ENCODER
         # 28 x 28 pixels = 784 input pixels (for minst), 400 outputs
-        self.fc1 = nn.Linear(DATA_SIZE, 400)
+        self.fc1 = nn.Linear(DATA_SIZE, args.full_con_size)
         # rectified linear unit layer from 400 to 400
         # max(0, x)
         self.relu = nn.ReLU()
-        self.fc21 = nn.Linear(400, args.z_dims)  # mu layer
-        self.fc22 = nn.Linear(400, args.z_dims)  # logvariance layer
+        self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mu layer
+        self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # logvariance layer
         # this last layer bottlenecks through args.z_dims connections
 
         # DECODER
         # from bottleneck to hidden 400
-        self.fc3 = nn.Linear(args.z_dims, 400)
+        self.fc3 = nn.Linear(args.z_dims, args.full_con_size)
         # from hidden 400 to 784 outputs
-        self.fc4 = nn.Linear(400, DATA_SIZE)
+        self.fc4 = nn.Linear(args.full_con_size, DATA_SIZE)
         self.sigmoid = nn.Sigmoid()
 
     def encode(self, x: Variable) -> (Variable, Variable):
@@ -191,7 +193,7 @@ class VAE(nn.Module):
 
         """
 
-        # h1 is [128, 400]
+        # h1 is [128, 400] (batch, + the size of the first fully connected layer)
         h1 = self.relu(self.fc1(x))  # type: Variable
         return self.fc21(h1), self.fc22(h1)
 
