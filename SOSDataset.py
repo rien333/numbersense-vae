@@ -25,8 +25,8 @@ class ToTensor(object):
 
 class Normalize(object):
     
-    def __call__(self, s):        
-        return s
+    def __call__(self, s):
+        return s[0] / 255, s[1]
 
 class SOSDataset(Dataset):
 
@@ -68,6 +68,6 @@ class SOSDataset(Dataset):
         s = self.train_data[index] if self.train else self.test_data[index]
         if not self.load_ram:
             s = cv2.imread(self.datadir + s[0]), s[1]
-        if self.transform:
+        if self.transform: # "if" needed? (esp. with preprocessing step)
             s = self.transform(s)
         return s
