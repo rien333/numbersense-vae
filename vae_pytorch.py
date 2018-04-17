@@ -1,7 +1,7 @@
 import os, argparse
 import random
-import cv2
 import numpy as np
+import SOSDataset
 import torch
 import torch.utils.data
 from torch import nn, optim
@@ -9,12 +9,11 @@ from torch.autograd import Variable
 from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
-from torch.utils.data import Dataset
 
 # disable h5py warning
 np.warnings.filterwarnings('ignore')
 
-parser = argparse.ArgumentParser(description='VAE MNIST Example')
+parser = argparse.ArgumentParser(description='Annotated VAE implemented in PyTorch')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                     help='input batch size for training (default: 128)')
 parser.add_argument('--epochs', type=int, default=100, metavar='N',
@@ -27,90 +26,18 @@ parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='how many batches to wait before logging training status')
 parser.add_argument('--z-dims', type=int, default=20, metavar='N',
                     help='dimenstionality of the latent z variable')
-parser.add_argument('--load-model', type=str, default='', metavar='P', 
+parser.add_argument('--load-model', type=str, default='', metavar='P',
                     help='load a torch model from given path (default: create new model)')
-parser.add_argument('--start-epoch', type=int, default=1, metavar='N', 
+parser.add_argument('--start-epoch', type=int, default=1, metavar='N',
                     help='epoch to start at (only affects logging)')
-parser.add_argument('--test-epoch', type=int, default=1, metavar='N', 
+parser.add_argument('--test-epoch', type=int, default=1, metavar='N',
                     help='when to run a test epoch')
-parser.add_argument('--full_con_size', type=int, default=400, metavar='N', 
+parser.add_argument('--full_con_size', type=int, default=400, metavar='N',
                     help='size of the fully connected layer (prob. leave it)')
+parser.add_argument('--grayscale', action='store_true', default=False, help='Train on grayscale data')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
-
-# Width and height of a sample from the dataset
-DATA_W = 256
-DATA_H = 256
-DATA_SIZE = DATA_W * DATA_H
-
-
-class Rescale(object):
-
-    def __init__(self, output_size):
-        self.output_size = output_size
-
-    def __call__(self, s):
-        # default interpolation=cv2.INTER_LINEAR (rec, fast and ok quality)
-        return cv2.resize(s[0], self.output_size), s[1]
-
-class ToTensor(object):
-    """Convert ndarrays in sample to Tensors."""
-
-    def __call__(self, s):
-        # swap color axis because
-        # numpy image: H x W x C
-        # torch image: C X H X W
-        # You can do the transpose((1,2,0)) to get the numpy order back
-        return torch.from_numpy(s[0].transpose((2,0,1))).float(), s[1]
-
-
-
-class SOSDataset(Dataset):
-
-    # Maybe add the ability to either load data from disk or in RAM
-    def __init__(self, train=True, transform=None, datadir="../Datasets/SOS/", load_ram=False):
-        import h5py # for .mat importing
-        
-        self.datadir = datadir
-        self.train = train
-        self.test_data = []
-        self.train_data = []
-        self.transform = transform
-        self.load_ram = load_ram
-        f = h5py.File(self.datadir + "imgIdx.mat")
-        imgIdx = f["imgIdx"]
-
-        for istest, label, fname in zip(imgIdx["istest"][:,0], imgIdx["label"][:,0],
-                                        imgIdx["name"][:,0]):
-            # get filename
-            im = np.array(f[fname], dtype=np.uint8).tostring().decode("ascii")
-            if load_ram: # load actual image, faster but more resources
-                # Maybe it's smart to do some preprocessing here to save on ram
-                im = cv2.imread(self.datadir+im)
-
-            if f[istest][0]:
-                if not self.train:
-                    self.test_data.append((im, f[label][0,0]))
-            else:
-                if self.train:
-                    self.train_data.append((im, f[label][0,0]))
-
-        self.nsamples = len(self.train_data) if self.train else len(self.test_data)
-
-    def __len__(self):
-        return self.nsamples
-
-    def __getitem__(self, index):
-        s = self.train_data[index] if self.train else self.test_data[index]
-        if not self.load_ram:
-            s = cv2.imread(self.datadir + s[0]), s[1]
-            # print(s[0].shape)
-            # s = s[0].transpose((2,0,1)), s[1]
-            # print(s[0].shape)
-        if self.transform:
-            s = self.transform(s)
-        return s
 
 # connections through the autoencoder bottleneck
 # in the pytorch VAE example, this is 20
@@ -120,24 +47,31 @@ torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
+# Width and height of a sample from the dataset
+DATA_W = 256
+DATA_H = 256
+DATA_C = 3 # Color component dimension size
+DATA_SIZE = DATA_W * DATA_H * DATA_C
+
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
-data_transform = transforms.Compose([Rescale((DATA_W, DATA_H)), ToTensor()])
+data_transform = transforms.Compose([SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(),
+                                     SOSDataset.Normalize()])
 
 # shuffle data at every epoch
 # TODO: experiment with load_ram = True
 
 train_loader = torch.utils.data.DataLoader(
-    SOSDataset(train=True, transform=data_transform, load_ram=False),
+    SOSDataset.SOSDataset(train=True, transform=data_transform, load_ram=False),
     batch_size=args.batch_size, shuffle=True, **kwargs)
-#     # datasets.MNIST('data', train=True, download=True,
-#     #                transform=transforms.ToTensor()),
-#     # batch_size=args.batch_size, shuffle=True, **kwargs)
+    # datasets.MNIST('data', train=True, download=True,
+    #                transform=transforms.ToTensor()),
+    # batch_size=args.batch_size, shuffle=True, **kwargs)
 
 # Same for test data
 test_loader = torch.utils.data.DataLoader(
-    SOSDataset(train=False, transform=data_transform, load_ram=False),
+    SOSDataset.SOSDataset(train=False, transform=data_transform, load_ram=False),
     batch_size=args.batch_size, shuffle=True, **kwargs)
     # datasets.MNIST('data', train=False, transform=transforms.ToTensor()),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
@@ -280,6 +214,11 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
     # https://arxiv.org/abs/1312.6114
     # - D_{KL} = 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
     # note the negative D_{KL} in appendix B of the paper
+    # print(mu)
+    print(logvar.exp())
+    print("Sum:", torch.sum(logvar.exp()).item())
+    exit(0)
+
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     # Normalise by same number of elements as in reconstruction
 	## This line was/is not in the original pytorch code
@@ -291,7 +230,6 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
 
 # Dr Diederik Kingma: as if VAEs weren't enough, he also gave us Adam!
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
-
 
 def train(epoch):
     # toggle model to train mode
@@ -311,6 +249,7 @@ def train(epoch):
 
         # push whole batch of data through VAE.forward() to get recon_loss
         recon_batch, mu, logvar = model(data)
+        
         # calculate scalar loss
         loss = loss_function(recon_batch, data, mu, logvar)
         # calculate the gradient of the loss w.r.t. the graph leaves
@@ -349,14 +288,14 @@ def test(epoch):
                 n = min(data.size(0), 8)
                 # for the first 128 batch of the epoch, show the first 8 input digits
                 # with right below them the reconstructed output digits
+                # the -1 is decide "row"/dim_size  yourself, so could be 3 or 1 depended on datasize
                 comparison = torch.cat([data[:n],
-                                        recon_batch.view(args.batch_size, 1, DATA_W, DATA_H)[:n]])
+                                        recon_batch.view(args.batch_size, -1, DATA_W, DATA_H)[:n]])
                 save_image(comparison.data.cpu(),
                            'results/reconstruction_' + str(epoch) + '.png', nrow=n)
 
     test_loss /= len(test_loader.dataset)
     print('====> Epoch: {} Test set loss: {:.4f}'.format(epoch, test_loss))
-
 
 for epoch in range(args.start_epoch, args.epochs + 1):
     train(epoch)
@@ -380,5 +319,6 @@ for epoch in range(args.start_epoch, args.epochs + 1):
         # save out as an 8x8 matrix of MNIST digits
         # this will give you a visual idea of how well latent space can generate things
         # that look like digits
-        save_image(sample.data.view(64, 1, DATA_W, DATA_H),
+        # the -1 is decide "row"/dim_size  yourself, so could be 3 or 1 depended on datasize
+        save_image(sample.data.view(64, -1, DATA_W, DATA_H),
                'results/sample_' + str(epoch) + '.png')
