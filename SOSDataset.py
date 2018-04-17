@@ -20,11 +20,12 @@ class ToTensor(object):
         # numpy image: H x W x C
         # torch image: C X H X W
         # You can do the transpose((W,H,C)) to get the original (numpy format) back
-        return torch.from_numpy(s[0].flatten()).float(), s[1]
+        # flatten/(i.e. view(-1)) deals with grayscale and RGB case
+        return torch.from_numpy(s[0]).view(-1).float(), s[1]
 
 class Normalize(object):
     
-    def __call__(self, s):
+    def __call__(self, s):        
         return s
 
 class SOSDataset(Dataset):
