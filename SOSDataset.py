@@ -24,9 +24,16 @@ class ToTensor(object):
         return torch.from_numpy(s[0]).view(-1).float(), s[1]
 
 class Normalize(object):
-    
+
     def __call__(self, s):
         return s[0] / 255, s[1]
+
+class Grayscale(object):
+
+    def __call__(self, s):
+        pass
+
+    
 
 class SOSDataset(Dataset):
 
