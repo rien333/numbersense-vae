@@ -119,9 +119,9 @@ class SOSDataset(Dataset):
 
     def __getitem__(self, index):
         # comment if preprocessing seems undoable
-        if self.preprocessed:
-            s = self.train_data if self.train else self.test_data
-            return s[0][index], s[1][index]
+        # if self.preprocessed:
+        #     s = self.train_data if self.train else self.test_data
+        #     return s[0][index], s[1][index]
 
         s = self.train_data[index] if self.train else self.test_data[index]
         if not self.load_ram:
@@ -132,24 +132,24 @@ class SOSDataset(Dataset):
 
 if __name__ == "__main__":
     # load preprocess
-    dataset = SOSDataset(train=False, datadir="../Datasets/SOS/RescaleToTensorNormalize/", 
-                         preprocessed=True)
-    # normally this has kwargs stuff for cuda loading!!
-    test_loader = torch.utils.data.DataLoader(dataset, batch_size=2, shuffle=True)
-    print("read stuff")
-    for idx, s in enumerate(test_loader):
-        cv2.imshow("img", s[0][0].data.numpy().reshape((DATA_W,DATA_H,DATA_C)))
-        print(s[1][0])
-        cv2.waitKey(0)
-        print()
-        cv2.imshow("img", s[0][1].data.numpy().reshape((DATA_W,DATA_H,DATA_C)))
-        print(s[1][1])
-        cv2.waitKey(0)
-        if idx > 3:
-            break
-        print("🌸")
+    # dataset = SOSDataset(train=False, datadir="../Datasets/SOS/RescaleToTensorNormalize/", 
+    #                      preprocessed=True)
+    # # normally this has kwargs stuff for cuda loading!!
+    # test_loader = torch.utils.data.DataLoader(dataset, batch_size=2, shuffle=True)
+    # print("read stuff")
+    # for idx, s in enumerate(test_loader):
+    #     cv2.imshow("img", s[0][0].data.numpy().reshape((DATA_W,DATA_H,DATA_C)))
+    #     print(s[1][0])
+    #     cv2.waitKey(0)
+    #     print()
+    #     cv2.imshow("img", s[0][1].data.numpy().reshape((DATA_W,DATA_H,DATA_C)))
+    #     print(s[1][1])
+    #     cv2.waitKey(0)
+    #     if idx > 3:
+    #         break
+    #     print("🌸")
 
     # Save preprocess 
-    # data_transform = [Rescale((DATA_W, DATA_H)), ToTensor(), Normalize()]
-    # dataset = SOSDataset(train=True, transform=data_transform, preprocessed=False)
-    # dataset.save()
+    data_transform = [Rescale((DATA_W, DATA_H)), ToTensor(), Normalize()]
+    dataset = SOSDataset(train=True, transform=data_transform, preprocessed=False)
+    dataset.save()

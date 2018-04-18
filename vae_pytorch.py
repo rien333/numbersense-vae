@@ -60,19 +60,21 @@ data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(),
 # TODO: experiment with load_ram = True
 pre_dir = "../Datasets/SOS/RescaleToTensorNormalize/"
 
-# okay fuck preprocessing is not faster at all
+# preprocessing seems slower actually
 train_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=False, preprocessed=True, datadir=pre_dir),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
-    # SOSDataset.SOSDataset(train=True, transform=data_transform, load_ram=False),
+    # SOSDataset.SOSDataset(train=False, preprocessed=True, datadir=pre_dir),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
+    SOSDataset.SOSDataset(train=True, transform=data_transform, load_ram=False),
+    batch_size=args.batch_size, shuffle=True, **kwargs)
     # datasets.MNIST('data', train=True, download=True,
     #                transform=transforms.ToTensor()),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
 
 # Same for test data
 test_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=False, preprocessed=True, datadir=pre_dir),
+    # SOSDataset.SOSDataset(train=False, preprocessed=True, datadir=pre_dir),
+    # batch_size=args.batch_size, shuffle=True, **kwargs)
+    SOSDataset.SOSDataset(train=True, transform=data_transform, load_ram=False),
     batch_size=args.batch_size, shuffle=True, **kwargs)
     # datasets.MNIST('data', train=False, transform=transforms.ToTensor()),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
@@ -266,28 +268,27 @@ def test(epoch):
         with torch.no_grad():
             recon_batch, mu, logvar = model(data)
             test_loss += loss_function(recon_batch, data, mu, logvar).item()
-            if i == 0:
-                n = min(data.size(0), 8)
-                # for the first 128 batch of the epoch, show the first 8 input digits
-                # with right below them the reconstructed output digits
-                # the -1 is decide dim_size yourself, so could be 3 or 1 depended on color channels
-                # I think we don't need the data view?
-                comparison = torch.cat([data[:n],
-                                        recon_batch.view(args.batch_size, -1, DATA_W, DATA_H)[:n]])
-                save_image(comparison.data.cpu(),
-                           'results/reconstruction_' + str(epoch) + '.png', nrow=n)
+            # if i == 0:
+            #     n = min(data.size(0), 8)
+            #     # for the first 128 batch of the epoch, show the first 8 input digits
+            #     # with right below them the reconstructed output digits
+            #     # the -1 is decide dim_size yourself, so could be 3 or 1 depended on color channels
+            #     # I think we don't need the data view?
+            #     comparison = torch.cat([data[:n],
+            #                             recon_batch.view(args.batch_size, -1, DATA_W, DATA_H)[:n]])
+            #     save_image(comparison.data.cpu(),
+            #                'results/reconstruction_' + str(epoch) + '.png', nrow=n)
 
     test_loss /= len(test_loader.dataset)
-    print('====> Epoch: {} Test set loss: {:.4f}'.format(epoch, test_loss))
+    print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
 
+save_interval = 5000
 for epoch in range(args.start_epoch, args.epochs + 1):
-    train(epoch)
-    test(epoch)
-    exit(0)
-    if epoch % 2000 == 0:
+    if epoch % save_interval == 0:
+        old_file = "models/vae-%s.pt" % (epoch - 2*save_interval)
+        if os.path.isfile(old_file):
+            os.remove(old_file)
     	torch.save(model.state_dict(), 'models/vae-%s.pt' % (epoch))
-    # load:
-    # model.load_state_dict(torch.load('models/vae..', map_location=lambda storage, loc: storage))
 
     # 64 sets of random ZDIMS-float vectors, i.e. 64 locations / MNIST
     # digits in latent space
