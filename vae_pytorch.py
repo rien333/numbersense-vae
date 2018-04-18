@@ -288,7 +288,7 @@ for epoch in range(args.start_epoch, args.epochs + 1):
         old_file = "models/vae-%s.pt" % (epoch - 2*save_interval)
         if os.path.isfile(old_file):
             os.remove(old_file)
-    	torch.save(model.state_dict(), 'models/vae-%s.pt' % (epoch))
+        torch.save(model.state_dict(), 'models/vae-%s.pt' % (epoch))
 
     # 64 sets of random ZDIMS-float vectors, i.e. 64 locations / MNIST
     # digits in latent space
@@ -296,7 +296,7 @@ for epoch in range(args.start_epoch, args.epochs + 1):
     if args.cuda:
         sample = sample.cuda()
     sample = model.decode(sample).cpu()
-    
+
     # Write out data and print loss
     if epoch % 1000 == 0:
         test(epoch)
