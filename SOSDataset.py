@@ -30,7 +30,7 @@ class ToTensor(object):
         # torch image: C X H X W
         # You can do the reshape((W,H,C)) to get the original (numpy format) back
         # flatten/(i.e. view(-1)) deals with grayscale and RGB case
-        return torch.from_numpy(s[0]).view(-1).float(), torch.Tensor(s[1]).byte()
+        return torch.from_numpy(s[0]).view(-1).float(), torch.Tensor([s[1]]).byte()
 
 class Normalize(object):
 
