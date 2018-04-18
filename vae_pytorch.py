@@ -60,6 +60,7 @@ data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(),
 # TODO: experiment with load_ram = True
 pre_dir = "../Datasets/SOS/RescaleToTensorNormalize/"
 
+# okay fuck preprocessing is not faster at all
 train_loader = torch.utils.data.DataLoader(
     SOSDataset.SOSDataset(train=False, preprocessed=True, datadir=pre_dir),
     batch_size=args.batch_size, shuffle=True, **kwargs)

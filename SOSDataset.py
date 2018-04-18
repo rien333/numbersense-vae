@@ -30,7 +30,7 @@ class ToTensor(object):
         # torch image: C X H X W
         # You can do the reshape((W,H,C)) to get the original (numpy format) back
         # flatten/(i.e. view(-1)) deals with grayscale and RGB case
-        return torch.from_numpy(s[0]).view(-1).float(), torch.tensor(s[1]).byte()
+        return torch.from_numpy(s[0]).view(-1).float(), torch.ByteTensor(int(s[1]))
 
 class Normalize(object):
 
@@ -97,6 +97,7 @@ class SOSDataset(Dataset):
     def __len__(self):
         return self.nsamples
     
+    # hmhmm this should rather save the images I guess?
     def save(self):
         """Save a tensor with all given transformations applied"""
 
@@ -117,6 +118,7 @@ class SOSDataset(Dataset):
         torch.save(pre_data_lbl, f_dir + f_name_lbl)
 
     def __getitem__(self, index):
+        # comment if preprocessing seems undoable
         if self.preprocessed:
             s = self.train_data if self.train else self.test_data
             return s[0][index], s[1][index]
@@ -149,6 +151,5 @@ if __name__ == "__main__":
 
     # Save preprocess 
     # data_transform = [Rescale((DATA_W, DATA_H)), ToTensor(), Normalize()]
-    # dataset = SOSDataset(train=True, transform=data_transform, 
-    #                      datadir="../Datasets/SOS/RescaleToTensorNormalize", preprocessed=False)
+    # dataset = SOSDataset(train=True, transform=data_transform, preprocessed=False)
     # dataset.save()
