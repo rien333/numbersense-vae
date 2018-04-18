@@ -10,9 +10,6 @@ from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 
-# disable h5py warning
-np.warnings.filterwarnings('ignore')
-
 parser = argparse.ArgumentParser(description='Annotated VAE implemented in PyTorch')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                     help='input batch size for training (default: 128)')
@@ -48,16 +45,16 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 # Width and height of a sample from the dataset
-DATA_W = 256
-DATA_H = 256
-DATA_C = 3 # Color component dimension size
+DATA_W = SOSDataset.DATA_W
+DATA_H = SOSDataset.DATA_H
+DATA_C = SOSDataset.DATA_C # Color component dimension size
 DATA_SIZE = DATA_W * DATA_H * DATA_C
 
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
-data_transform = transforms.Compose([SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(),
-                                     SOSDataset.Normalize()])
+data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(),
+                                     SOSDataset.Normalize()]
 
 # shuffle data at every epoch
 # TODO: experiment with load_ram = True
@@ -75,20 +72,6 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
     # datasets.MNIST('data', train=False, transform=transforms.ToTensor()),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
-
-# for idx, s in enumerate(test_loader):
-#     cv2.imshow("img", np.swapaxes(s[0][0].data.numpy(),0,2))
-#     print(s[1][0])
-#     cv2.waitKey(0)
-#     cv2.imshow("img", np.swapaxes(s[0][1].data.numpy(),0,2))
-#     print(s[1][1])
-#     cv2.waitKey(0)
-#     if idx > 3:
-#         break
-#     print("🌸")
-
-
-# exit(0)
 
 class VAE(nn.Module):
     def __init__(self):
@@ -283,7 +266,8 @@ def test(epoch):
                 n = min(data.size(0), 8)
                 # for the first 128 batch of the epoch, show the first 8 input digits
                 # with right below them the reconstructed output digits
-                # the -1 is decide "row"/dim_size  yourself, so could be 3 or 1 depended on datasize
+                # the -1 is decide dim_size yourself, so could be 3 or 1 depended on color channels
+                # I think we don't need the data view?
                 comparison = torch.cat([data[:n],
                                         recon_batch.view(args.batch_size, -1, DATA_W, DATA_H)[:n]])
                 save_image(comparison.data.cpu(),
@@ -293,7 +277,7 @@ def test(epoch):
     print('====> Epoch: {} Test set loss: {:.4f}'.format(epoch, test_loss))
 
 for epoch in range(args.start_epoch, args.epochs + 1):
-    # train(epoch)
+    train(epoch)
     test(epoch)
     exit(0)
     if epoch % 2000 == 0:
