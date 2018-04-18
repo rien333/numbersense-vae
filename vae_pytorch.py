@@ -16,7 +16,7 @@ np.warnings.filterwarnings('ignore')
 parser = argparse.ArgumentParser(description='Annotated VAE implemented in PyTorch')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                     help='input batch size for training (default: 128)')
-parser.add_argument('--epochs', type=int, default=100, metavar='N',
+parser.add_argument('--epochs', type=int, default=3000, metavar='N',
                     help='number of epochs to train (default: 10)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='enables CUDA training')
@@ -293,8 +293,9 @@ def test(epoch):
     print('====> Epoch: {} Test set loss: {:.4f}'.format(epoch, test_loss))
 
 for epoch in range(args.start_epoch, args.epochs + 1):
-    train(epoch)
-
+    # train(epoch)
+    test(epoch)
+    exit(0)
     if epoch % 2000 == 0:
     	torch.save(model.state_dict(), 'models/vae-%s.pt' % (epoch))
     # load:
