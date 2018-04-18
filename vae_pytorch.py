@@ -58,17 +58,20 @@ data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(),
 
 # shuffle data at every epoch
 # TODO: experiment with load_ram = True
+pre_dir = "../Datasets/SOS/RescaleToTensorNormalize/"
 
 train_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=True, transform=data_transform, load_ram=False),
+    SOSDataset.SOSDataset(train=False, preprocessed=True, datadir=pre_dir),
     batch_size=args.batch_size, shuffle=True, **kwargs)
+    # SOSDataset.SOSDataset(train=True, transform=data_transform, load_ram=False),
+    # batch_size=args.batch_size, shuffle=True, **kwargs)
     # datasets.MNIST('data', train=True, download=True,
     #                transform=transforms.ToTensor()),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
 
 # Same for test data
 test_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=False, transform=data_transform, load_ram=False),
+    SOSDataset.SOSDataset(train=False, preprocessed=True, datadir=pre_dir),
     batch_size=args.batch_size, shuffle=True, **kwargs)
     # datasets.MNIST('data', train=False, transform=transforms.ToTensor()),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
