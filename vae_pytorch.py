@@ -312,5 +312,5 @@ for epoch in range(args.start_epoch, args.epochs + 1):
         # that look like digits
         # the -1 is decide "row"/dim_size  yourself, so could be 3 or 1 depended on datasize
         # Numpy order has color channel last
-        save_image(sample.data.view(64, DATA_H, DATA_W, -1).permute(2,1,0),
+        save_image(sample.data.view(64, DATA_H, DATA_W, -1).permute(0,3,2,1),
                'results/sample_' + str(epoch) + '.png')
