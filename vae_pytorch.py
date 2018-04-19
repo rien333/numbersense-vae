@@ -305,7 +305,9 @@ for epoch in range(args.start_epoch, args.epochs + 1):
         max_idx, max_loss = max(enumerate(best_models), key = lambda x : x[1])
         max_loss = max_loss[1]
         if test_loss < max_loss:
-            os.remove(best_models[max_idx][0])
+            worse_model = best_models[max_idx][0]
+            if not '' in [m[0] for m in model]: 
+                os.remove(worse_model)
             best_models[max_idx] = (new_file, max_loss)
 
         # Save model and delete older versions
