@@ -283,6 +283,7 @@ def test(epoch):
             #                'results/reconstruction_' + str(epoch) + '.png', nrow=n)
     test_loss /= len(test_loader.dataset)
     print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
+    
 
 save_interval = 10
 for epoch in range(args.start_epoch, args.epochs + 1):
