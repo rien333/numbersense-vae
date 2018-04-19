@@ -53,14 +53,14 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
-data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.FlattenArrToTensor(),
+data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(),
                                      SOSDataset.Normalize()]
 
 # Some people recommended this type of normalisation for natural images, depedends on the input being
 # a RGB torch tensor however
-# normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],
+# normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5], # Hardcoded
 #                                  std=[0.5, 0.5, 0.5])
-# data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(), normalize]
+# data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(), SOSDataset.Normalize(), SOSDataset.NormalizeMean()]
 
 # shuffle data at every epoch
 # TODO: experiment with load_ram = True
@@ -245,14 +245,12 @@ def train(epoch):
         # i.e. input variables -- by the power of pytorch!
         loss.backward()
         train_loss += loss.item()
-
         optimizer.step()
         # if batch_idx % args.log_interval == 0:
         #     print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
         #         epoch, batch_idx * len(data), len(train_loader.dataset),
         #         100. * batch_idx / len(train_loader),
         #         loss.item() / len(data)))
-
     # print('====> Epoch: {} Average loss: {:.4f}'.format(
     #       epoch, train_loss / len(train_loader.dataset)))
 
@@ -283,11 +281,10 @@ def test(epoch):
             #                             recon_batch.view(args.batch_size, -1, DATA_W, DATA_H)[:n]])
             #     save_image(comparison.data.cpu(),
             #                'results/reconstruction_' + str(epoch) + '.png', nrow=n)
-
     test_loss /= len(test_loader.dataset)
     print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
 
-save_interval = 5000
+save_interval = 10
 for epoch in range(args.start_epoch, args.epochs + 1):
     train(epoch)
     if epoch % save_interval == 0:
@@ -304,7 +301,7 @@ for epoch in range(args.start_epoch, args.epochs + 1):
     sample = model.decode(sample).cpu()
 
     # Write out data and print loss
-    if epoch % 2000 == 0:
+    if epoch % 10 == 0:
         test(epoch)
 
         # save out as an 8x8 matrix of MNIST digits
@@ -312,5 +309,5 @@ for epoch in range(args.start_epoch, args.epochs + 1):
         # that look like digits
         # the -1 is decide "row"/dim_size  yourself, so could be 3 or 1 depended on datasize
         # Numpy order has color channel last
-        save_image(sample.data.view(64, DATA_H, DATA_W, -1).permute(0,3,2,1),
+        save_image(sample.data.view(64, -1, DATA_H, DATA_W),
                'results/sample_' + str(epoch) + '.png')

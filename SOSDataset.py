@@ -24,26 +24,30 @@ class Rescale(object):
 class ToTensor(object):
 
     def  __call__(self, s):
-        # see below for channel explanition
-        im = torch.from_numpy(s[0].transpose((2,0,1))).float()
-        return im, torch.Tensor([s[1]]).byte()
-    
-# Maybe change this to a seperate flatten method
-class FlattenArrToTensor(object):
-    """Convert ndarrays in sample to Tensors."""
-
-    def __call__(self, s):
         # swap color axis because
         # numpy image: H x W x C
         # torch image: C X H X W
         # You can do the reshape((W,H,C)) to get the original (numpy format) back
         # flatten/(i.e. view(-1)) deals with grayscale and RGB case
-        return torch.from_numpy(s[0]).view(-1).float(), torch.Tensor([s[1]]).byte()
+        im = torch.from_numpy(s[0].transpose((2,0,1))).float()
+        return im, torch.Tensor([s[1]]).byte()
 
 class Normalize(object):
 
     def __call__(self, s):
         return s[0] / 255, s[1]
+
+class NormalizeMean(object):
+
+    def __call__(self, s):
+        normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                 std=[0.5, 0.5, 0.5])
+        return normalize(s[0]), s[1]
+
+class Log(object):
+
+    def __call__(self, s):
+        return s[0].log(), s[1]
 
 class Grayscale(object):
 
