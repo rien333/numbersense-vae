@@ -53,12 +53,14 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
-# data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.FlattenArrToTensor(),
-#                                      SOSDataset.Normalize()]
+data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.FlattenArrToTensor(),
+                                     SOSDataset.Normalize()]
 
-normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                 std=[0.5, 0.5, 0.5])
-data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(), normalize]
+# Some people recommended this type of normalisation for natural images, depedends on the input being
+# a RGB torch tensor however
+# normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],
+#                                  std=[0.5, 0.5, 0.5])
+# data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(), normalize]
 
 # shuffle data at every epoch
 # TODO: experiment with load_ram = True
@@ -229,7 +231,6 @@ def train(epoch):
     # if you have labels, do this
     # for batch_idx, (data, _) in enumerate(train_loader):
     for batch_idx, (data, _) in enumerate(train_loader):
-        # print(batch_idx, data)
         data = Variable(data)
         if args.cuda:
             data = data.cuda()
@@ -288,6 +289,7 @@ def test(epoch):
 
 save_interval = 5000
 for epoch in range(args.start_epoch, args.epochs + 1):
+    train(epoch)
     if epoch % save_interval == 0:
         old_file = "models/vae-%s.pt" % (epoch - 2*save_interval)
         if os.path.isfile(old_file):
@@ -309,6 +311,6 @@ for epoch in range(args.start_epoch, args.epochs + 1):
         # this will give you a visual idea of how well latent space can generate things
         # that look like digits
         # the -1 is decide "row"/dim_size  yourself, so could be 3 or 1 depended on datasize
-        # Images are probs. always wrong (at least with the old transform, cus numpy and torch have different channels)
-        save_image(sample.data.view(64, -1, DATA_W, DATA_H),
+        # Numpy order has color channel last
+        save_image(sample.data.view(64, DATA_H, DATA_W, -1).permute(2,1,0),
                'results/sample_' + str(epoch) + '.png')
