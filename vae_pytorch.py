@@ -58,7 +58,7 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
 normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],
                                  std=[0.5, 0.5, 0.5])
-data_transform = [SOSDataset.Rescale(DATA_W, DATA_H), SOSDataset.ToTensor(), normalize]
+data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(), normalize]
 
 # shuffle data at every epoch
 # TODO: experiment with load_ram = True
