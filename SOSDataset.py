@@ -22,6 +22,14 @@ class Rescale(object):
         return cv2.resize(s[0], self.output_size), s[1]
 
 class ToTensor(object):
+
+    def  __call__(self, s):
+        # see below for channel explanition
+        im = torch.from_numpy(s[0].transpose((2,0,1))).float()
+        return im, torch.Tensor([s[1]]).byte()
+    
+# Maybe change this to a seperate flatten method
+class FlattenArrToTensor(object):
     """Convert ndarrays in sample to Tensors."""
 
     def __call__(self, s):
@@ -150,6 +158,6 @@ if __name__ == "__main__":
     #     print("🌸")
 
     # Save preprocess 
-    data_transform = [Rescale((DATA_W, DATA_H)), ToTensor(), Normalize()]
+    data_transform = [Rescale((DATA_W, DATA_H)), FlattenArrToTensor(), Normalize()]
     dataset = SOSDataset(train=True, transform=data_transform, preprocessed=False)
     dataset.save()
