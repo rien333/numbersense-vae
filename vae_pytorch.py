@@ -283,17 +283,13 @@ def test(epoch):
             #                'results/reconstruction_' + str(epoch) + '.png', nrow=n)
     test_loss /= len(test_loader.dataset)
     print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
-    
+    return test_loss
 
-save_interval = 10
+test_interval = 10
+best_models = [("", 100000000000)]*3
 for epoch in range(args.start_epoch, args.epochs + 1):
     train(epoch)
-    if epoch % save_interval == 0:
-        old_file = "models/vae-%s.pt" % (epoch - 2*save_interval)
-        if os.path.isfile(old_file):
-            os.remove(old_file)
-        torch.save(model.state_dict(), 'models/vae-%s.pt' % (epoch))
-
+    
     # 64 sets of random ZDIMS-float vectors, i.e. 64 locations / MNIST
     # digits in latent space
     sample = Variable(torch.randn(64, args.z_dims))
@@ -302,8 +298,22 @@ for epoch in range(args.start_epoch, args.epochs + 1):
     sample = model.decode(sample).cpu()
 
     # Write out data and print loss
-    if epoch % 10 == 0:
-        test(epoch)
+    if epoch % test_interval == 0:
+        test_loss = test(epoch)
+
+        new_file = 'models/vae-%s.pt' % (epoch)
+        max_idx, max_loss = max(enumerate(best_models), key = lambda x : x[1])
+        max_loss = max_loss[1]
+        if test_loss < max_loss:
+            os.remove(best_models[max_idx][0])
+            best_models[max_idx] = (new_file, max_loss)
+
+        # Save model and delete older versions
+        old_file = "models/vae-%s.pt" % (epoch - 2*test_interval)
+        found_best = old_file in [m[0] for m in best_models]
+        if os.path.isfile(old_file) and not found_best:
+            os.remove(old_file)
+        torch.save(model.state_dict(), new_file)
 
         # save out as an 8x8 matrix of MNIST digits
         # this will give you a visual idea of how well latent space can generate things
