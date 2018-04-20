@@ -220,7 +220,6 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
     # KLD tries to push the distributions as close as possible to unit Gaussian
     return BCE + KLD
 
-# Dr Diederik Kingma: as if VAEs weren't enough, he also gave us Adam!
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 def train(epoch):
