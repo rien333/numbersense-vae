@@ -32,6 +32,8 @@ parser.add_argument('--test-epoch', type=int, default=1, metavar='N',
 parser.add_argument('--full_con_size', type=int, default=400, metavar='N',
                     help='size of the fully connected layer (prob. leave it)')
 parser.add_argument('--grayscale', action='store_true', default=False, help='Train on grayscale data')
+parser.add_argument('--disable-train', action='store_true', default=False, 
+                    help='Disable training of model. Allows for importing this as a module.')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -270,23 +272,28 @@ def test(epoch):
         with torch.no_grad():
             recon_batch, mu, logvar = model(data)
             test_loss += loss_function(recon_batch, data, mu, logvar).item()
-            # if i == 0:
-            #     n = min(data.size(0), 8)
-            #     # for the first 128 batch of the epoch, show the first 8 input digits
-            #     # with right below them the reconstructed output digits
-            #     # the -1 is decide dim_size yourself, so could be 3 or 1 depended on color channels
-            #     # I think we don't need the data view?
-            #     comparison = torch.cat([data[:n],
-            #                             recon_batch.view(args.batch_size, -1, DATA_W, DATA_H)[:n]])
-            #     save_image(comparison.data.cpu(),
-            #                'results/reconstruction_' + str(epoch) + '.png', nrow=n)
+            if i == 0:
+                n = min(data.size(0), 8)
+                # for the first 128 batch of the epoch, show the first 8 input digits
+                # with right below them the reconstructed output digits
+                # the -1 is decide dim_size yourself, so could be 3 or 1 depended on color channels
+                # I think we don't need the data view?
+                comparison = torch.cat([data[:n],
+                                        recon_batch.view(args.batch_size, -1, DATA_W, DATA_H)[:n]])
+                save_image(comparison.data.cpu(),
+                           'results/reconstruction_' + str(epoch) + '.png', nrow=n)
     test_loss /= len(test_loader.dataset)
     print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
     return test_loss
 
+if args.disable_train:
+    args.start_epoch = 1
+    args.epochs = 0
+
 test_interval = 10
 best_models = [("", 100000000000)]*3
 for epoch in range(args.start_epoch, args.epochs + 1):
+    print("test")
     train(epoch)
     
     # 64 sets of random ZDIMS-float vectors, i.e. 64 locations / MNIST
@@ -301,13 +308,13 @@ for epoch in range(args.start_epoch, args.epochs + 1):
         test_loss = test(epoch)
 
         new_file = 'models/vae-%s.pt' % (epoch)
-        max_idx, max_loss = max(enumerate(best_models), key = lambda x : x[1])
+        max_idx, max_loss = max(enumerate(best_models), key = lambda x : x[1][1])
         max_loss = max_loss[1]
         if test_loss < max_loss:
             worse_model = best_models[max_idx][0]
-            if not '' in [m[0] for m in model]: 
+            if not '' in [m[0] for m in best_models]: 
                 os.remove(worse_model)
-            best_models[max_idx] = (new_file, max_loss)
+            best_models[max_idx] = (new_file, test_loss)
 
         # Save model and delete older versions
         old_file = "models/vae-%s.pt" % (epoch - 2*test_interval)
