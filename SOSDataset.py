@@ -8,8 +8,8 @@ from torch.utils.data import Dataset
 # disable h5py warning
 np.warnings.filterwarnings('ignore')
 
-DATA_W = 256
-DATA_H = 256
+DATA_W = 227 # was 256, but this is after cropping
+DATA_H = 227
 DATA_C = 3
 
 class Rescale(object):
@@ -21,6 +21,20 @@ class Rescale(object):
         # default interpolation=cv2.INTER_LINEAR (rec., fast and ok quality)
         return cv2.resize(s[0], self.output_size), s[1]
 
+class RandomCrop(object):
+
+    def __init__(self, output_size):
+        self.output_size = output_size
+    
+    def __call__(self, s):
+        h, w = s[0].shape[:2]
+        new_w = self.output_size[0]
+        new_h = self.output_size[1]
+        top = np.random.randint(0, h - new_h)
+        left = np.random.randint(0, w - new_w)
+        crop_im = s[0][top : top + new_h, left : left + new_w]
+        return crop_im, s[1]
+
 class ToTensor(object):
 
     def  __call__(self, s):
@@ -28,7 +42,6 @@ class ToTensor(object):
         # numpy image: H x W x C
         # torch image: C X H X W
         # You can do the reshape((W,H,C)) to get the original (numpy format) back
-        # flatten/(i.e. view(-1)) deals with grayscale and RGB case
         im = torch.from_numpy(s[0].transpose((2,0,1))).float()
         return im, torch.Tensor([s[1]]).byte()
 

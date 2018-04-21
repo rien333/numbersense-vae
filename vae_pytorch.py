@@ -55,8 +55,8 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
-data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(),
-                                     SOSDataset.Normalize()]
+data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)), 
+                  SOSDataset.ToTensor(), SOSDataset.Normalize()]
 
 # Some people recommended this type of normalisation for natural images, depedends on the input being
 # a RGB torch tensor however
