@@ -4,6 +4,7 @@ import os
 import torch
 from torchvision import transforms
 from torch.utils.data import Dataset
+from torchvision.utils import save_image
 
 # disable h5py warning
 np.warnings.filterwarnings('ignore')
@@ -28,8 +29,9 @@ class RandomCrop(object):
     
     def __call__(self, s):
         h, w = s[0].shape[:2]
-        new_w = self.output_size[0]
-        new_h = self.output_size[1]
+        new_h, new_w = self.output_size
+        # new_w = self.output_size[0]
+        # new_h = self.output_size[1]
         top = np.random.randint(0, h - new_h)
         left = np.random.randint(0, w - new_w)
         crop_im = s[0][top : top + new_h, left : left + new_w]
@@ -157,24 +159,29 @@ class SOSDataset(Dataset):
 
 if __name__ == "__main__":
     # load preprocess
-    # dataset = SOSDataset(train=False, datadir="../Datasets/SOS/RescaleToTensorNormalize/", 
-    #                      preprocessed=True)
-    # # normally this has kwargs stuff for cuda loading!!
-    # test_loader = torch.utils.data.DataLoader(dataset, batch_size=2, shuffle=True)
-    # print("read stuff")
-    # for idx, s in enumerate(test_loader):
-    #     cv2.imshow("img", s[0][0].data.numpy().reshape((DATA_W,DATA_H,DATA_C)))
-    #     print(s[1][0])
-    #     cv2.waitKey(0)
-    #     print()
-    #     cv2.imshow("img", s[0][1].data.numpy().reshape((DATA_W,DATA_H,DATA_C)))
-    #     print(s[1][1])
-    #     cv2.waitKey(0)
-    #     if idx > 3:
-    #         break
-    #     print("🌸")
+    transform = [Rescale((256, 256)), RandomCrop((DATA_W, DATA_H))]
+    # transform = [Rescale((256, 256)), 
+    #               ToTensor(), Normalize()]
+    dataset = SOSDataset(train=False, transform=transform, preprocessed=False)
+    # normally this has kwargs stuff for cuda loading!!
+    test_loader = torch.utils.data.DataLoader(dataset, batch_size=2, shuffle=True)
+    print("read stuff")
+    for idx, s in enumerate(test_loader):
+        save_image(s[0].data.view(2, -1, DATA_H, DATA_W),
+                   'sample_' + str(1) + '.png')
+        # print(s[0][0].data.numpy().reshape((DATA_W,DATA_H, DATA_C)).shape)
+        print(s)
+        cv2.imshow("img", s[0][0].data.numpy())
+        print(s[1][0])
+        cv2.waitKey(0)
+        cv2.imshow("img", s[0][1].data.numpy())
+        print(s[1][1])
+        cv2.waitKey(0)
+        if idx > 3:
+            break
+        print("🌸")
 
     # Save preprocess 
-    data_transform = [Rescale((DATA_W, DATA_H)), FlattenArrToTensor(), Normalize()]
-    dataset = SOSDataset(train=True, transform=data_transform, preprocessed=False)
-    dataset.save()
+    # data_transform = [Rescale((DATA_W, DATA_H)), FlattenArrToTensor(), Normalize()]
+    # dataset = SOSDataset(train=True, transform=data_transform, preprocessed=False)
+    # dataset.save()
