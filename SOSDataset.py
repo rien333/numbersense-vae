@@ -30,8 +30,6 @@ class RandomCrop(object):
     def __call__(self, s):
         h, w = s[0].shape[:2]
         new_h, new_w = self.output_size
-        # new_w = self.output_size[0]
-        # new_h = self.output_size[1]
         top = np.random.randint(0, h - new_h)
         left = np.random.randint(0, w - new_w)
         crop_im = s[0][top : top + new_h, left : left + new_w]
