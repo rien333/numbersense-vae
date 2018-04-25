@@ -59,7 +59,6 @@ data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W,
 # a RGB torch tensor however
 # normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5], # Hardcoded
 #                                  std=[0.5, 0.5, 0.5])
-# data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)), SOSDataset.ToTensor(), SOSDataset.Normalize(), SOSDataset.NormalizeMean()]
 
 # shuffle data at every epoch
 # TODO: experiment with load_ram = True
@@ -149,9 +148,8 @@ class CONV_VAE(nn.Module):
             nn.MaxPool2d(2,2),
         )
 
-        # conv5/conv-out should be flattened
+        # conv4/conv-out should be flattened
 
-        # The gaussian sample network should use linear activation tho
         # fc1 conv depth * (DATA_W*DATA_H / (number of pools * 2)) (with some rounding)
         self.fc1 = nn.Linear(128*14*14, args.full_con_size) # relu
         self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
@@ -173,7 +171,7 @@ class CONV_VAE(nn.Module):
         self.fc3 = nn.Linear(args.z_dims, args.full_con_size) # Relu
         # form the decoder output to a conv shape
         # should be the size of a convolution/the last conv size
-        # 7*7 * (
+        # 128*14*14 * a few (4) upsampling = the original input size
         self.fc4 = nn.Linear(args.full_con_size, 128*14*14)
 
         # stride in 1st covn. = 1 bc we don't wanna miss anything (interdependence) from the z layer
@@ -239,6 +237,8 @@ class CONV_VAE(nn.Module):
         (mu, logvar) : ZDIMS mean units one for each latent dimension, ZDIMS
             variance units one for each latent dimension
         """
+        # I don't think these need to be seperate variables, see
+        # http://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
         c1 = self.conv1(x)
         c2 = self.conv2(c1)
         c3 = self.conv3(c2)
