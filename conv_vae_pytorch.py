@@ -301,15 +301,10 @@ class CONV_VAE(nn.Module):
         h3 = self.relu(self.fc3(z))
         # another relu layers that maps h3 to a conv shape
         h4 = self.relu(self.fc4(h3))
-        print(h4.shape)
         h4_expanded = h4.view(-1, 128, 14, 14) # 14 * (4 * 2x upsamling conv) ~= 227
-        print(h4_expanded.shape)
         up_conv1 = self.t_conv1(h4_expanded)
-        print(up_conv1.shape)
-        up_conv2 = self.t_conv2(up_conv1)
-        print(up_conv2.shape)
+        up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
         up_conv3 = self.t_conv3(up_conv2)
-        print(up_conv3.shape)
         return self.t_conv_final(up_conv3) # scale up with image scaling
         # return self.sigmoid(self.fc4(h3))
 
@@ -377,9 +372,9 @@ def train(epoch):
 
         # calculate scalar loss
         loss = loss_function(recon_batch, data, mu, logvar)
-        from time import sleep
-        print("Check mem!")
-        sleep(10)
+        # from time import sleep
+        # print("Check mem!")
+        # sleep(10)
         # calculate the gradient of the loss w.r.t. the graph leaves
         # i.e. input variables -- by the power of pytorch!
         loss.backward()
