@@ -1,10 +1,13 @@
 import torch
 from torch.autograd import Variable
 from torchvision.utils import save_image
-import vae_pytorch
-# Model is loaded automatically if you supply arguments
+# NOTICE THE MODEL CLASS FILE ❗
+import conv_vae_pytorch as vae_pytorch
+
+# Model is loaded automatically if you supply cl arguments
 
 model = vae_pytorch.model
+print("Hoi")
 DATA_H = vae_pytorch.DATA_H
 DATA_W = vae_pytorch.DATA_W
 DATA_C = vae_pytorch.DATA_C
