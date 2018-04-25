@@ -2,4 +2,4 @@
 
 modeling visual number sense with varitional autoencoders in pytorch
 
-[drake](drake.jpg)
+[drake]: drake.png
