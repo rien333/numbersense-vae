@@ -113,15 +113,9 @@ class SOSDataset(Dataset):
             if f[istest][0]:
                 if not self.train:
                     self.test_data.append((im, f[label][0,0]))
-                    if len(self.test_data) == 64:
-                        print("Using early stop in SOSData!")
-                        break
             else:
                 if self.train:
                     self.train_data.append((im, f[label][0,0]))
-                    if len(self.train_data) == 128:
-                        print("Using early stop in SOSData!")
-                        break
 
         self.nsamples = len(self.train_data) if self.train else len(self.test_data)
 
