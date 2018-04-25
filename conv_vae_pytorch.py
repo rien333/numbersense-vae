@@ -51,6 +51,7 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
+# Try with and without normalize mean
 data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)), 
                   SOSDataset.ToTensor(), SOSDataset.Normalize()]
 
@@ -113,13 +114,14 @@ class CONV_VAE(nn.Module):
             nn.MaxPool2d(2,2),          # k=2x2,s=2 (by vgg16) out shape (16, 14, 14)(red. by 2)
         )
 
+        # These two in the middle can maybe downsample with a conv
         self.conv2 = nn.Sequential(     # in shape (64, DATA_H/2, DATA_W/2)
             nn.Conv2d(32, 64, 3, 1, 1),
             nn.ReLU(),
             nn.BatchNorm2d(64),
-            nn.Conv2d(64, 64, 3, 1, 1),
-            nn.ReLU(),
-            nn.BatchNorm2d(64),
+            # nn.Conv2d(64, 64, 3, 1, 1),
+            # nn.ReLU(),
+            # nn.BatchNorm2d(64),
             nn.MaxPool2d(2,2),
         )
         
@@ -127,22 +129,23 @@ class CONV_VAE(nn.Module):
             nn.Conv2d(64, 64, 3, 1, 1),
             nn.ReLU(),
             nn.BatchNorm2d(64),
-            nn.Conv2d(64, 64, 3, 1, 1),
-            nn.ReLU(),
-            nn.BatchNorm2d(64),
+            # nn.Conv2d(64, 64, 3, 1, 1),
+            # nn.ReLU(),
+            # nn.BatchNorm2d(64),
             nn.MaxPool2d(2,2),
         )
         
+        # Good idea to make this one and the last one double
         self.conv4 = nn.Sequential(	# DATA_W/H is ~= 28
             nn.Conv2d(64, 128, 3, 1, 1),
             nn.ReLU(),
             nn.Conv2d(128, 128, 3, 1, 1),
             nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.BatchNorm2d(128),
-            nn.Conv2d(128, 128, 3, 1, 1),
-            nn.ReLU(),
-            nn.BatchNorm2d(128),
+            # nn.ReLU(),
+            # nn.BatchNorm2d(128),
+            # nn.Conv2d(128, 128, 3, 1, 1),
+            # nn.ReLU(),
+            # nn.BatchNorm2d(128),
             nn.MaxPool2d(2,2),
         )
 
@@ -326,7 +329,6 @@ if args.cuda:
 def loss_function(recon_x, x, mu, logvar) -> Variable:
     # how well do input x and output recon_x agree?
     BCE = F.binary_cross_entropy(recon_x, x.view(-1, DATA_SIZE))
-
     # KLD is Kullback–Leibler divergence -- how much does one learned
     # distribution deviate from another, in this specific case the
     # learned distribution from the unit Gaussian
@@ -336,6 +338,8 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
     # https://arxiv.org/abs/1312.6114
     # - D_{KL} = 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
     # note the negative D_{KL} in appendix B of the paper
+    # print(logvar)
+    # print(torch.sum(logvar))
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     # Normalise by same number of elements as in reconstruction
 	## This line was/is not in the original pytorch code
