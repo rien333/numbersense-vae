@@ -102,13 +102,31 @@ def test(epoch):
             total += labels.size(0)
             labels = labels.long().cuda().view(-1)
             correct += (predicted == labels).sum().item()
+    accuracy = 100 * correct / total
+    print('Epoch %d -> Test Accuracy: %d %%' % (epoch+1, accuracy))
+    return accuracy
 
-    print('Epoch %d -> Test Accuracy: %d %%' % (epoch+1, 100 * correct / total))
 
-
-
+best_models = [("", 100000000000)]*3
 for epoch in range(1, 1501):
     train(epoch)
 
     if epoch % 10 == 0:
-        test(epoch)
+        test_acc = test(epoch)
+
+        # Save best performing models
+        new_file = 'classifier-models/vae-%s.pt' % (epoch)
+        min_idx, min_acc = min(enumerate(best_models), key = lambda x : x[1][1])
+        min_acc = min_acc[1]
+        if test_acc > min_acc:
+            worse_model = best_models[min_idx][0]
+            if not '' in [m[0] for m in best_models]: 
+                os.remove(worse_model)
+            best_models[min_idx] = (new_file, test_acc)
+
+        # Save model and delete older versions
+        old_file = "classifier-models/vae-%s.pt" % (epoch - 2*args.test_interval)
+        found_best = old_file in [m[0] for m in best_models]
+        if os.path.isfile(old_file) and not found_best:
+            os.remove(old_file)
+        torch.save(model.state_dict(), new_file)
