@@ -1,7 +1,4 @@
 from random import randint
-import sys, os
-# import from parent dir
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import conv_vae_pytorch as vaepytorch
 
 import torch
@@ -12,7 +9,7 @@ from torchvision.utils import save_image
 
 model = vaepytorch.model
 model.eval()
-model.training = True
+model.train = False
 test_loader = vaepytorch.test_loader
 DATA_H = vaepytorch.DATA_H
 DATA_W = vaepytorch.DATA_W
