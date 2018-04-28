@@ -1,4 +1,5 @@
 import cv2
+from random import randint
 import numpy as np
 import os
 import torch
@@ -34,6 +35,14 @@ class RandomCrop(object):
         left = np.random.randint(0, w - new_w)
         crop_im = s[0][top : top + new_h, left : left + new_w]
         return crop_im, s[1]
+
+class RandHorizontalFlip(object):
+
+    def __call__(self, s):
+        if randint(0,1):
+            return np.flip(s[0], 1), s[1]
+        else:
+            return s
 
 class ToTensor(object):
 
