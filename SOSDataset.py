@@ -147,7 +147,7 @@ class SOSDataset(Dataset):
         pre_data_lbl = torch.zeros(self.nsamples).byte()
         data = self.train_data if self.train else self.test_data
         for idx, s in enumerate(data):
-            s = cv.cvtColor(cv2.imread(self.datadir + s[0]), cv2.COLOR_BGR2RGB), s[1]
+            s = cv2.cvtColor(cv2.imread(self.datadir + s[0]), cv2.COLOR_BGR2RGB), s[1]
             s = self.transform(s)
             pre_data[idx] = s[0]
             pre_data_lbl[idx] = s[1]
@@ -166,7 +166,7 @@ class SOSDataset(Dataset):
         #     return s[0][index], s[1][index]
 
         s = self.train_data[index] if self.train else self.test_data[index]
-        s = cv.cvtColor(cv2.imread(self.datadir + s[0]), cv2.COLOR_BGR2RGB), s[1]
+        s = cv2.cvtColor(cv2.imread(self.datadir + s[0]), cv2.COLOR_BGR2RGB), s[1]
         s = self.transform(s)
         return s
 
