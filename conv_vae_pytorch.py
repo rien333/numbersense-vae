@@ -53,8 +53,8 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
 # Try with and without normalize mean
 data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
-                  SOSDataset.RandHorizontalFlip(), SOSDataset.ToTensor(), SOSDataset.Normalize()]
-                  # SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
+                  SOSDataset.RandHorizontalFlip(), SOSDataset.ToTensor(), SOSDataset.Normalize(),
+                  SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
 
 
 # Some people recommended this type of normalisation for natural images, depedends on the input being
@@ -163,8 +163,16 @@ class CONV_VAE(nn.Module):
             nn.ReLU(),
             nn.BatchNorm1d(args.full_con_size)
         )
-        self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
-        self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
+        # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
+        self.fc21 = nn.Sequential(  # mean network
+            nn.Linear(args.full_con_size, args.z_dims),
+            nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
+        )
+        # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
+        self.fc22 = nn.Sequential(  # variance network, linear
+            nn.Linear(args.full_con_size, args.z_dims),
+            nn.BatchNorm1d(args.z_dims) # This doesn't seem okay at all
+        )
         self.relu = nn.ReLU()
 
         # Old Encoder
@@ -211,9 +219,9 @@ class CONV_VAE(nn.Module):
         # z is pretty important, so set stride=1 to not miss anything first
         # so consider uncommenting the first deconv as well
         self.t_conv1 = nn.Sequential(
-            # nn.ConvTranspose2d(128, 128, 3, 1, 1), 
-            # nn.LeakyReLU(),
-            # nn.BatchNorm2d(128),
+            nn.ConvTranspose2d(256, 256, 3, 1, 1), 
+            nn.LeakyReLU(),
+            nn.BatchNorm2d(256),
             nn.ConvTranspose2d(256, 128, 3, 2, 1, output_padding=1),
             nn.LeakyReLU(),
             nn.BatchNorm2d(128),
