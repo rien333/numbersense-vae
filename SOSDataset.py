@@ -166,10 +166,8 @@ class SOSDataset(Dataset):
         #     return s[0][index], s[1][index]
 
         s = self.train_data[index] if self.train else self.test_data[index]
-        if not self.load_ram:
-            s = cv2.imread(self.datadir + s[0]), s[1]
-        if self.transform:
-            s = self.transform(s)
+        s = cv.cvtColor(cv2.imread(self.datadir + s[0]), cv2.COLOR_BGR2RGB), s[1]
+        s = self.transform(s)
         return s
 
 if __name__ == "__main__":
