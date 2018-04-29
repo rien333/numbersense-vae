@@ -52,8 +52,10 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
 # Try with and without normalize mean
-data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)), 
-                  SOSDataset.ToTensor(), SOSDataset.Normalize()]
+data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
+                  SOSDataset.RandHorizontalFlip(), SOSDataset.ToTensor(), SOSDataset.Normalize()]
+                  # SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
+
 
 # Some people recommended this type of normalisation for natural images, depedends on the input being
 # a RGB torch tensor however
@@ -101,57 +103,66 @@ class CONV_VAE(nn.Module):
             nn.Conv2d(
                 in_channels=3,		# RGB
                 out_channels=32,        # output depth
-                kernel_size=3,
-                stride=1,
+                kernel_size=4,
+                stride=2,
                 padding=1
             ),				# out (64, DATA_H, DATA_W) should be same HxW as in
-            nn.ReLU(),                  # inplace=True saves memory but discouraged (worth the try)
+            nn.LeakyReLU(),                  # inplace=True saves memory but discouraged (worth the try)
             nn.BatchNorm2d(32),         # C channel input, 4d input (NxCxHxW)
-            nn.Conv2d(32, 32, 3, 1, 1), # 64 filter depth from prev layer
-            nn.ReLU(),
-            nn.BatchNorm2d(32),
-            nn.MaxPool2d(2,2),          # k=2x2,s=2 (by vgg16) out shape (16, 14, 14)(red. by 2)
+            # nn.Conv2d(32, 32, 3, 1, 1), # 64 filter depth from prev layer
+            # nn.LeakyReLU(),
+            # nn.BatchNorm2d(32),
+            # nn.MaxPool2d(2,2),          # k=2x2,s=2 (by vgg16) out shape (16, 14, 14)(red. by 2)
         )
 
         # These two in the middle can maybe downsample with a conv
         self.conv2 = nn.Sequential(     # in shape (64, DATA_H/2, DATA_W/2)
-            nn.Conv2d(32, 64, 3, 1, 1),
-            nn.ReLU(),
+            nn.Conv2d(32, 64, 4, 2, 1),
+            nn.LeakyReLU(),
             nn.BatchNorm2d(64),
             # nn.Conv2d(64, 64, 3, 1, 1),
             # nn.ReLU(),
             # nn.BatchNorm2d(64),
-            nn.MaxPool2d(2,2),
+            # nn.MaxPool2d(2,2),
         )
         
         self.conv3 = nn.Sequential(
-            nn.Conv2d(64, 64, 3, 1, 1),
-            nn.ReLU(),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(64, 128, 4, 2, 1),
+            nn.LeakyReLU(),
+            nn.BatchNorm2d(128),
             # nn.Conv2d(64, 64, 3, 1, 1),
             # nn.ReLU(),
             # nn.BatchNorm2d(64),
-            nn.MaxPool2d(2,2),
+            # nn.MaxPool2d(2,2),
         )
         
         # Good idea to make this one and the last one double
         self.conv4 = nn.Sequential(	# DATA_W/H is ~= 28
-            nn.Conv2d(64, 128, 3, 1, 1),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, 3, 1, 1),
-            nn.BatchNorm2d(128),
+            nn.Conv2d(128, 256, 4, 2, 1),
+            nn.LeakyReLU(),
+            nn.BatchNorm2d(256),
+            # nn.Conv2d(128, 256, 3, 1, 1),
+            # nn.LeakyReLU(),
+            # nn.BatchNorm2d(256),
+            # nn.Conv2d(128, 128, 3, 1, 1),
+            # nn.BatchNorm2d(128),
             # nn.ReLU(),
             # nn.BatchNorm2d(128),
             # nn.Conv2d(128, 128, 3, 1, 1),
             # nn.ReLU(),
             # nn.BatchNorm2d(128),
-            nn.MaxPool2d(2,2),
+            # nn.MaxPool2d(2,2),
         )
 
         # conv4/conv-out should be flattened
 
         # fc1 conv depth * (DATA_W*DATA_H / (number of pools * 2)) (with some rounding)
-        self.fc1 = nn.Linear(128*14*14, args.full_con_size) # relu
+        # self.fc1 = nn.Linear(256*14*14, args.full_con_size)
+        self.fc1 = nn.Sequential(
+            nn.Linear(256*14*14, args.full_con_size),
+            nn.ReLU(),
+            nn.BatchNorm1d(args.full_con_size)
+        )
         self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
         self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
         self.relu = nn.ReLU()
@@ -168,11 +179,21 @@ class CONV_VAE(nn.Module):
         # DECODER
         # Should use transconv and depooling
         
-        self.fc3 = nn.Linear(args.z_dims, args.full_con_size) # Relu
+        # self.fc3 = nn.Linear(args.z_dims, args.full_con_size) # Relu
+        self.fc3 = nn.Sequential(
+            nn.Linear(args.z_dims, args.full_con_size),
+            nn.ReLU(),
+            nn.BatchNorm1d(args.full_con_size)
+        )
         # form the decoder output to a conv shape
         # should be the size of a convolution/the last conv size
         # 128*14*14 * a few (4) upsampling = the original input size
-        self.fc4 = nn.Linear(args.full_con_size, 128*14*14)
+        # self.fc4 = nn.Linear(args.full_con_size, 128*14*14)
+        self.fc4 = nn.Sequential(
+            nn.Linear(args.full_con_size, 256*14*14),
+            nn.ReLU(),
+            nn.BatchNorm1d(256*14*14)
+        )
 
         # stride in 1st covn. = 1 bc we don't wanna miss anything (interdependence) from the z layer
         # otherwhise upsample so that we learn the upsampling/scaling process (Pooling doesn't not learn
@@ -188,29 +209,30 @@ class CONV_VAE(nn.Module):
         # scalers (but is not learned I think)
 
         # z is pretty important, so set stride=1 to not miss anything first
+        # so consider uncommenting the first deconv as well
         self.t_conv1 = nn.Sequential(
-            nn.ConvTranspose2d(128, 128, 3, 1, 1), 
-            nn.ReLU(),
-            nn.BatchNorm2d(128),
-            nn.ConvTranspose2d(128, 128, 3, 2, 1, output_padding=1),
-            nn.ReLU(),
+            # nn.ConvTranspose2d(128, 128, 3, 1, 1), 
+            # nn.LeakyReLU(),
+            # nn.BatchNorm2d(128),
+            nn.ConvTranspose2d(256, 128, 3, 2, 1, output_padding=1),
+            nn.LeakyReLU(),
             nn.BatchNorm2d(128),
         )
 
-        self.t_conv2 = nn.Sequential(
+        self.t_conv2 = nn.Sequential( # this used to be p different (or the one below idk)
             nn.ConvTranspose2d(128, 64, 4, 2, 1, output_padding=1),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.BatchNorm2d(64),
         )
 
         self.t_conv3 = nn.Sequential(
-            nn.ConvTranspose2d(64, 64, 3, 2, 1, output_padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(64), 
+            nn.ConvTranspose2d(64, 32, 3, 2, 1, output_padding=1),
+            nn.LeakyReLU(),
+            nn.BatchNorm2d(32),
         )
 
         self.t_conv_final = nn.Sequential(
-            nn.ConvTranspose2d(64, 3, 3, 2, 1, output_padding=0), # RGB, no relu or batch norm. on output
+            nn.ConvTranspose2d(32, 3, 3, 2, 1, output_padding=0), # RGB, no relu or batch norm. on output
             nn.Sigmoid() # output between 0 and 1
         )
         
@@ -244,8 +266,8 @@ class CONV_VAE(nn.Module):
         c3 = self.conv3(c2)
         c4 = self.conv4(c3)
         flatten_c4 = c4.view(c4.size(0), -1) # flatten conv2 to (batch_size, red_data_dim)
-        h1 = self.relu(self.fc1(flatten_c4))
-        return self.fc21(h1), self.fc22(h1)
+        h1 = self.fc1(flatten_c4)
+        return self.relu(self.fc21(h1)), self.relu(self.fc22(h1))
 
         # # h1 is [128, 400] (batch, + the size of the first fully connected layer)
         # h1 = self.relu(self.fc1(x))  # type: Variable
@@ -301,10 +323,10 @@ class CONV_VAE(nn.Module):
             return mu
 
     def decode(self, z: Variable) -> Variable:
-        h3 = self.relu(self.fc3(z))
+        h3 = self.fc3(z)
         # another relu layers that maps h3 to a conv shape
         h4 = self.relu(self.fc4(h3))
-        h4_expanded = h4.view(-1, 128, 14, 14) # 14 * (4 * 2x upsamling conv) ~= 227
+        h4_expanded = h4.view(-1, 256, 14, 14) # 14 * (4 * 2x upsamling conv) ~= 227
         up_conv1 = self.t_conv1(h4_expanded)
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
         up_conv3 = self.t_conv3(up_conv2)
@@ -328,7 +350,8 @@ if args.cuda:
 
 def loss_function(recon_x, x, mu, logvar) -> Variable:
     # how well do input x and output recon_x agree?
-    BCE = F.binary_cross_entropy(recon_x, x.view(-1, DATA_SIZE))
+    BCE = F.binary_cross_entropy(recon_x, x)
+
     # KLD is Kullback–Leibler divergence -- how much does one learned
     # distribution deviate from another, in this specific case the
     # learned distribution from the unit Gaussian
@@ -368,11 +391,6 @@ def train(epoch):
 
         # push whole batch of data through VAE.forward() to get recon_loss
         recon_batch, mu, logvar = model(data)
-        # print("decoded:", recon_batch.shape)
-        # print("data:", data)
-        # print("recon_batch:", recon_batch)
-        # print(recon_batch.cpu().unique(sorted=True))
-        # exit(0)
 
         # calculate scalar loss
         loss = loss_function(recon_batch, data, mu, logvar)

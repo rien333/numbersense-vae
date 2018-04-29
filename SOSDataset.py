@@ -40,7 +40,7 @@ class RandHorizontalFlip(object):
 
     def __call__(self, s):
         if randint(0,1):
-            return np.flip(s[0], 1), s[1]
+            return np.flip(s[0], 1).copy(), s[1]
         else:
             return s
 
@@ -58,6 +58,11 @@ class Normalize(object):
 
     def __call__(self, s):
         return s[0] / 255, s[1]
+
+class Normalize01(object):
+
+    def __call__(self, s):
+        return (s[0] + 1)/2, s[1]
 
 class NormalizeMean(object):
 
