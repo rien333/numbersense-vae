@@ -10,8 +10,9 @@ from torchvision.utils import save_image
 # disable h5py warning
 np.warnings.filterwarnings('ignore')
 
-DATA_W = 227 # was 256, but this is after cropping
-DATA_H = 227
+# was 256, this is after cropping. Used to be 227x227 with crop, but 224 (even) makes the math easier
+DATA_W = 225 
+DATA_H = 225
 DATA_C = 3
 
 class Rescale(object):

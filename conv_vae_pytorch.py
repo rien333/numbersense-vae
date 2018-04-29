@@ -196,11 +196,11 @@ class CONV_VAE(nn.Module):
         # form the decoder output to a conv shape
         # should be the size of a convolution/the last conv size
         # 128*14*14 * a few (4) upsampling = the original input size
-        # self.fc4 = nn.Linear(args.full_con_size, 128*14*14)
+        # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
-            nn.Linear(args.full_con_size, 256*14*14),
+            nn.Linear(args.full_con_size, 256*15*15),
             nn.ReLU(),
-            nn.BatchNorm1d(256*14*14)
+            nn.BatchNorm1d(256*15*15)
         )
 
         # stride in 1st covn. = 1 bc we don't wanna miss anything (interdependence) from the z layer
@@ -222,25 +222,25 @@ class CONV_VAE(nn.Module):
             nn.ConvTranspose2d(256, 256, 3, 1, 1), 
             nn.LeakyReLU(),
             nn.BatchNorm2d(256),
-            nn.ConvTranspose2d(256, 128, 3, 2, 1, output_padding=1),
+            nn.ConvTranspose2d(256, 128, 3, 2, 1),
             nn.LeakyReLU(),
             nn.BatchNorm2d(128),
         )
 
         self.t_conv2 = nn.Sequential( # this used to be p different (or the one below idk)
-            nn.ConvTranspose2d(128, 64, 4, 2, 1, output_padding=1),
+            nn.ConvTranspose2d(128, 64, 3, 2, 1),
             nn.LeakyReLU(),
             nn.BatchNorm2d(64),
         )
 
         self.t_conv3 = nn.Sequential(
-            nn.ConvTranspose2d(64, 32, 3, 2, 1, output_padding=1),
+            nn.ConvTranspose2d(64, 32, 3, 2, 1),
             nn.LeakyReLU(),
             nn.BatchNorm2d(32),
         )
 
         self.t_conv_final = nn.Sequential(
-            nn.ConvTranspose2d(32, 3, 3, 2, 1, output_padding=0), # RGB, no relu or batch norm. on output
+            nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no relu or batch norm. on output
             nn.Sigmoid() # output between 0 and 1
         )
         
@@ -334,7 +334,7 @@ class CONV_VAE(nn.Module):
         h3 = self.fc3(z)
         # another relu layers that maps h3 to a conv shape
         h4 = self.relu(self.fc4(h3))
-        h4_expanded = h4.view(-1, 256, 14, 14) # 14 * (4 * 2x upsamling conv) ~= 227
+        h4_expanded = h4.view(-1, 256, 15, 15) # 15 * (4 * 2x upsamling conv) ~= 227
         up_conv1 = self.t_conv1(h4_expanded)
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
         up_conv3 = self.t_conv3(up_conv2)
