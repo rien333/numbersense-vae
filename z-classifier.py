@@ -94,6 +94,28 @@ def test(epoch):
             correct += (predicted == labels).sum().item()
     accuracy = 100 * correct / total
     print('Epoch %d -> Test Accuracy: %d %%' % (epoch+1, accuracy))
+    
+    # Test per class score
+    classes = list(range(5))
+    class_correct = list(0. for i in range(10))
+    class_total = list(0.0000000001 for i in range(10))
+    with torch.no_grad():
+        for im, labels in train_loader:
+            mu, logvar = model.encode(im) # Might need .cuda
+            zs = model.reparameterize(mu, logvar)
+            outputs = classifier(zs)
+            labels = labels.long().view(-1) # Might need .cuda
+            _, predicted = torch.max(outputs, 1)
+            c = (predicted == labels).squeeze()
+            for i in range(labels.shape[0]):
+                label = labels[i]
+                class_correct[label] += c[i].item()
+                class_total[label] += 1
+
+    for i in range(5):
+        print('Accuracy of %5s : %2d %%' % (
+        classes[i], 100 * class_correct[i] / class_total[i]))
+
     return accuracy
 
 best_models = [("", -100000000000)]*4
@@ -127,25 +149,25 @@ for epoch in range(1, 1501):
 
 # Test on which classes the model performs well
 
-classes = list(range(5))
-class_correct = list(0. for i in range(10))
-class_total = list(0.0000000001 for i in range(10))
-with torch.no_grad():
-    for im, labels in train_loader:
-        mu, logvar = model.encode(im) # Might need .cuda
-        zs = model.reparameterize(mu, logvar)
-        outputs = classifier(zs)
-        labels = labels.long().view(-1) # Might need .cuda
-        _, predicted = torch.max(outputs, 1)
-        c = (predicted == labels).squeeze()
-        for i in range(labels.shape[0]):
-            label = labels[i]
-            class_correct[label] += c[i].item()
-            class_total[label] += 1
+# classes = list(range(5))
+# class_correct = list(0. for i in range(10))
+# class_total = list(0.0000000001 for i in range(10))
+# with torch.no_grad():
+#     for im, labels in train_loader:
+#         mu, logvar = model.encode(im) # Might need .cuda
+#         zs = model.reparameterize(mu, logvar)
+#         outputs = classifier(zs)
+#         labels = labels.long().view(-1) # Might need .cuda
+#         _, predicted = torch.max(outputs, 1)
+#         c = (predicted == labels).squeeze()
+#         for i in range(labels.shape[0]):
+#             label = labels[i]
+#             class_correct[label] += c[i].item()
+#             class_total[label] += 1
 
-for i in range(5):
-    print('Accuracy of %5s : %2d %%' % (
-        classes[i], 100 * class_correct[i] / class_total[i]))
+# for i in range(5):
+#     print('Accuracy of %5s : %2d %%' % (
+#         classes[i], 100 * class_correct[i] / class_total[i]))
 
 # from torchvision import transforms
 # from torchvision.utils import save_image
