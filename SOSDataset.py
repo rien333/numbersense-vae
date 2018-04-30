@@ -167,8 +167,7 @@ class SOSDataset(Dataset):
 
         s = self.train_data[index] if self.train else self.test_data[index]
         s = cv2.cvtColor(cv2.imread(self.datadir + s[0]), cv2.COLOR_BGR2RGB), s[1]
-        s = self.transform(s)
-        return s
+        return self.transform(s)
 
 if __name__ == "__main__":
     # load preprocess
