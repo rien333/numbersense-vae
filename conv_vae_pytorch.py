@@ -150,6 +150,7 @@ class CONV_VAE(nn.Module):
             # nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
             nn.Softplus()
         )
+        self.relu = F.ReLU()
 
         # Old Encoder
         # # 28 x 28 pixels = 784 input pixels (for minst), 400 outputs
@@ -302,7 +303,7 @@ class CONV_VAE(nn.Module):
     def decode(self, z: Variable) -> Variable:
         h3 = self.fc3(z)
         # another relu layers that maps h3 to a conv shape
-        h4 = self.relu(self.fc4(h3))
+        h4 = self.fc4(h3)
         h4_expanded = h4.view(-1, 256, 15, 15) # 15 * (4 * 2x upsamling conv) ~= 224
         up_conv1 = self.t_conv1(h4_expanded)
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
