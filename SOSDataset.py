@@ -1,4 +1,5 @@
 import cv2
+from random import randint
 import numpy as np
 import os
 import torch
@@ -9,8 +10,9 @@ from torchvision.utils import save_image
 # disable h5py warning
 np.warnings.filterwarnings('ignore')
 
-DATA_W = 227 # was 256, but this is after cropping
-DATA_H = 227
+# was 256, this is after cropping. Used to be 227x227 with crop, but 224 (even) makes the math easier
+DATA_W = 225
+DATA_H = 225
 DATA_C = 3
 
 class Rescale(object):
@@ -35,6 +37,14 @@ class RandomCrop(object):
         crop_im = s[0][top : top + new_h, left : left + new_w]
         return crop_im, s[1]
 
+class RandHorizontalFlip(object):
+
+    def __call__(self, s):
+        if randint(0,1):
+            return np.flip(s[0], 1).copy(), s[1]
+        else:
+            return s
+
 class ToTensor(object):
 
     def  __call__(self, s):
@@ -49,6 +59,13 @@ class Normalize(object):
 
     def __call__(self, s):
         return s[0] / 255, s[1]
+
+class Normalize01(object):
+
+    """Normalize between 0-1"""
+
+    def __call__(self, s):
+        return (s[0] + 1)/2, s[1]
 
 class NormalizeMean(object):
 
@@ -130,7 +147,7 @@ class SOSDataset(Dataset):
         pre_data_lbl = torch.zeros(self.nsamples).byte()
         data = self.train_data if self.train else self.test_data
         for idx, s in enumerate(data):
-            s = cv2.imread(self.datadir + s[0]), s[1]
+            s = cv2.cvtColor(cv2.imread(self.datadir + s[0]), cv2.COLOR_BGR2RGB), s[1]
             s = self.transform(s)
             pre_data[idx] = s[0]
             pre_data_lbl[idx] = s[1]
@@ -149,11 +166,8 @@ class SOSDataset(Dataset):
         #     return s[0][index], s[1][index]
 
         s = self.train_data[index] if self.train else self.test_data[index]
-        if not self.load_ram:
-            s = cv2.imread(self.datadir + s[0]), s[1]
-        if self.transform:
-            s = self.transform(s)
-        return s
+        s = cv2.cvtColor(cv2.imread(self.datadir + s[0]), cv2.COLOR_BGR2RGB), s[1]
+        return self.transform(s)
 
 if __name__ == "__main__":
     # load preprocess
