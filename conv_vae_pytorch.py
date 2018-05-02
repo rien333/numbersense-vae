@@ -136,7 +136,7 @@ class CONV_VAE(nn.Module):
         # self.fc1 = nn.Linear(256*14*14, args.full_con_size)
         self.fc1 = nn.Sequential(
             nn.Linear(256*14*14, args.full_con_size),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.BatchNorm1d(args.full_con_size)
         )
         # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
@@ -166,7 +166,7 @@ class CONV_VAE(nn.Module):
         # self.fc3 = nn.Linear(args.z_dims, args.full_con_size) # Relu
         self.fc3 = nn.Sequential(
             nn.Linear(args.z_dims, args.full_con_size),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.BatchNorm1d(args.full_con_size)
         )
 
@@ -176,7 +176,7 @@ class CONV_VAE(nn.Module):
         # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
             nn.Linear(args.full_con_size, 256*15*15),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.BatchNorm1d(256*15*15)
         )
 
@@ -344,6 +344,8 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
     # how well do input x and output recon_x agree?
     BCE = F.binary_cross_entropy(recon_x, x, size_average=False)
 
+    logvar = torch.log(logvar)
+
     # KLD is Kullback–Leibler divergence -- how much does one learned
     # distribution deviate from another, in this specific case the
     # learned distribution from the unit Gaussian
@@ -381,7 +383,8 @@ def train(epoch):
 
         # push whole batch of data through VAE.forward() to get recon_loss
         recon_batch, mu, logvar = model(data)
-
+        if batch_idx == 0 and epoch == 4:
+            print(recon_batch)
         # calculate scalar loss
         loss = loss_function(recon_batch, data, mu, logvar)
         # from time import sleep
@@ -417,6 +420,9 @@ def test(epoch):
         with torch.no_grad():
             recon_batch, mu, logvar = model(data)
             test_loss += loss_function(recon_batch, data, mu, logvar).item()
+            if epoch == 4:
+                print(recon_batch)
+                exit(0)
             if i == 0:
                 n = min(data.size(0), 8)
                 # for the first 128 batch of the epoch, show the first 8 input digits
@@ -467,6 +473,6 @@ for epoch in range(args.start_epoch, args.epochs + 1):
             os.remove(old_file)
         torch.save(model.state_dict(), new_file)
 
-        # this will give you a visual idea of how well latent space can generate
+        # this will give you a visual idea of how well latent space can generate new things
         save_image(sample.data.view(64, -1, DATA_H, DATA_W),
                'results/sample_' + str(epoch) + '.png')
