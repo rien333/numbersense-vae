@@ -150,7 +150,6 @@ class CONV_VAE(nn.Module):
             # nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
             nn.Softplus()
         )
-        self.relu = F.ReLU()
 
         # Old Encoder
         # # 28 x 28 pixels = 784 input pixels (for minst), 400 outputs
@@ -343,7 +342,7 @@ if args.cuda:
 
 def loss_function(recon_x, x, mu, logvar) -> Variable:
     # how well do input x and output recon_x agree?
-    BCE = F.binary_cross_entropy(recon_x, x, , size_average=False)
+    BCE = F.binary_cross_entropy(recon_x, x, size_average=False)
 
     # KLD is Kullback–Leibler divergence -- how much does one learned
     # distribution deviate from another, in this specific case the
@@ -357,7 +356,6 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
     # print(logvar)
     # print(torch.sum(logvar))
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-    # Normalise by same number of elements as in reconstruction
 
     # BCE tries to make our reconstruction as accurate as possible
     # KLD tries to push the distributions as close as possible to unit Gaussian
