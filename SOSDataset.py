@@ -11,7 +11,7 @@ from torchvision.utils import save_image
 np.warnings.filterwarnings('ignore')
 
 # was 256, this is after cropping. Used to be 227x227 with crop, but 224 (even) makes the math easier
-DATA_W = 225
+DATA_W = 225 
 DATA_H = 225
 DATA_C = 3
 
