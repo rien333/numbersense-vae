@@ -150,7 +150,6 @@ class CONV_VAE(nn.Module):
             # nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
             nn.Softplus()
         )
-        self.relu = F.ReLU()
 
         # Old Encoder
         # # 28 x 28 pixels = 784 input pixels (for minst), 400 outputs
