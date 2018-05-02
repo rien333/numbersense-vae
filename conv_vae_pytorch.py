@@ -52,8 +52,9 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
 # Try with and without normalize mean
-data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)), 
-                  SOSDataset.ToTensor(), SOSDataset.Normalize()]
+data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
+                  SOSDataset.RandHorizontalFlip(), SOSDataset.ToTensor(), SOSDataset.Normalize(),
+                  SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
 
 # Some people recommended this type of normalisation for natural images, depedends on the input being
 # a RGB torch tensor however
@@ -87,6 +88,7 @@ class CONV_VAE(nn.Module):
     def __init__(self):
         super(CONV_VAE, self).__init__()
 
+
         # Question: do you use batch normalisation after every conv layer
         # (yes, given Deep Pyramidal Residual Networks?)
         # (yes, Deep Residual Learning for Image Recognition)
@@ -101,60 +103,54 @@ class CONV_VAE(nn.Module):
             nn.Conv2d(
                 in_channels=3,		# RGB
                 out_channels=32,        # output depth
-                kernel_size=3,
-                stride=1,
+                kernel_size=4,
+                stride=2,
                 padding=1
             ),				# out (64, DATA_H, DATA_W) should be same HxW as in
-            nn.ReLU(),                  # inplace=True saves memory but discouraged (worth the try)
+            nn.LeakyReLU(),                  # inplace=True saves memory but discouraged (worth the try)
             nn.BatchNorm2d(32),         # C channel input, 4d input (NxCxHxW)
-            nn.Conv2d(32, 32, 3, 1, 1), # 64 filter depth from prev layer
-            nn.ReLU(),
-            nn.BatchNorm2d(32),
-            nn.MaxPool2d(2,2),          # k=2x2,s=2 (by vgg16) out shape (16, 14, 14)(red. by 2)
         )
 
         # These two in the middle can maybe downsample with a conv
         self.conv2 = nn.Sequential(     # in shape (64, DATA_H/2, DATA_W/2)
-            nn.Conv2d(32, 64, 3, 1, 1),
-            nn.ReLU(),
+            nn.Conv2d(32, 64, 4, 2, 1),
+            nn.LeakyReLU(),
             nn.BatchNorm2d(64),
-            # nn.Conv2d(64, 64, 3, 1, 1),
-            # nn.ReLU(),
-            # nn.BatchNorm2d(64),
-            nn.MaxPool2d(2,2),
         )
         
         self.conv3 = nn.Sequential(
-            nn.Conv2d(64, 64, 3, 1, 1),
-            nn.ReLU(),
-            nn.BatchNorm2d(64),
-            # nn.Conv2d(64, 64, 3, 1, 1),
-            # nn.ReLU(),
-            # nn.BatchNorm2d(64),
-            nn.MaxPool2d(2,2),
-        )
-        
-        # Good idea to make this one and the last one double
-        self.conv4 = nn.Sequential(	# DATA_W/H is ~= 28
-            nn.Conv2d(64, 128, 3, 1, 1),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, 3, 1, 1),
+            nn.Conv2d(64, 128, 4, 2, 1),
+            nn.LeakyReLU(),
             nn.BatchNorm2d(128),
-            # nn.ReLU(),
-            # nn.BatchNorm2d(128),
-            # nn.Conv2d(128, 128, 3, 1, 1),
-            # nn.ReLU(),
-            # nn.BatchNorm2d(128),
-            nn.MaxPool2d(2,2),
+        )
+
+        self.conv4 = nn.Sequential(	# DATA_W/H is ~= 28
+            nn.Conv2d(128, 256, 4, 2, 1),
+            nn.LeakyReLU(),
+            nn.BatchNorm2d(256),
         )
 
         # conv4/conv-out should be flattened
 
         # fc1 conv depth * (DATA_W*DATA_H / (number of pools * 2)) (with some rounding)
-        self.fc1 = nn.Linear(128*14*14, args.full_con_size) # relu
-        self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
-        self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
-        self.relu = nn.ReLU()
+        # self.fc1 = nn.Linear(256*14*14, args.full_con_size)
+        self.fc1 = nn.Sequential(
+            nn.Linear(256*14*14, args.full_con_size),
+            nn.ReLU(),
+            nn.BatchNorm1d(args.full_con_size)
+        )
+        # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
+        self.fc21 = nn.Sequential(  # mean network
+            nn.Linear(args.full_con_size, args.z_dims),
+            # nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
+        )
+        # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
+        self.fc22 = nn.Sequential(  # variance network, linear
+            nn.Linear(args.full_con_size, args.z_dims),
+            # nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
+            nn.Softplus()
+        )
+        self.relu = F.ReLU()
 
         # Old Encoder
         # # 28 x 28 pixels = 784 input pixels (for minst), 400 outputs
@@ -168,11 +164,22 @@ class CONV_VAE(nn.Module):
         # DECODER
         # Should use transconv and depooling
         
-        self.fc3 = nn.Linear(args.z_dims, args.full_con_size) # Relu
+        # self.fc3 = nn.Linear(args.z_dims, args.full_con_size) # Relu
+        self.fc3 = nn.Sequential(
+            nn.Linear(args.z_dims, args.full_con_size),
+            nn.ReLU(),
+            nn.BatchNorm1d(args.full_con_size)
+        )
+
         # form the decoder output to a conv shape
         # should be the size of a convolution/the last conv size
         # 128*14*14 * a few (4) upsampling = the original input size
-        self.fc4 = nn.Linear(args.full_con_size, 128*14*14)
+        # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
+        self.fc4 = nn.Sequential(
+            nn.Linear(args.full_con_size, 256*15*15),
+            nn.ReLU(),
+            nn.BatchNorm1d(256*15*15)
+        )
 
         # stride in 1st covn. = 1 bc we don't wanna miss anything (interdependence) from the z layer
         # otherwhise upsample so that we learn the upsampling/scaling process (Pooling doesn't not learn
@@ -188,43 +195,32 @@ class CONV_VAE(nn.Module):
         # scalers (but is not learned I think)
 
         # z is pretty important, so set stride=1 to not miss anything first
+        # so consider uncommenting the first deconv as well
         self.t_conv1 = nn.Sequential(
-            nn.ConvTranspose2d(128, 128, 3, 1, 1), 
-            nn.ReLU(),
-            nn.BatchNorm2d(128),
-            nn.ConvTranspose2d(128, 128, 3, 2, 1, output_padding=1),
-            nn.ReLU(),
+            nn.ConvTranspose2d(256, 256, 3, 1, 1), 
+            nn.LeakyReLU(),
+            nn.BatchNorm2d(256),
+            nn.ConvTranspose2d(256, 128, 3, 2, 1),
+            nn.LeakyReLU(),
             nn.BatchNorm2d(128),
         )
 
-        self.t_conv2 = nn.Sequential(
-            nn.ConvTranspose2d(128, 64, 4, 2, 1, output_padding=1),
-            nn.ReLU(),
+        self.t_conv2 = nn.Sequential( # this used to be p different (or the one below idk)
+            nn.ConvTranspose2d(128, 64, 3, 2, 1),
+            nn.LeakyReLU(),
             nn.BatchNorm2d(64),
         )
 
         self.t_conv3 = nn.Sequential(
-            nn.ConvTranspose2d(64, 64, 3, 2, 1, output_padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(64), 
+            nn.ConvTranspose2d(64, 32, 3, 2, 1),
+            nn.LeakyReLU(),
+            nn.BatchNorm2d(32),
         )
 
         self.t_conv_final = nn.Sequential(
-            nn.ConvTranspose2d(64, 3, 3, 2, 1, output_padding=0), # RGB, no relu or batch norm. on output
+            nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no relu or batch norm. on output
             nn.Sigmoid() # output between 0 and 1
         )
-        
-        # final output (no batchnorm needed)
-        # but do we need Relu?! (yeah for non-linear learning)
-        # self.t_conv3 = nn.ConvTranspose2d(64, 1, 3, 1, 1)
-        
-
-        # old Decoder
-        # from bottleneck to hidden 400
-        # self.fc3 = nn.Linear(args.z_dims, args.full_con_size)
-        # # from hidden 400 to 784 outputs
-        # self.fc4 = nn.Linear(args.full_con_size, DATA_SIZE)
-        # self.sigmoid = nn.Sigmoid()
 
     def encode(self, x: Variable) -> (Variable, Variable):
         """Input vector x -> fully connected 1 -> ReLU -> (fully connected
@@ -244,8 +240,9 @@ class CONV_VAE(nn.Module):
         c3 = self.conv3(c2)
         c4 = self.conv4(c3)
         flatten_c4 = c4.view(c4.size(0), -1) # flatten conv2 to (batch_size, red_data_dim)
-        h1 = self.relu(self.fc1(flatten_c4))
-        return self.fc21(h1), self.fc22(h1)
+        h1 = self.fc1(flatten_c4)
+        # add a small epsilon for numerical stability
+        return self.fc21(h1), self.fc22(h1) + 1e-6
 
         # # h1 is [128, 400] (batch, + the size of the first fully connected layer)
         # h1 = self.relu(self.fc1(x))  # type: Variable
@@ -278,12 +275,16 @@ class CONV_VAE(nn.Module):
         if self.training:
             # multiply log variance with 0.5, then in-place exponent
             # yielding the standard deviation
-            std = logvar.mul(0.5).exp_()  # type: Variable
+            std = torch.exp(0.5*logvar)
             # - std.data is the [128,ZDIMS] tensor that is wrapped by std
             # - so eps is [128,ZDIMS] with all elements drawn from a mean 0
             #   and stddev 1 normal distribution that is 128 samples
             #   of random ZDIMS-float vectors
-            eps = Variable(std.data.new(std.size()).normal_())
+
+            # eps = Variable(std.data.new(std.size()).normal_())
+            # Updated
+            eps = torch.randn_like(std)
+
             # - sample from a normal distribution with standard
             #   deviation = std and mean = mu by multiplying mean 0
             #   stddev 1 sample with desired std and mu, see
@@ -292,7 +293,6 @@ class CONV_VAE(nn.Module):
             #   vectors sampled from normal distribution with learned
             #   std and mu for the current input
             return eps.mul(std).add_(mu)
-
         else:
             # During inference, we simply spit out the mean of the
             # learned distribution for the current input.  We could
@@ -301,10 +301,10 @@ class CONV_VAE(nn.Module):
             return mu
 
     def decode(self, z: Variable) -> Variable:
-        h3 = self.relu(self.fc3(z))
+        h3 = self.fc3(z)
         # another relu layers that maps h3 to a conv shape
         h4 = self.relu(self.fc4(h3))
-        h4_expanded = h4.view(-1, 128, 14, 14) # 14 * (4 * 2x upsamling conv) ~= 227
+        h4_expanded = h4.view(-1, 256, 15, 15) # 15 * (4 * 2x upsamling conv) ~= 224
         up_conv1 = self.t_conv1(h4_expanded)
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
         up_conv3 = self.t_conv3(up_conv2)
@@ -318,7 +318,22 @@ class CONV_VAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         return self.decode(z), mu, logvar
 
+# Iinitialize layers with He initialisation
+# Consider not initializing the first conv layer like Tom's code
+def weights_init(m):
+    classname = m.__class__.__name__
+    if (isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d)
+        or isinstance(m, nn.Linear)):
+        nn.init.kaiming_uniform(m.weight.data) # This is He initialization
+
+    # Not sure if thiss will help but looks interesting
+    # elif classname.find('BatchNorm') != -1:
+    #     m.weight.data.normal_(1.0, 0.02)
+    #     m.bias.data.fill_(0)
+
 model = CONV_VAE()
+# Check if the weight are really modified
+model.apply(weights_init)
 
 if args.load_model:
     model.load_state_dict(
@@ -328,7 +343,8 @@ if args.cuda:
 
 def loss_function(recon_x, x, mu, logvar) -> Variable:
     # how well do input x and output recon_x agree?
-    BCE = F.binary_cross_entropy(recon_x, x.view(-1, DATA_SIZE))
+    BCE = F.binary_cross_entropy(recon_x, x, , size_average=False)
+
     # KLD is Kullback–Leibler divergence -- how much does one learned
     # distribution deviate from another, in this specific case the
     # learned distribution from the unit Gaussian
@@ -342,13 +358,12 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
     # print(torch.sum(logvar))
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     # Normalise by same number of elements as in reconstruction
-	## This line was/is not in the original pytorch code
-    KLD /= args.batch_size * DATA_SIZE
 
     # BCE tries to make our reconstruction as accurate as possible
     # KLD tries to push the distributions as close as possible to unit Gaussian
     return BCE + KLD
 
+# optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 def train(epoch):
@@ -368,11 +383,6 @@ def train(epoch):
 
         # push whole batch of data through VAE.forward() to get recon_loss
         recon_batch, mu, logvar = model(data)
-        # print("decoded:", recon_batch.shape)
-        # print("data:", data)
-        # print("recon_batch:", recon_batch)
-        # print(recon_batch.cpu().unique(sorted=True))
-        # exit(0)
 
         # calculate scalar loss
         loss = loss_function(recon_batch, data, mu, logvar)
@@ -459,10 +469,6 @@ for epoch in range(args.start_epoch, args.epochs + 1):
             os.remove(old_file)
         torch.save(model.state_dict(), new_file)
 
-        # save out as an 8x8 matrix of MNIST digits
-        # this will give you a visual idea of how well latent space can generate things
-        # that look like digits
-        # the -1 is decide "row"/dim_size  yourself, so could be 3 or 1 depended on datasize
-        # Numpy order has color channel last
+        # this will give you a visual idea of how well latent space can generate
         save_image(sample.data.view(64, -1, DATA_H, DATA_W),
                'results/sample_' + str(epoch) + '.png')
