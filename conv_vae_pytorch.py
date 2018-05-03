@@ -5,6 +5,7 @@ import ColoredMNIST
 import SOSDataset
 import torch
 import torch.utils.data
+from torch.optim import lr_scheduler
 from torch import nn, optim
 from torch.autograd import Variable
 from torch.nn import functional as F
@@ -56,8 +57,7 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 #                   SOSDataset.RandHorizontalFlip(), SOSDataset.ToTensor(), SOSDataset.Normalize(),
 #                   SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
 
-data_transform = [ColoredMNIST.Rescale((232, 232)), ColoredMNIST.RandomCrop((DATA_W, DATA_H)),
-                  ColoredMNIST.RandHorizontalFlip(), ColoredMNIST.ToTensor(), ColoredMNIST.Normalize(),
+data_transform = [ColoredMNIST.Rescale((DATA_W, DATA_H)), ColoredMNIST.ToTensor(),
                   ColoredMNIST.NormalizeMean(), ColoredMNIST.Normalize01()]
 
 
@@ -146,9 +146,9 @@ class CONV_VAE(nn.Module):
         # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
         self.fc22 = nn.Sequential(  # variance network, linear
             nn.Linear(args.full_con_size, args.z_dims),
+            nn.ReLU(), # Gaussian std must be positive
             nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
             # nn.Softplus()
-            nn.ReLU()
         )
 
         # Old Encoder
@@ -364,7 +364,9 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
     return BCE + KLD
 
 # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
+optimizer = optim.Adam(model.parameters(), lr=0.0012)
+# Decay LR by a factor of 0.2 every 28 epochs
+exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.22)
 
 def train(epoch):
     # toggle model to train mode
@@ -385,21 +387,13 @@ def train(epoch):
         recon_batch, mu, logvar = model(data)
         # calculate scalar loss
         loss = loss_function(recon_batch, data, mu, logvar)
-        # from time import sleep
-        # print("Check mem!")
-        # sleep(10)
         # calculate the gradient of the loss w.r.t. the graph leaves
         # i.e. input variables -- by the power of pytorch!
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
-        # if batch_idx % args.log_interval == 0:
-        #     print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-        #         epoch, batch_idx * len(data), len(train_loader.dataset),
-        #         100. * batch_idx / len(train_loader),
-        #         loss.item() / len(data)))
-    # print('====> Epoch: {} Average loss: {:.4f}'.format(
-    #       epoch, train_loss / len(train_loader.dataset)))
+
+    exp_lr_scheduler.step()
 
 
 def test(epoch):
