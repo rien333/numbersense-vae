@@ -5,8 +5,8 @@ import SOSDataset
 import conv_vae_pytorch as vae_pytorch
 
 Z_DIMS = vae_pytorch.args.z_dims # input size
-FC1_SIZE = 1024 # try some different values as well
-FC2_SIZE = 256
+FC1_SIZE = 512 # try some different values as well
+FC2_SIZE = 384 # To small to support all outputs?
 
 train_loader = vae_pytorch.train_loader
 test_loader = vae_pytorch.test_loader
@@ -18,12 +18,12 @@ class Classifier(nn.Module):
         
         self.fc1 = nn.Sequential(
             nn.Linear(Z_DIMS, FC1_SIZE),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.BatchNorm1d(FC1_SIZE)
         )
         self.fc2 = nn.Sequential(
             nn.Linear(FC1_SIZE, FC2_SIZE),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.BatchNorm1d(FC2_SIZE)
         )
         self.fc3 = nn.Linear(FC2_SIZE, 5) # output 5 labels
@@ -53,12 +53,12 @@ def train(epoch):
     classifier.train()
     running_loss = 0.0
     # Test set is fairly small, also consider training on a larger set
-    for i, (ims, labels) in enumerate(test_loader, 1): # unseen data
+    for i, (ims, labels) in enumerate(train_loader, 1): # unseen data
         # convert ims to z vector
         # You should reparameterize these z's, and make sure to set the model in testing/evalution mode when
         # sampling with model.reparameterize(zs), as that will draw zs with the highest means
         # I guess the output will be a batch of z vectors with Z_DIM
-        mu, logvar = model.encode(ims) # Might need .cuda
+        mu, logvar = model.encode(ims.cuda()) # Might need .cuda
         zs = model.reparameterize(mu, logvar)
         
         # zero the parameter gradients
@@ -66,7 +66,7 @@ def train(epoch):
         # forward + backward + optimize
         outputs = classifier(zs)
         # target ("labels") should be 1D
-        labels = labels.long().view(-1)  # Might need .cuda
+        labels = labels.long().cuda().view(-1)  # Might need .cuda
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
@@ -84,13 +84,13 @@ def test(epoch):
     correct = 0
     total = 0
     with torch.no_grad():
-        for i, (ims, labels) in enumerate(train_loader): # unseen data
-            mu, logvar = model.encode(ims)
+        for i, (ims, labels) in enumerate(test_loader): # unseen data
+            mu, logvar = model.encode(ims.cuda())
             zs = model.reparameterize(mu, logvar)
             outputs = classifier(zs)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
-            labels = labels.long().view(-1)
+            labels = labels.long().cuda().view(-1)
             correct += (predicted == labels).sum().item()
     accuracy = 100 * correct / total
     print('Epoch %d -> Test Accuracy: %d %%' % (epoch+1, accuracy))
@@ -101,10 +101,10 @@ def test(epoch):
     class_total = list(0.0000000001 for i in range(10))
     with torch.no_grad():
         for im, labels in train_loader:
-            mu, logvar = model.encode(im) # Might need .cuda
+            mu, logvar = model.encode(im.cuda()) # Might need .cuda
             zs = model.reparameterize(mu, logvar)
             outputs = classifier(zs)
-            labels = labels.long().view(-1) # Might need .cuda
+            labels = labels.long().cuda().view(-1) # Might need .cuda
             _, predicted = torch.max(outputs, 1)
             c = (predicted == labels).squeeze()
             for i in range(labels.shape[0]):
