@@ -53,18 +53,12 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
-# data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
-#                   SOSDataset.RandHorizontalFlip(), SOSDataset.ToTensor(), SOSDataset.Normalize(),
-#                   SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
+data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
+                  SOSDataset.RandHorizontalFlip(), SOSDataset.ToTensor(), SOSDataset.Normalize(),
+                  SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
 
-data_transform = [ColoredMNIST.Rescale((DATA_W, DATA_H)), ColoredMNIST.ToTensor(),
-                  ColoredMNIST.NormalizeMean(), ColoredMNIST.Normalize01()]
-
-
-# Some people recommended this type of normalisation for natural images, depedends on the input being
-# a RGB torch tensor however
-# normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5], # Hardcoded
-#                                  std=[0.5, 0.5, 0.5])
+# data_transform = [ColoredMNIST.Rescale((DATA_W, DATA_H)), ColoredMNIST.ToTensor(),
+#                   ColoredMNIST.NormalizeMean(), ColoredMNIST.Normalize01()]
 
 # shuffle data at every epoch
 # TODO: experiment with load_ram = True
@@ -72,17 +66,17 @@ pre_dir = "../Datasets/SOS/RescaleToTensorNormalize/"
 
 # preprocessing seems slower actually
 train_loader = torch.utils.data.DataLoader(
-    # SOSDataset.SOSDataset(train=True, transform=data_transform, load_ram=False),
-    # batch_size=args.batch_size, shuffle=True, **kwargs)
-    ColoredMNIST.ColoredMNIST(train=True, transform=data_transform),
+    SOSDataset.SOSDataset(train=True, transform=data_transform, load_ram=False),
     batch_size=args.batch_size, shuffle=True, **kwargs)
+    # ColoredMNIST.ColoredMNIST(train=True, transform=data_transform),
+    # batch_size=args.batch_size, shuffle=True, **kwargs)
 
 # Same for test data
 test_loader = torch.utils.data.DataLoader(
-    # SOSDataset.SOSDataset(train=False, transform=data_transform, load_ram=False),
-    # batch_size=args.batch_size, shuffle=True, **kwargs)
-    ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
+    SOSDataset.SOSDataset(train=False, transform=data_transform, load_ram=False),
     batch_size=args.batch_size, shuffle=True, **kwargs)
+    # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
+    # batch_size=args.batch_size, shuffle=True, **kwargs)
 
 class CONV_VAE(nn.Module):
     def __init__(self):
@@ -141,13 +135,15 @@ class CONV_VAE(nn.Module):
         # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
         self.fc21 = nn.Sequential(  # mean network
             nn.Linear(args.full_con_size, args.z_dims),
+            nn.LeakyReLU(),
             nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
         )
         # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
         self.fc22 = nn.Sequential(  # variance network, linear
             nn.Linear(args.full_con_size, args.z_dims),
-            nn.ReLU(), # Gaussian std must be positive
+            nn.ReLU(),
             nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
+            # nn.ReLU(), # Gaussian std must be positive # don't think this works here
             # nn.Softplus()
         )
 
@@ -240,7 +236,7 @@ class CONV_VAE(nn.Module):
         c4 = self.conv4(c3)
         flatten_c4 = c4.view(c4.size(0), -1) # flatten conv2 to (batch_size, red_data_dim)
         h1 = self.fc1(flatten_c4)
-        # add a small epsilon for numerical stability
+        # add a small epsilon for numerical stability?
         return self.fc21(h1), self.fc22(h1) + 1e-6
 
         # # h1 is [128, 400] (batch, + the size of the first fully connected layer)
@@ -302,7 +298,7 @@ class CONV_VAE(nn.Module):
     def decode(self, z: Variable) -> Variable:
         h3 = self.fc3(z)
         # another layer that maps h3 to a conv shape
-        h4 = F.relu(self.fc4(h3))
+        h4 = self.fc4(h3)
         h4_expanded = h4.view(-1, 256, 15, 15) # 15 * (4 * 2x upsamling conv) ~= 224
         up_conv1 = self.t_conv1(h4_expanded)
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
@@ -363,9 +359,11 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
     return BCE + KLD
 
 # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
-optimizer = optim.Adam(model.parameters(), lr=0.0012)
-# Decay LR by a factor of 0.2 every 28 epochs
-exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.22)
+optimizer = optim.Adam(model.parameters(), lr=0.0015)
+# Decay lr by a factor of 0.2 every 7 epochs
+# exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.22)
+# Decay lr if nothing happens after 4 epochs (try 3?)
+scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.25, patience=3, verbose=True,)
 
 def train(epoch):
     # toggle model to train mode
@@ -375,8 +373,8 @@ def train(epoch):
     # each `data` is of args.batch_size samples and has shape [128, 1, 28, 28]
 
     # if you have labels, do this
-    # for batch_idx, (data, _) in enumerate(train_loader):
-    for batch_idx, data in enumerate(train_loader):
+    for batch_idx, (data, _) in enumerate(train_loader):
+    # for batch_idx, data in enumerate(train_loader):
         data = Variable(data)
         if args.cuda:
             data = data.cuda()
@@ -392,8 +390,6 @@ def train(epoch):
         train_loss += loss.item()
         optimizer.step()
 
-    exp_lr_scheduler.step()
-
 
 def test(epoch):
     # toggle model to test / inference mode
@@ -401,8 +397,8 @@ def test(epoch):
     test_loss = 0
 
     # each data is of args.batch_size (default 128) samples
-    # for i, (data, _) in enumerate(test_loader):
-    for i, data in enumerate(test_loader):
+    for i, (data, _) in enumerate(test_loader):
+    # for i, data in enumerate(test_loader):
         if args.cuda:
             # make sure this lives on the GPU
             data = data.cuda()
@@ -445,6 +441,7 @@ for epoch in range(args.start_epoch, args.epochs + 1):
     # Write out data and print loss
     if epoch % args.test_interval == 0:
         test_loss = test(epoch)
+        scheduler.step(test_loss)
 
         new_file = 'models/vae-%s.pt' % (epoch)
         max_idx, max_loss = max(enumerate(best_models), key = lambda x : x[1][1])
