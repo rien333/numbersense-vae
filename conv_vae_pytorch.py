@@ -136,18 +136,18 @@ class CONV_VAE(nn.Module):
         # self.fc1 = nn.Linear(256*14*14, args.full_con_size)
         self.fc1 = nn.Sequential(
             nn.Linear(256*14*14, args.full_con_size),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.BatchNorm1d(args.full_con_size)
         )
         # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
         self.fc21 = nn.Sequential(  # mean network
             nn.Linear(args.full_con_size, args.z_dims),
-            # nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
+            nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
         )
         # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
         self.fc22 = nn.Sequential(  # variance network, linear
             nn.Linear(args.full_con_size, args.z_dims),
-            # nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
+            nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
             nn.Softplus()
         )
 
@@ -166,7 +166,7 @@ class CONV_VAE(nn.Module):
         # self.fc3 = nn.Linear(args.z_dims, args.full_con_size) # Relu
         self.fc3 = nn.Sequential(
             nn.Linear(args.z_dims, args.full_con_size),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.BatchNorm1d(args.full_con_size)
         )
 
@@ -176,7 +176,7 @@ class CONV_VAE(nn.Module):
         # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
             nn.Linear(args.full_con_size, 256*15*15),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.BatchNorm1d(256*15*15)
         )
 
@@ -383,8 +383,6 @@ def train(epoch):
 
         # push whole batch of data through VAE.forward() to get recon_loss
         recon_batch, mu, logvar = model(data)
-        if batch_idx == 0 and epoch == 4:
-            print(recon_batch)
         # calculate scalar loss
         loss = loss_function(recon_batch, data, mu, logvar)
         # from time import sleep
@@ -420,9 +418,6 @@ def test(epoch):
         with torch.no_grad():
             recon_batch, mu, logvar = model(data)
             test_loss += loss_function(recon_batch, data, mu, logvar).item()
-            if epoch == 4:
-                print(recon_batch)
-                exit(0)
             if i == 0:
                 n = min(data.size(0), 8)
                 # for the first 128 batch of the epoch, show the first 8 input digits
