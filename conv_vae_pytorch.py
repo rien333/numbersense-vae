@@ -331,7 +331,6 @@ def weights_init(m):
     #     m.bias.data.fill_(0)
 
 model = CONV_VAE()
-# Check if the weight are really modified
 model.apply(weights_init)
 
 if args.load_model:
