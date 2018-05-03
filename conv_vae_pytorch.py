@@ -1,6 +1,7 @@
 import os, argparse
 import random
 import numpy as np
+import ColoredMNIST
 import SOSDataset
 import torch
 import torch.utils.data
@@ -51,10 +52,13 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
-# Try with and without normalize mean
-data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
-                  SOSDataset.RandHorizontalFlip(), SOSDataset.ToTensor(), SOSDataset.Normalize(),
-                  SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
+# data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
+#                   SOSDataset.RandHorizontalFlip(), SOSDataset.ToTensor(), SOSDataset.Normalize(),
+#                   SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
+
+data_transform = [ColoredMNIST.Rescale((232, 232)), ColoredMNIST.RandomCrop((DATA_W, DATA_H)),
+                  ColoredMNIST.RandHorizontalFlip(), ColoredMNIST.ToTensor(), ColoredMNIST.Normalize(),
+                  ColoredMNIST.NormalizeMean(), ColoredMNIST.Normalize01()]
 
 
 # Some people recommended this type of normalisation for natural images, depedends on the input being
@@ -68,22 +72,17 @@ pre_dir = "../Datasets/SOS/RescaleToTensorNormalize/"
 
 # preprocessing seems slower actually
 train_loader = torch.utils.data.DataLoader(
-    # SOSDataset.SOSDataset(train=False, preprocessed=True, datadir=pre_dir),
+    # SOSDataset.SOSDataset(train=True, transform=data_transform, load_ram=False),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
-    SOSDataset.SOSDataset(train=True, transform=data_transform, load_ram=False),
+    ColoredMNIST.ColoredMNIST(train=True, transform=data_transform),
     batch_size=args.batch_size, shuffle=True, **kwargs)
-    # datasets.MNIST('data', train=True, download=True,
-    #                transform=transforms.ToTensor()),
-    # batch_size=args.batch_size, shuffle=True, **kwargs)
 
 # Same for test data
 test_loader = torch.utils.data.DataLoader(
-    # SOSDataset.SOSDataset(train=False, preprocessed=True, datadir=pre_dir),
+    # SOSDataset.SOSDataset(train=False, transform=data_transform, load_ram=False),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
-    SOSDataset.SOSDataset(train=False, transform=data_transform, load_ram=False),
+    ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
     batch_size=args.batch_size, shuffle=True, **kwargs)
-    # datasets.MNIST('data', train=False, transform=transforms.ToTensor()),
-    # batch_size=args.batch_size, shuffle=True, **kwargs)
 
 class CONV_VAE(nn.Module):
     def __init__(self):
@@ -109,10 +108,6 @@ class CONV_VAE(nn.Module):
             ),				# out (64, DATA_H, DATA_W) should be same HxW as in
             nn.LeakyReLU(),                  # inplace=True saves memory but discouraged (worth the try)
             nn.BatchNorm2d(32),         # C channel input, 4d input (NxCxHxW)
-            # nn.Conv2d(32, 32, 3, 1, 1), # 64 filter depth from prev layer
-            # nn.LeakyReLU(),
-            # nn.BatchNorm2d(32),
-            # nn.MaxPool2d(2,2),          # k=2x2,s=2 (by vgg16) out shape (16, 14, 14)(red. by 2)
         )
 
         # These two in the middle can maybe downsample with a conv
@@ -120,38 +115,18 @@ class CONV_VAE(nn.Module):
             nn.Conv2d(32, 64, 4, 2, 1),
             nn.LeakyReLU(),
             nn.BatchNorm2d(64),
-            # nn.Conv2d(64, 64, 3, 1, 1),
-            # nn.ReLU(),
-            # nn.BatchNorm2d(64),
-            # nn.MaxPool2d(2,2),
         )
         
         self.conv3 = nn.Sequential(
             nn.Conv2d(64, 128, 4, 2, 1),
             nn.LeakyReLU(),
             nn.BatchNorm2d(128),
-            # nn.Conv2d(64, 64, 3, 1, 1),
-            # nn.ReLU(),
-            # nn.BatchNorm2d(64),
-            # nn.MaxPool2d(2,2),
         )
-        
-        # Good idea to make this one and the last one double
+
         self.conv4 = nn.Sequential(	# DATA_W/H is ~= 28
             nn.Conv2d(128, 256, 4, 2, 1),
             nn.LeakyReLU(),
             nn.BatchNorm2d(256),
-            # nn.Conv2d(128, 256, 3, 1, 1),
-            # nn.LeakyReLU(),
-            # nn.BatchNorm2d(256),
-            # nn.Conv2d(128, 128, 3, 1, 1),
-            # nn.BatchNorm2d(128),
-            # nn.ReLU(),
-            # nn.BatchNorm2d(128),
-            # nn.Conv2d(128, 128, 3, 1, 1),
-            # nn.ReLU(),
-            # nn.BatchNorm2d(128),
-            # nn.MaxPool2d(2,2),
         )
 
         # conv4/conv-out should be flattened
@@ -171,9 +146,10 @@ class CONV_VAE(nn.Module):
         # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
         self.fc22 = nn.Sequential(  # variance network, linear
             nn.Linear(args.full_con_size, args.z_dims),
-            nn.BatchNorm1d(args.z_dims) # This doesn't seem okay at all
+            nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
+            # nn.Softplus()
+            nn.ReLU()
         )
-        self.relu = nn.ReLU()
 
         # Old Encoder
         # # 28 x 28 pixels = 784 input pixels (for minst), 400 outputs
@@ -193,6 +169,7 @@ class CONV_VAE(nn.Module):
             nn.ReLU(),
             nn.BatchNorm1d(args.full_con_size)
         )
+
         # form the decoder output to a conv shape
         # should be the size of a convolution/the last conv size
         # 128*14*14 * a few (4) upsampling = the original input size
@@ -243,18 +220,6 @@ class CONV_VAE(nn.Module):
             nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no relu or batch norm. on output
             nn.Sigmoid() # output between 0 and 1
         )
-        
-        # final output (no batchnorm needed)
-        # but do we need Relu?! (yeah for non-linear learning)
-        # self.t_conv3 = nn.ConvTranspose2d(64, 1, 3, 1, 1)
-        
-
-        # old Decoder
-        # from bottleneck to hidden 400
-        # self.fc3 = nn.Linear(args.z_dims, args.full_con_size)
-        # # from hidden 400 to 784 outputs
-        # self.fc4 = nn.Linear(args.full_con_size, DATA_SIZE)
-        # self.sigmoid = nn.Sigmoid()
 
     def encode(self, x: Variable) -> (Variable, Variable):
         """Input vector x -> fully connected 1 -> ReLU -> (fully connected
@@ -275,7 +240,8 @@ class CONV_VAE(nn.Module):
         c4 = self.conv4(c3)
         flatten_c4 = c4.view(c4.size(0), -1) # flatten conv2 to (batch_size, red_data_dim)
         h1 = self.fc1(flatten_c4)
-        return self.relu(self.fc21(h1)), self.relu(self.fc22(h1))
+        # add a small epsilon for numerical stability
+        return self.fc21(h1), self.fc22(h1) + 1e-6
 
         # # h1 is [128, 400] (batch, + the size of the first fully connected layer)
         # h1 = self.relu(self.fc1(x))  # type: Variable
@@ -308,12 +274,16 @@ class CONV_VAE(nn.Module):
         if self.training:
             # multiply log variance with 0.5, then in-place exponent
             # yielding the standard deviation
-            std = logvar.mul(0.5).exp_()  # type: Variable
+            std = torch.exp(0.5*logvar)
             # - std.data is the [128,ZDIMS] tensor that is wrapped by std
             # - so eps is [128,ZDIMS] with all elements drawn from a mean 0
             #   and stddev 1 normal distribution that is 128 samples
             #   of random ZDIMS-float vectors
-            eps = Variable(std.data.new(std.size()).normal_())
+
+            # eps = Variable(std.data.new(std.size()).normal_())
+            # Updated
+            eps = torch.randn_like(std)
+
             # - sample from a normal distribution with standard
             #   deviation = std and mean = mu by multiplying mean 0
             #   stddev 1 sample with desired std and mu, see
@@ -322,7 +292,6 @@ class CONV_VAE(nn.Module):
             #   vectors sampled from normal distribution with learned
             #   std and mu for the current input
             return eps.mul(std).add_(mu)
-
         else:
             # During inference, we simply spit out the mean of the
             # learned distribution for the current input.  We could
@@ -332,9 +301,9 @@ class CONV_VAE(nn.Module):
 
     def decode(self, z: Variable) -> Variable:
         h3 = self.fc3(z)
-        # another relu layers that maps h3 to a conv shape
-        h4 = self.relu(self.fc4(h3))
-        h4_expanded = h4.view(-1, 256, 15, 15) # 15 * (4 * 2x upsamling conv) ~= 227
+        # another layer that maps h3 to a conv shape
+        h4 = F.relu(self.fc4(h3))
+        h4_expanded = h4.view(-1, 256, 15, 15) # 15 * (4 * 2x upsamling conv) ~= 224
         up_conv1 = self.t_conv1(h4_expanded)
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
         up_conv3 = self.t_conv3(up_conv2)
@@ -348,7 +317,22 @@ class CONV_VAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         return self.decode(z), mu, logvar
 
+# Iinitialize layers with He initialisation
+# Consider not initializing the first conv layer like Tom's code
+def weights_init(m):
+    classname = m.__class__.__name__
+    if (isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d)
+        or isinstance(m, nn.Linear)):
+        nn.init.kaiming_uniform(m.weight.data) # This is He initialization
+
+    # Not sure if thiss will help but looks interesting
+    # elif classname.find('BatchNorm') != -1:
+    #     m.weight.data.normal_(1.0, 0.02)
+    #     m.bias.data.fill_(0)
+
 model = CONV_VAE()
+# Check if the weight are really modified
+model.apply(weights_init)
 
 if args.load_model:
     model.load_state_dict(
@@ -358,9 +342,11 @@ if args.cuda:
 
 def loss_function(recon_x, x, mu, logvar) -> Variable:
     # how well do input x and output recon_x agree?
-    BCE = F.binary_cross_entropy(recon_x, x)
+    BCE = F.binary_cross_entropy(recon_x, x, size_average=False)
 
-    # KLD is Kullback–Leibler divergence -- how much does one learned
+    # logvar = torch.log(logvar)
+
+    # kld is Kullback–Leibler divergence -- how much does one learned
     # distribution deviate from another, in this specific case the
     # learned distribution from the unit Gaussian
 
@@ -372,14 +358,12 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
     # print(logvar)
     # print(torch.sum(logvar))
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-    # Normalise by same number of elements as in reconstruction
-	## This line was/is not in the original pytorch code
-    KLD /= args.batch_size * DATA_SIZE
 
     # BCE tries to make our reconstruction as accurate as possible
     # KLD tries to push the distributions as close as possible to unit Gaussian
     return BCE + KLD
 
+# optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 def train(epoch):
@@ -391,7 +375,7 @@ def train(epoch):
 
     # if you have labels, do this
     # for batch_idx, (data, _) in enumerate(train_loader):
-    for batch_idx, (data, _) in enumerate(train_loader):
+    for batch_idx, data in enumerate(train_loader):
         data = Variable(data)
         if args.cuda:
             data = data.cuda()
@@ -399,7 +383,6 @@ def train(epoch):
 
         # push whole batch of data through VAE.forward() to get recon_loss
         recon_batch, mu, logvar = model(data)
-
         # calculate scalar loss
         loss = loss_function(recon_batch, data, mu, logvar)
         # from time import sleep
@@ -425,7 +408,8 @@ def test(epoch):
     test_loss = 0
 
     # each data is of args.batch_size (default 128) samples
-    for i, (data, _) in enumerate(test_loader):
+    # for i, (data, _) in enumerate(test_loader):
+    for i, data in enumerate(test_loader):
         if args.cuda:
             # make sure this lives on the GPU
             data = data.cuda()
@@ -485,10 +469,6 @@ for epoch in range(args.start_epoch, args.epochs + 1):
             os.remove(old_file)
         torch.save(model.state_dict(), new_file)
 
-        # save out as an 8x8 matrix of MNIST digits
-        # this will give you a visual idea of how well latent space can generate things
-        # that look like digits
-        # the -1 is decide "row"/dim_size  yourself, so could be 3 or 1 depended on datasize
-        # Numpy order has color channel last
+        # this will give you a visual idea of how well latent space can generate new things
         save_image(sample.data.view(64, -1, DATA_H, DATA_W),
                'results/sample_' + str(epoch) + '.png')
