@@ -54,8 +54,9 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
 data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
-                  SOSDataset.RandHorizontalFlip(), SOSDataset.ToTensor(), SOSDataset.Normalize(),
-                  SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
+                  SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
+                  SOSDataset.ToTensor(), SOSDataset.Normalize(), SOSDataset.NormalizeMean(), 
+                  SOSDataset.Normalize01()]
 
 # data_transform = [ColoredMNIST.Rescale((DATA_W, DATA_H)), ColoredMNIST.ToTensor(),
 #                   ColoredMNIST.NormalizeMean(), ColoredMNIST.Normalize01()]
@@ -100,51 +101,50 @@ class CONV_VAE(nn.Module):
                 stride=2,
                 padding=1
             ),				# out (64, DATA_H, DATA_W) should be same HxW as in
-            nn.LeakyReLU(),                  # inplace=True saves memory but discouraged (worth the try)
+            nn.LeakyReLU(0.2),          # inplace=True saves memory but discouraged (worth the try)
             nn.BatchNorm2d(32),         # C channel input, 4d input (NxCxHxW)
         )
 
         # These two in the middle can maybe downsample with a conv
-        self.conv2 = nn.Sequential(     # in shape (64, DATA_H/2, DATA_W/2)
+        self.conv2 = nn.Sequential(
             nn.Conv2d(32, 64, 4, 2, 1),
-            nn.LeakyReLU(),
+            nn.LeakyReLU(0.2),		# Slight negative slope
             nn.BatchNorm2d(64),
         )
         
         self.conv3 = nn.Sequential(
             nn.Conv2d(64, 128, 4, 2, 1),
-            nn.LeakyReLU(),
+            nn.LeakyReLU(0.2),
             nn.BatchNorm2d(128),
         )
 
         self.conv4 = nn.Sequential(	# DATA_W/H is ~= 28
             nn.Conv2d(128, 256, 4, 2, 1),
-            nn.LeakyReLU(),
+            nn.LeakyReLU(0.2),
             nn.BatchNorm2d(256),
         )
 
         # conv4/conv-out should be flattened
-
         # fc1 conv depth * (DATA_W*DATA_H / (number of pools * 2)) (with some rounding)
-        # self.fc1 = nn.Linear(256*14*14, args.full_con_size)
         self.fc1 = nn.Sequential(
             nn.Linear(256*14*14, args.full_con_size),
-            nn.ReLU(),
+            nn.LeakyReLU(0.2),
             nn.BatchNorm1d(args.full_con_size)
         )
         # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
         self.fc21 = nn.Sequential(  # mean network
             nn.Linear(args.full_con_size, args.z_dims),
-            nn.LeakyReLU(),
-            nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
+            # nn.LeakyReLU(),
+            # nn.ReLU(),
+            # nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
         )
         # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
         self.fc22 = nn.Sequential(  # variance network, linear
             nn.Linear(args.full_con_size, args.z_dims),
-            nn.ReLU(),
-            nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
+            # nn.ReLU(),
+            # nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
             # nn.ReLU(), # Gaussian std must be positive # don't think this works here
-            # nn.Softplus()
+            nn.Softplus()
         )
 
         # Old Encoder
@@ -157,12 +157,11 @@ class CONV_VAE(nn.Module):
         # # this last layer bottlenecks through args.z_dims connections
 
         # DECODER
-        # Should use transconv and depooling
         
         # self.fc3 = nn.Linear(args.z_dims, args.full_con_size) # Relu
         self.fc3 = nn.Sequential(
             nn.Linear(args.z_dims, args.full_con_size),
-            nn.ReLU(),
+            nn.LeakyReLU(0.2),
             nn.BatchNorm1d(args.full_con_size)
         )
 
@@ -172,7 +171,7 @@ class CONV_VAE(nn.Module):
         # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
             nn.Linear(args.full_con_size, 256*15*15),
-            nn.ReLU(),
+            nn.LeakyReLU(0.2),
             nn.BatchNorm1d(256*15*15)
         )
 
@@ -193,28 +192,28 @@ class CONV_VAE(nn.Module):
         # so consider uncommenting the first deconv as well
         self.t_conv1 = nn.Sequential(
             nn.ConvTranspose2d(256, 256, 3, 1, 1), 
-            nn.LeakyReLU(),
+            nn.LeakyReLU(0.2),
             nn.BatchNorm2d(256),
             nn.ConvTranspose2d(256, 128, 3, 2, 1),
-            nn.LeakyReLU(),
+            nn.LeakyReLU(0.2),
             nn.BatchNorm2d(128),
         )
 
         self.t_conv2 = nn.Sequential( # this used to be p different (or the one below idk)
             nn.ConvTranspose2d(128, 64, 3, 2, 1),
-            nn.LeakyReLU(),
+            nn.LeakyReLU(0.2),
             nn.BatchNorm2d(64),
         )
 
         self.t_conv3 = nn.Sequential(
             nn.ConvTranspose2d(64, 32, 3, 2, 1),
-            nn.LeakyReLU(),
+            nn.LeakyReLU(0.2),
             nn.BatchNorm2d(32),
         )
 
         self.t_conv_final = nn.Sequential(
             nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no relu or batch norm. on output
-            nn.Sigmoid() # output between 0 and 1
+            nn.Sigmoid() # output between 0 and 1 # Relu?
         )
 
     def encode(self, x: Variable) -> (Variable, Variable):
@@ -320,6 +319,10 @@ def weights_init(m):
     if (isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d)
         or isinstance(m, nn.Linear)):
         nn.init.kaiming_uniform(m.weight.data) # This is He initialization
+        m.bias.data.zero_()
+    elif isinstance(m, nn.BatchNorm2d) or isinstance(m, nn.BatchNorm1d):
+        nn.init.normal(m.weight.data, std=0.015) # Small std, maybe to small?
+        m.bias.data.zero_()
 
     # Not sure if thiss will help but looks interesting
     # elif classname.find('BatchNorm') != -1:
