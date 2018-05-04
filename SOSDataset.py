@@ -1,6 +1,7 @@
 import cv2
-from random import randint
+from random import randint, gauss
 import numpy as np
+from numpy import linalg as LA
 import os
 import torch
 from torchvision import transforms
@@ -14,6 +15,16 @@ np.warnings.filterwarnings('ignore')
 DATA_W = 225 
 DATA_H = 225
 DATA_C = 3
+
+class RandomColorShift(object):
+    # source for fancy colorshift
+    # https://deshanadesai.github.io/notes/Fancy-PCA-with-Scikit-Image
+
+    def __call__(self, s):
+        im = s[0].astype(np.int16)
+        add = [gauss(0, 12), gauss(0, 12), gauss(0, 12)]
+        add_v = np.tile(add, (DATA_W, DATA_H, 1)).astype(np.int16)
+        return (np.add(im, add_v)).clip(0, 255).astype(np.uint8), s[1]
 
 class Rescale(object):
 
@@ -171,27 +182,16 @@ class SOSDataset(Dataset):
 
 if __name__ == "__main__":
     # load preprocess
-    transform = [Rescale((256, 256)), RandomCrop((DATA_W, DATA_H))]
+    transform = [Rescale((256, 256)), RandomCrop((DATA_W, DATA_H)), RandomColorShift()]
     # transform = [Rescale((256, 256)), 
     #               ToTensor(), Normalize()]
     dataset = SOSDataset(train=False, transform=transform, preprocessed=False)
-    # normally this has kwargs stuff for cuda loading!!
-    test_loader = torch.utils.data.DataLoader(dataset, batch_size=2, shuffle=True)
-    print("read stuff")
-    for idx, s in enumerate(test_loader):
-        save_image(s[0].data.view(2, -1, DATA_H, DATA_W),
-                   'sample_' + str(1) + '.png')
-        # print(s[0][0].data.numpy().reshape((DATA_W,DATA_H, DATA_C)).shape)
-        print(s)
-        cv2.imshow("img", s[0][0].data.numpy())
-        print(s[1][0])
+
+    for i in range(0, 10):
+        cv2.imshow("im", cv2.cvtColor(dataset[i][0], cv2.COLOR_BGR2RGB))
         cv2.waitKey(0)
-        cv2.imshow("img", s[0][1].data.numpy())
-        print(s[1][1])
+        cv2.imshow("im", cv2.cvtColor(dataset[i][0], cv2.COLOR_BGR2RGB))
         cv2.waitKey(0)
-        if idx > 3:
-            break
-        print("🌸")
 
     # Save preprocess 
     # data_transform = [Rescale((DATA_W, DATA_H)), FlattenArrToTensor(), Normalize()]
