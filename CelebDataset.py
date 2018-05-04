@@ -75,7 +75,7 @@ class CelebDataset(Dataset):
         self.datadir = datadir
         self.train = train
         self.transform = transforms.Compose(transform)
-        total_s = 202599
+        total_s = 202598 # one less than there actually is but eveness
         train_range = int(0.8 * total_s) - 1 # 80% n of ims
         self.train_range = train_range
         self.nsamples = train_range if train else total_s - train_range
@@ -85,8 +85,9 @@ class CelebDataset(Dataset):
 
     def __getitem__(self, index):
         imfmt = "%06d.jpg"
-        start = 0 if self.train else self.train_range
-        im = cv2.imread(self.datadir + imfmt % (start+index))
+        start = 1 if self.train else self.train_range
+        im_name = self.datadir + imfmt % (start+index)
+        im = cv2.cvtColor(cv2.imread(im_name), cv2.COLOR_BGR2RGB)
         return self.transform(im)
 
 if __name__ == "__main__":
