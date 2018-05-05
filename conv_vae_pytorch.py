@@ -67,14 +67,14 @@ pre_dir = "../Datasets/SOS/RescaleToTensorNormalize/"
 
 # preprocessing seems slower actually
 train_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=True, transform=data_transform, load_ram=False),
+    SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True),
     batch_size=args.batch_size, shuffle=True, **kwargs)
     # ColoredMNIST.ColoredMNIST(train=True, transform=data_transform),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
 
 # Same for test data
 test_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=False, transform=data_transform, load_ram=False),
+    SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True),
     batch_size=args.batch_size, shuffle=True, **kwargs)
     # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
@@ -133,14 +133,16 @@ class CONV_VAE(nn.Module):
         )
         # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
         self.fc21 = nn.Sequential(  # mean network
-            nn.Linear(args.full_con_size, args.z_dims),
+            # nn.Linear(args.full_con_size, args.z_dims),
+            nn.Linear(256*14*14, args.z_dims),
             # nn.LeakyReLU(),
             # nn.ReLU(),
             # nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
         )
         # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
         self.fc22 = nn.Sequential(  # variance network, linear
-            nn.Linear(args.full_con_size, args.z_dims),
+            # nn.Linear(args.full_con_size, args.z_dims),
+            nn.Linear(256*14*14, args.z_dims),
             # nn.ReLU(),
             # nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
             # nn.ReLU(), # Gaussian std must be positive # don't think this works here
@@ -170,8 +172,8 @@ class CONV_VAE(nn.Module):
         # 128*14*14 * a few (4) upsampling = the original input size
         # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
-            nn.Linear(args.full_con_size, 256*15*15),
             nn.LeakyReLU(0.2),
+            nn.Linear(args.full_con_size, 256*15*15),
             nn.BatchNorm1d(256*15*15)
         )
 
@@ -191,7 +193,7 @@ class CONV_VAE(nn.Module):
         # z is pretty important, so set stride=1 to not miss anything first
         # so consider uncommenting the first deconv as well
         self.t_conv1 = nn.Sequential(
-            nn.ConvTranspose2d(256, 256, 3, 1, 1), 
+            nn.ConvTranspose2d(256, 256, 3, 1, 1),  # Note this two❗
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(256),
             nn.ConvTranspose2d(256, 128, 3, 2, 1),
@@ -234,9 +236,10 @@ class CONV_VAE(nn.Module):
         c3 = self.conv3(c2)
         c4 = self.conv4(c3)
         flatten_c4 = c4.view(c4.size(0), -1) # flatten conv2 to (batch_size, red_data_dim)
-        h1 = self.fc1(flatten_c4)
+        # h1 = self.fc1(flatten_c4)
         # add a small epsilon for numerical stability?
-        return self.fc21(h1), self.fc22(h1) + 1e-6
+        # return self.fc21(h1), self.fc22(h1) + 1e-6
+        return self.fc21(flatten_c4), self.fc22(flatten_c4) + 1e-6
 
         # # h1 is [128, 400] (batch, + the size of the first fully connected layer)
         # h1 = self.relu(self.fc1(x))  # type: Variable
@@ -362,11 +365,11 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
     return BCE + KLD
 
 # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
-optimizer = optim.Adam(model.parameters(), lr=0.0015)
+optimizer = optim.Adam(model.parameters(), lr=0.0014)
 # Decay lr by a factor of 0.2 every 7 epochs
 # exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.22)
 # Decay lr if nothing happens after 4 epochs (try 3?)
-scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.25, patience=3, verbose=True,)
+scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.26, patience=3, cooldown=1, verbose=True,)
 
 def train(epoch):
     # toggle model to train mode
