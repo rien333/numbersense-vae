@@ -133,16 +133,16 @@ class CONV_VAE(nn.Module):
         )
         # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
         self.fc21 = nn.Sequential(  # mean network
-            # nn.Linear(args.full_con_size, args.z_dims),
-            nn.Linear(256*14*14, args.z_dims),
+            nn.Linear(args.full_con_size, args.z_dims),
+            # nn.Linear(256*14*14, args.z_dims),
             # nn.LeakyReLU(),
             # nn.ReLU(),
             # nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
         )
         # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
         self.fc22 = nn.Sequential(  # variance network, linear
-            # nn.Linear(args.full_con_size, args.z_dims),
-            nn.Linear(256*14*14, args.z_dims),
+            nn.Linear(args.full_con_size, args.z_dims),
+            # nn.Linear(256*14*14, args.z_dims),
             # nn.ReLU(),
             # nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
             # nn.ReLU(), # Gaussian std must be positive # don't think this works here
@@ -172,8 +172,8 @@ class CONV_VAE(nn.Module):
         # 128*14*14 * a few (4) upsampling = the original input size
         # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
-            nn.LeakyReLU(0.2),
             nn.Linear(args.full_con_size, 256*15*15),
+            nn.LeakyReLU(0.2),
             nn.BatchNorm1d(256*15*15)
         )
 
@@ -193,7 +193,7 @@ class CONV_VAE(nn.Module):
         # z is pretty important, so set stride=1 to not miss anything first
         # so consider uncommenting the first deconv as well
         self.t_conv1 = nn.Sequential(
-            nn.ConvTranspose2d(256, 256, 3, 1, 1),  # Note this two❗
+            nn.ConvTranspose2d(256, 256, 3, 1, 1),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(256),
             nn.ConvTranspose2d(256, 128, 3, 2, 1),
@@ -236,10 +236,9 @@ class CONV_VAE(nn.Module):
         c3 = self.conv3(c2)
         c4 = self.conv4(c3)
         flatten_c4 = c4.view(c4.size(0), -1) # flatten conv2 to (batch_size, red_data_dim)
-        # h1 = self.fc1(flatten_c4)
+        h1 = self.fc1(flatten_c4)
         # add a small epsilon for numerical stability?
-        # return self.fc21(h1), self.fc22(h1) + 1e-6
-        return self.fc21(flatten_c4), self.fc22(flatten_c4) + 1e-6
+        return self.fc21(h1), self.fc22(h1) + 1e-6
 
         # # h1 is [128, 400] (batch, + the size of the first fully connected layer)
         # h1 = self.relu(self.fc1(x))  # type: Variable
@@ -306,7 +305,6 @@ class CONV_VAE(nn.Module):
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
         up_conv3 = self.t_conv3(up_conv2)
         return self.t_conv_final(up_conv3) # scale up with image scaling
-        # return self.sigmoid(self.fc4(h3))
 
     def forward(self, x: Variable) -> (Variable, Variable, Variable):
         # mu, logvar = self.encode(x.view(-1, DATA_SIZE))
