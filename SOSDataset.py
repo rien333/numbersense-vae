@@ -22,7 +22,8 @@ class RandomColorShift(object):
 
     def __call__(self, s):
         im = s[0].astype(np.int16)
-        add = [gauss(0, 12), gauss(0, 12), gauss(0, 12)]
+        # add = [gauss(0, 12), gauss(0, 12), gauss(0, 12)]
+        add = [gauss(0, 10), gauss(-0.5, 3.5), gauss(0, 9.5)]
         add_v = np.tile(add, (DATA_W, DATA_H, 1)).astype(np.int16)
         return (np.add(im, add_v)).clip(0, 255).astype(np.uint8), s[1]
 
