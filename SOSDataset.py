@@ -99,77 +99,53 @@ class Grayscale(object):
 class SOSDataset(Dataset):
 
     # Maybe add the ability to either load data from disk or in RAM
-    def __init__(self, train=True, transform=None, datadir="../Datasets/SOS/", 
-                 grayscale=False, load_ram=False, preprocessed=False):
-        import h5py # for .mat importing
+    def __init__(self, train=True, transform=None, datadir="../Datasets/", 
+                 grayscale=False, load_ram=False, extended=False):
 
         self.datadir = datadir
         self.train = train
         self.test_data = []
         self.train_data = []
         self.load_ram = load_ram
-        self.preprocessed = preprocessed
         if transform:
             self.transform = transforms.Compose(transform)
             self.transform_name = ''.join([t.__class__.__name__ for t in transform])
         else:
             self.transform = None
 
-        if preprocessed:
-            self.load_ram = True
-            if self.train:
-                ims = torch.load(self.datadir + "train.pth")
-                # also load the labels
-                self.train_data = ims, torch.load(self.datadir + "train_labels.pth")
-            else:
-                ims = torch.load(self.datadir + "test.pth")
-                self.test_data = ims, torch.load(self.datadir + "test_labels.pth")
-            self.nsamples = ims.shape[0]
-            return
+        # Read in the .mat file
+        if extended:
+            import scipy.io as sio
+            self.datadir += "ESOS/"
+            f = sio.loadmat(self.datadir + "imgIdx.mat")
+            imgIdx = f["imgIdx"]
+            sos_it = zip(imgIdx["istest"][0,:],imgIdx["label"][0,:],imgIdx["name"][0,:])
+            mat_get = lambda t: t[0]
+        else:
+            import h5py # for newer (?) .mat importing
+            self.datadir += "SOS/"
+            f = h5py.File(self.datadir + "imgIdx.mat")
+            imgIdx = f["imgIdx"]
+            sos_it = zip(imgIdx["istest"][:,0],imgIdx["label"][:,0],imgIdx["name"][:,0])
+            mat_get = lambda t: f[t]
 
-        f = h5py.File(self.datadir + "imgIdx.mat")
-        imgIdx = f["imgIdx"]
+        for istest, label, fname in sos_it:
+            im = mat_get(fname)
+            if not extended:
+                im = np.array(im, dtype=np.uint8).tostring().decode("ascii")
+                
 
-        for istest, label, fname in zip(imgIdx["istest"][:,0], imgIdx["label"][:,0],
-                                        imgIdx["name"][:,0]):
-            # get filename
-            im = np.array(f[fname], dtype=np.uint8).tostring().decode("ascii")
-            if load_ram: # load actual image, faster but more resources
-                # Maybe it's smart to do some preprocessing here to save on ram
-                # Yeah I guess like the transforms here?
-                im = cv2.imread(self.datadir+im)
-
-            if f[istest][0]:
+            if mat_get(istest)[0]:
                 if not self.train:
-                    self.test_data.append((im, f[label][0,0]))
+                    self.test_data.append((im, mat_get(label)[0]))
             else:
                 if self.train:
-                    self.train_data.append((im, f[label][0,0]))
+                    self.train_data.append((im, mat_get(label)[0]))
 
         self.nsamples = len(self.train_data) if self.train else len(self.test_data)
 
     def __len__(self):
         return self.nsamples
-    
-    # hmhmm this should rather save the images I guess?
-    def save(self):
-        """Save a tensor with all given transformations applied"""
-
-        pre_data = torch.zeros(self.nsamples, DATA_W*DATA_H*DATA_C).float()
-        pre_data_lbl = torch.zeros(self.nsamples).byte()
-        data = self.train_data if self.train else self.test_data
-        for idx, s in enumerate(data):
-            s = cv2.cvtColor(cv2.imread(self.datadir + s[0]), cv2.COLOR_BGR2RGB), s[1]
-            s = self.transform(s)
-            pre_data[idx] = s[0]
-            pre_data_lbl[idx] = s[1]
-        f_dir = "%s/%s/" % (self.datadir, self.transform_name)
-        f_dir = os.path.join(os.path.dirname(__file__), f_dir) # relative paths
-        f_name = "%s.pth" % ("train" if self.train else "test")
-        f_name_lbl = "%s_labels.pth" % ("train" if self.train else "test")
-        os.makedirs(f_dir, exist_ok=True)
-        torch.save(pre_data, f_dir + f_name)
-        torch.save(pre_data_lbl, f_dir + f_name_lbl)
 
     def __getitem__(self, index):
         # comment if preprocessing seems undoable
@@ -183,11 +159,10 @@ class SOSDataset(Dataset):
 
 if __name__ == "__main__":
     # load preprocess
-    transform = [Rescale((256, 256)), RandomCrop((DATA_W, DATA_H)), RandomColorShift()]
+    transform = [Rescale((256, 256)), RandomCrop((DATA_W, DATA_H)), RandomColorShift(), ToTensor()]
     # transform = [Rescale((256, 256)), 
     #               ToTensor(), Normalize()]
-    dataset = SOSDataset(train=False, transform=transform, preprocessed=False)
-
+    dataset = SOSDataset(train=False, transform=transform, extended=True)
     for i in range(0, 10):
         cv2.imshow("im", cv2.cvtColor(dataset[i][0], cv2.COLOR_BGR2RGB))
         cv2.waitKey(0)
