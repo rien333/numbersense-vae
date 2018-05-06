@@ -61,10 +61,6 @@ data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W,
 # data_transform = [ColoredMNIST.Rescale((DATA_W, DATA_H)), ColoredMNIST.ToTensor(),
 #                   ColoredMNIST.NormalizeMean(), ColoredMNIST.Normalize01()]
 
-# shuffle data at every epoch
-# TODO: experiment with load_ram = True
-pre_dir = "../Datasets/SOS/RescaleToTensorNormalize/"
-
 # preprocessing seems slower actually
 train_loader = torch.utils.data.DataLoader(
     SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True),
