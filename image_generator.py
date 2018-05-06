@@ -1,4 +1,5 @@
 import os
+import zclassifier
 import random
 import cv2
 from PIL import Image
@@ -16,6 +17,14 @@ import conv_vae_pytorch as vae_pytorch
 DATA_W = 256
 DATA_H = 256
 
+data_t = transforms.Compose(vae_pytorch.data_transform)
+classifier = zclassifier.classifier
+# some relevant settings are done in z-classifier for conv_vae
+model = zclassifier.model
+classifier.load_state_dict(
+        torch.load("classifier-models/vae-180.pt", map_location=lambda storage, loc: storage))
+classifier.eval()
+
 MSRA10K_dir = "../Datasets/MSRA10K_Imgs_GT/"
 files_txt = MSRA10K_dir + "files_jpg.txt"
 with open(files_txt, "r") as f:
@@ -29,9 +38,11 @@ with open(b_classes_txt, "r") as f:
 
 mask_resizing = Image.BILINEAR
 obj_resizing = Image.BILINEAR
-nfiles = 1000
+nfiles = 5001
+fidx = 0
 # for fidx in range(0, len(files), 2):
-for fidx in range(nfiles):
+# for fidx in range(nfiles):
+while fidx < nfiles:
     # Load random object
     fname = MSRA10K_dir+random.choice(files)
     # Do this as a preprocessing thing?
@@ -39,6 +50,9 @@ for fidx in range(nfiles):
     obj = Image.open(fname)
     # Does capture values between 0-1
     mask = Image.open(fname.replace(".jpg", ".png")).convert("L")
+    # Can be none/invalid sometime?
+    if mask is None:
+        continue
 
     # Check for only one object
     im = data_t((np.array(obj), 0))[0].view(1, 3, vae_pytorch.DATA_H, vae_pytorch.DATA_W)
@@ -46,18 +60,23 @@ for fidx in range(nfiles):
     zs = model.reparameterize(mu, logvar)
     outputs = classifier(zs)
     # get max index
-    if torch.argmax(outputs).item() != 1 and outputs[1] < 0.9:
+    if torch.argmax(outputs).item() != 1 or outputs[0][1] < 0.90:
         continue
-    # Formula to see if a thus1000 object contains one object:
-    #z[1] should be max, and higher than 0.9
 
     rnd_class = random.choice(b_classes)
     rnd_class_p = b_dir + rnd_class + "/"
     b_ims = random.choice(os.listdir(rnd_class_p))
-    background = Image.open(rnd_class_p + b_ims)
+    background = Image.open(rnd_class_p + b_ims).convert("RGB")
     background = background.resize((DATA_W, DATA_H), Image.BILINEAR)
 
-    
+    # Check if the background is valid, i.e. contains no clear salient object
+    im = data_t((np.array(background), 0))[0].view(1, 3, vae_pytorch.DATA_H, vae_pytorch.DATA_W)
+    mu, logvar = model.encode(im.cuda())
+    zs = model.reparameterize(mu, logvar)
+    outputs = classifier(zs)
+    if outputs[0][0] < 0.96:
+        continue
+
     box = mask.getbbox()
     mask_crop = mask.crop(box)
     obj_ref = obj.crop(box)
@@ -140,7 +159,5 @@ for fidx in range(nfiles):
             paste_obj = t(paste_obj)
         background.paste(paste_obj, box, mask)
     background.save("%s/%d.jpg" % (data_out, fidx))
-
-    if fidx > 100:
-        break
-
+    
+    fidx += 1
