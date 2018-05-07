@@ -5,7 +5,7 @@ import SOSDataset
 import conv_vae_pytorch as vae_pytorch
 
 Z_DIMS = vae_pytorch.args.z_dims # input size
-FC1_SIZE = 512 # try some different values as well
+FC1_SIZE = 768 # try some different values as well
 FC2_SIZE = 384 # To small to support all outputs?
 
 train_loader = vae_pytorch.train_loader
@@ -118,33 +118,34 @@ def test(epoch):
 
     return accuracy
 
-best_models = [("", -100000000000)]*4
-test_interval = 10
-# Save models according to loss instead of acc?
-for epoch in range(1, 1501):
-    train(epoch)
+if __name__ == "__main__":
+    best_models = [("", -100000000000)]*4
+    test_interval = 7
+    # Save models according to loss instead of acc?
+    for epoch in range(1, 1501):
+        train(epoch)
 
-    if epoch % test_interval == 0:
-        test_acc = test(epoch)
-        # Save best performing models
-        new_file = 'classifier-models/vae-%s.pt' % (epoch)
-        min_idx, min_acc = min(enumerate(best_models), key = lambda x : x[1][1])
-        min_acc = min_acc[1]
-        if test_acc > min_acc:
-            worse_model = best_models[min_idx][0]
-            if not '' in [m[0] for m in best_models]: 
-                os.remove(worse_model)
-            best_models[min_idx] = (new_file, test_acc)
+        if epoch % test_interval == 0:
+            test_acc = test(epoch)
+            # Save best performing models
+            new_file = 'classifier-models/vae-%s.pt' % (epoch)
+            min_idx, min_acc = min(enumerate(best_models), key = lambda x : x[1][1])
+            min_acc = min_acc[1]
+            if test_acc > min_acc:
+                worse_model = best_models[min_idx][0]
+                if not '' in [m[0] for m in best_models]: 
+                    os.remove(worse_model)
+                best_models[min_idx] = (new_file, test_acc)
 
-        # Save model and delete older versions
-        old_file = "classifier-models/vae-%s.pt" % (epoch - 2 *  test_interval)
-        found_best = old_file in [m[0] for m in best_models]
-        if os.path.isfile(old_file) and not found_best:
-            os.remove(old_file)
-        torch.save(classifier.state_dict(), new_file)
+            # Save model and delete older versions
+            old_file = "classifier-models/vae-%s.pt" % (epoch - 2 *  test_interval)
+            found_best = old_file in [m[0] for m in best_models]
+            if os.path.isfile(old_file) and not found_best:
+                os.remove(old_file)
+            torch.save(classifier.state_dict(), new_file)
 
 # classifier.load_state_dict(
-#         torch.load("classifier-models/vae-550.pt", map_location=lambda storage, loc: storage))
+#         torch.load("classifier-models/vae-180.pt", map_location=lambda storage, loc: storage))
 # classifier.eval()
 
 # Test on which classes the model performs well
@@ -172,15 +173,28 @@ for epoch in range(1, 1501):
 # from torchvision import transforms
 # from torchvision.utils import save_image
 # import cv2
-# data_t = vae_pytorch.data_transform
-# data_t = transforms.Compose(data_t)
-# zon_meeuw = cv2.imread("../Datasets/meeuwen/meeuw3.png")
-# print(zon_meeuw)
-# print(zon_meeuw.shape)
-# im = data_t((zon_meeuw, 0))[0].view(1, -1, vae_pytorch.DATA_H, vae_pytorch.DATA_W)
-# mu, logvar = model.encode(im.cuda())
-# zs = model.reparameterize(mu, logvar)
-# outputs = classifier(zs)
-# print(outputs)
-# decoded = model.decode(zs)
-# save_image(decoded, "test.png")
+# import os
+# from random import choice
+
+# icat = lambda x: os.system("/home/rwever/local/bin/imgcat " + x)
+
+# data_t = transforms.Compose(vae_pytorch.data_transform)
+
+# b_dir = "../Datasets/SUN397"
+# b_classes_txt = b_dir + "/ClassName.txt"
+# with open(b_classes_txt, "r") as f:
+#     b_classes = f.read().splitlines()
+
+# for f in range(1000):
+#     rnd_class = choice(b_classes)
+#     rnd_class_p = b_dir + rnd_class + "/"
+#     b_ims = choice(os.listdir(rnd_class_p))
+#     fname = rnd_class_p + b_ims
+#     background = cv2.imread(fname)
+#     im = data_t((background, 0))[0].view(1, 3, vae_pytorch.DATA_H, vae_pytorch.DATA_W)
+#     mu, logvar = model.encode(im.cuda())
+#     zs = model.reparameterize(mu, logvar)
+#     outputs = classifier(zs)
+#     if outputs[0][0] >= 0.96:
+#         icat(fname)
+#         print(outputs)
