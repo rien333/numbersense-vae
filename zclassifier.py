@@ -8,8 +8,14 @@ Z_DIMS = vae_pytorch.args.z_dims # input size
 FC1_SIZE = 768 # try some different values as well
 FC2_SIZE = 384 # To small to support all outputs?
 
-train_loader = vae_pytorch.train_loader
-test_loader = vae_pytorch.test_loader
+data_transform = vae_pytorch.data_transform
+train_loader = torch.utils.data.DataLoader(
+        SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True),
+        batch_size=args.batch_size, shuffle=True, **kwargs)
+
+test_loader = torch.utils.data.DataLoader(
+    SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True),
+    batch_size=args.batch_size, shuffle=True, **kwargs)
 
 class Classifier(nn.Module):
     
