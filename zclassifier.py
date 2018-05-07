@@ -11,11 +11,11 @@ FC2_SIZE = 384 # To small to support all outputs?
 data_transform = vae_pytorch.data_transform
 train_loader = torch.utils.data.DataLoader(
         SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True),
-        batch_size=args.batch_size, shuffle=True, **kwargs)
+        batch_size=vae_pytorch.args.batch_size, shuffle=True, **vae_pytorch.kwargs)
 
 test_loader = torch.utils.data.DataLoader(
     SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
+    batch_size=vae_pytorch.args.batch_size, shuffle=True, **vae_pytorch.kwargs)
 
 class Classifier(nn.Module):
     
