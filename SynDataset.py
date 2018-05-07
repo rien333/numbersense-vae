@@ -22,27 +22,32 @@ class SynDataset(Dataset):
         files_txt = datadir+"files.txt"
         with open(files_txt, "r") as f:
             files = f.read().splitlines()
-        
+
         # Is it okay to shuffle the train and test set everytime?
         shuffle(files)
         self.files = files
-        self.nsamples = len(files)
-        self.train_range = int(0.8 * self.nsamples) # 320
-        print(self.train_range)
-
+        nfiles = len(files)
+        self.train_range = int(0.8 * nfiles)-1 # convert to idx
+        self.nsamples = self.train_range if train else nfiles - self.train_range
+        
     def __len__(self):
         return self.nsamples
 
     def __getitem__(self, index):
         start = 0 if self.train else self.train_range
-        im_name = self.datadir + self.files[start+index]
+        try:
+            im_name = self.datadir + self.files[start+index]
+        except:
+            print(start, self.nsamples, start+index)
         im = cv2.cvtColor(cv2.imread(im_name), cv2.COLOR_BGR2RGB)
-        label = im_name[-5]
+        label = int(im_name[-5])
         return self.transform((im, label))
 
 if __name__ == "__main__":
     transform = [SOSDataset.Rescale((232, 232)), SOSDataset.RandomCrop((DATA_W, DATA_H))]
     dataset = SynDataset(train=False, transform=transform)
+    print(sorted(dataset.files, key=lambda k: k[-5])[:10])
+
     cv2.imshow("hey", dataset[0][0])
     cv2.waitKey(0)
     cv2.imshow("hey", dataset[1][0])
