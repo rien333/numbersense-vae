@@ -34,8 +34,6 @@ parser.add_argument('--start-epoch', type=int, default=1, metavar='N',
                     help='epoch to start at (only affects logging)')
 parser.add_argument('--test-interval', type=int, default=10, metavar='N',
                     help='when to run a test epoch')
-parser.add_argument('--disable-train', action='store_true', default=False, 
-                    help='Disable training of model. Allows for importing this as a module.')
 parser.add_argument('--grayscale', action='store_true', default=False, help='Train on grayscale data')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
@@ -62,6 +60,8 @@ data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W,
                   SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
                   SOSDataset.ToTensor(), SOSDataset.Normalize(), SOSDataset.NormalizeMean(), 
                   SOSDataset.Normalize01()]
+# Rescaling is not needed for synthetic data
+syn_data_transform = data_transform[1:]
 
 # data_transform = [ColoredMNIST.Rescale((DATA_W, DATA_H)), ColoredMNIST.ToTensor(),
 #                   ColoredMNIST.NormalizeMean(), ColoredMNIST.Normalize01()]
@@ -69,11 +69,11 @@ data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W,
 # Start training on syntethic data, and later load the "natural" image data
 
 syn_train_loader = torch.utils.data.DataLoader(
-    SynDataset.SynDataset(train=True, transform=data_transform),
+    SynDataset.SynDataset(train=True, transform=syn_data_transform),
     batch_size=args.syn_batch_size, shuffle=True, **kwargs)
 
 syn_test_loader = torch.utils.data.DataLoader(
-    SynDataset.SynDataset(train=False, transform=data_transform),
+    SynDataset.SynDataset(train=False, transform=syn_data_transform),
     batch_size=args.syn_batch_size, shuffle=True, **kwargs)
 
 class CONV_VAE(nn.Module):
@@ -457,7 +457,7 @@ if __name__ == "__main__":
     # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
     optimizer = optim.Adam(model.parameters(), lr=0.0014)
     # Decay lr if nothing happens after 3 epochs (try 3?)
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.22, patience=3, cooldown=1, 
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.22, patience=4, cooldown=1, 
                                                verbose=True)
 
     # Pretrain on synthetic data
@@ -467,7 +467,7 @@ if __name__ == "__main__":
 
     for param_group in optimizer.param_groups:
             param_group['lr'] = 0.001
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.30, patience=3, cooldown=2, 
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.30, patience=4, cooldown=2, 
                                                verbose=True)
 
     # Read in only now to save on memory
