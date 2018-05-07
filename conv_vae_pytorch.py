@@ -1,7 +1,8 @@
 import os, argparse
 import random
 import numpy as np
-import ColoredMNIST
+# import ColoredMNIST
+import SynDataset
 import SOSDataset
 import torch
 import torch.utils.data
@@ -15,8 +16,12 @@ from torchvision.utils import save_image
 parser = argparse.ArgumentParser(description='Annotated PyTorch VAE with conv layers')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                     help='input batch size for training (default: 128)')
+parser.add_argument('--syn-batch-size', type=int, default=32, metavar='N',
+                    help='input batch size for training with the synthetic dataset')
 parser.add_argument('--epochs', type=int, default=10000, metavar='N',
                     help='number of epochs to train (default: 10)')
+parser.add_argument('--syn-epochs', type=int, default=180, metavar='N',
+                    help='number of epochs to train on synthetic data')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='enables CUDA training')
 parser.add_argument('--z-dims', type=int, default=20, metavar='N',
@@ -61,19 +66,15 @@ data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W,
 # data_transform = [ColoredMNIST.Rescale((DATA_W, DATA_H)), ColoredMNIST.ToTensor(),
 #                   ColoredMNIST.NormalizeMean(), ColoredMNIST.Normalize01()]
 
-# preprocessing seems slower actually
-train_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
-    # ColoredMNIST.ColoredMNIST(train=True, transform=data_transform),
-    # batch_size=args.batch_size, shuffle=True, **kwargs)
+# Start training on syntethic data, and later load the "natural" image data
 
-# Same for test data
-test_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
-    # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
-    # batch_size=args.batch_size, shuffle=True, **kwargs)
+syn_train_loader = torch.utils.data.DataLoader(
+    SynDataset.SynDataset(train=True, transform=data_transform),
+    batch_size=args.syn_batch_size, shuffle=True, **kwargs)
+
+syn_test_loader = torch.utils.data.DataLoader(
+    SynDataset.SynDataset(train=False, transform=data_transform),
+    batch_size=args.syn_batch_size, shuffle=True, **kwargs)
 
 class CONV_VAE(nn.Module):
     def __init__(self):
@@ -365,7 +366,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.0014)
 # Decay lr if nothing happens after 4 epochs (try 3?)
 scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.26, patience=3, cooldown=1, verbose=True,)
 
-def train(epoch):
+def train(epoch, loader):
     # toggle model to train mode
     model.train()
     train_loss = 0
@@ -373,7 +374,7 @@ def train(epoch):
     # each `data` is of args.batch_size samples and has shape [128, 1, 28, 28]
 
     # if you have labels, do this
-    for batch_idx, (data, _) in enumerate(train_loader):
+    for batch_idx, (data, _) in enumerate(loader):
     # for batch_idx, data in enumerate(train_loader):
         data = Variable(data)
         if args.cuda:
@@ -391,13 +392,13 @@ def train(epoch):
         optimizer.step()
 
 
-def test(epoch):
+def test(epoch, loader):
     # toggle model to test / inference mode
     model.eval()
     test_loss = 0
 
     # each data is of args.batch_size (default 128) samples
-    for i, (data, _) in enumerate(test_loader):
+    for i, (data, _) in enumerate(loader):
     # for i, data in enumerate(test_loader):
         if args.cuda:
             # make sure this lives on the GPU
@@ -415,50 +416,73 @@ def test(epoch):
                 # the -1 is decide dim_size yourself, so could be 3 or 1 depended on color channels
                 # I think we don't need the data view?
                 comparison = torch.cat([data[:n],
-                                        recon_batch.view(args.batch_size, -1, DATA_W, DATA_H)[:n]])
+                                        recon_batch.view(loader.batch_size, -1, DATA_W, DATA_H)[:n]])
                 save_image(comparison.data.cpu(),
                            'results/reconstruction_' + str(epoch) + '.png', nrow=n)
-    test_loss /= len(test_loader.dataset)
+    test_loss /= len(loader.dataset)
     print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
     return test_loss
+
+def train_routine(epochs, train_loader, test_loader, start_epoch=0):
+    # This could/should be a dictionary
+    best_models = [("", 100000000000)]*3
+    for epoch in range(start_epoch, epochs + 1):
+        train(epoch, train_loader)
+
+        # 64 sets of random ZDIMS-float vectors, i.e. 64 locations / MNIST
+        # digits in latent space
+        sample = Variable(torch.randn(64, args.z_dims))
+        if args.cuda:
+            sample = sample.cuda()
+        sample = model.decode(sample).cpu()
+
+        # Write out data and print loss
+        if epoch % args.test_interval == 0:
+            test_loss = test(epoch, test_loader)
+            scheduler.step(test_loss)
+
+            new_file = 'models/vae-%s.pt' % (epoch)
+            max_idx, max_loss = max(enumerate(best_models), key = lambda x : x[1][1])
+            max_loss = max_loss[1]
+            if test_loss < max_loss:
+                worse_model = best_models[max_idx][0]
+                if not '' in [m[0] for m in best_models]: 
+                    os.remove(worse_model)
+                best_models[max_idx] = (new_file, test_loss)
+
+            # Save model and delete older versions
+            old_file = "models/vae-%s.pt" % (epoch - 2*args.test_interval)
+            found_best = old_file in [m[0] for m in best_models]
+            if os.path.isfile(old_file) and not found_best:
+                os.remove(old_file)
+            torch.save(model.state_dict(), new_file)
+
+            # this will give you a visual idea of how well latent space can generate new things
+            save_image(sample.data.view(64, -1, DATA_H, DATA_W),
+                   'results/sample_' + str(epoch) + '.png')
 
 if args.disable_train:
     args.start_epoch = 1
     args.epochs = 0
 
-# This could/should be a dictionary
-best_models = [("", 100000000000)]*3
-for epoch in range(args.start_epoch, args.epochs + 1):
-    train(epoch)
+# Pretrain on synthetic data
+syn_epochs = args.syn_epochs
+train_routine(syn_epochs, train_loader=syn_train_loader, test_loader=syn_test_loader)
+print("Done with synthetic data!")
 
-    # 64 sets of random ZDIMS-float vectors, i.e. 64 locations / MNIST
-    # digits in latent space
-    sample = Variable(torch.randn(64, args.z_dims))
-    if args.cuda:
-        sample = sample.cuda()
-    sample = model.decode(sample).cpu()
+SOS_train_loader = torch.utils.data.DataLoader(
+    SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True),
+    batch_size=args.batch_size, shuffle=True, **kwargs)
+    # ColoredMNIST.ColoredMNIST(train=True, transform=data_transform),
+    # batch_size=args.batch_size, shuffle=True, **kwargs)
 
-    # Write out data and print loss
-    if epoch % args.test_interval == 0:
-        test_loss = test(epoch)
-        scheduler.step(test_loss)
+SOS_test_loader = torch.utils.data.DataLoader(
+    SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True),
+    batch_size=args.batch_size, shuffle=True, **kwargs)
+    # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
+    # batch_size=args.batch_size, shuffle=True, **kwargs)
 
-        new_file = 'models/vae-%s.pt' % (epoch)
-        max_idx, max_loss = max(enumerate(best_models), key = lambda x : x[1][1])
-        max_loss = max_loss[1]
-        if test_loss < max_loss:
-            worse_model = best_models[max_idx][0]
-            if not '' in [m[0] for m in best_models]: 
-                os.remove(worse_model)
-            best_models[max_idx] = (new_file, test_loss)
-
-        # Save model and delete older versions
-        old_file = "models/vae-%s.pt" % (epoch - 2*args.test_interval)
-        found_best = old_file in [m[0] for m in best_models]
-        if os.path.isfile(old_file) and not found_best:
-            os.remove(old_file)
-        torch.save(model.state_dict(), new_file)
-
-        # this will give you a visual idea of how well latent space can generate new things
-        save_image(sample.data.view(64, -1, DATA_H, DATA_W),
-               'results/sample_' + str(epoch) + '.png')
+# Maybe reset the optimizer?
+# optimizer = optim.Adam(model.parameters(), lr=0.0014)
+train_routine(syn_epochs + args.epochs, train_loader=SOS_train_loader,
+              test_loader=SOS_test_loader, start_epoch=syn_epochs + args.start_epoch)
