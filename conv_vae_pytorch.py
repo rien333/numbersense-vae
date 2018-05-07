@@ -359,14 +359,7 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
     # KLD tries to push the distributions as close as possible to unit Gaussian
     return BCE + KLD
 
-# optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
-optimizer = optim.Adam(model.parameters(), lr=0.0014)
-# Decay lr by a factor of 0.2 every 7 epochs
-# exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.22)
-# Decay lr if nothing happens after 4 epochs (try 3?)
-scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.26, patience=3, cooldown=1, verbose=True,)
-
-def train(epoch, loader):
+def train(epoch, loader, optimizer):
     # toggle model to train mode
     model.train()
     train_loss = 0
@@ -390,7 +383,6 @@ def train(epoch, loader):
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
-
 
 def test(epoch, loader):
     # toggle model to test / inference mode
@@ -423,11 +415,11 @@ def test(epoch, loader):
     print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
     return test_loss
 
-def train_routine(epochs, train_loader, test_loader, start_epoch=0):
+def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, start_epoch=0):
     # This could/should be a dictionary
     best_models = [("", 100000000000)]*3
     for epoch in range(start_epoch, epochs + 1):
-        train(epoch, train_loader)
+        train(epoch, train_loader, optimizer)
 
         # 64 sets of random ZDIMS-float vectors, i.e. 64 locations / MNIST
         # digits in latent space
@@ -461,28 +453,37 @@ def train_routine(epochs, train_loader, test_loader, start_epoch=0):
             save_image(sample.data.view(64, -1, DATA_H, DATA_W),
                    'results/sample_' + str(epoch) + '.png')
 
-if args.disable_train:
-    args.start_epoch = 1
-    args.epochs = 0
+if __name__ == "__main__":
+    # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
+    optimizer = optim.Adam(model.parameters(), lr=0.0014)
+    # Decay lr if nothing happens after 3 epochs (try 3?)
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.22, patience=3, cooldown=1, 
+                                               verbose=True)
 
-# Pretrain on synthetic data
-syn_epochs = args.syn_epochs
-train_routine(syn_epochs, train_loader=syn_train_loader, test_loader=syn_test_loader)
-print("Done with synthetic data!")
+    # Pretrain on synthetic data
+    train_routine(args.syn_epochs, train_loader=syn_train_loader, test_loader=syn_test_loader, 
+                  optimizer=optimizer, scheduler=scheduler)
+    print("Done with synthetic data!")
 
-SOS_train_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
-    # ColoredMNIST.ColoredMNIST(train=True, transform=data_transform),
-    # batch_size=args.batch_size, shuffle=True, **kwargs)
+    for param_group in optimizer.param_groups:
+            param_group['lr'] = 0.001
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.30, patience=3, cooldown=2, 
+                                               verbose=True)
 
-SOS_test_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
-    # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
-    # batch_size=args.batch_size, shuffle=True, **kwargs)
+    # Read in only now to save on memory
+    SOS_train_loader = torch.utils.data.DataLoader(
+        SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True),
+        batch_size=args.batch_size, shuffle=True, **kwargs)
+        # ColoredMNIST.ColoredMNIST(train=True, transform=data_transform),
+        # batch_size=args.batch_size, shuffle=True, **kwargs)
 
-# Maybe reset the optimizer?
-# optimizer = optim.Adam(model.parameters(), lr=0.0014)
-train_routine(syn_epochs + args.epochs, train_loader=SOS_train_loader,
-              test_loader=SOS_test_loader, start_epoch=syn_epochs + args.start_epoch)
+    SOS_test_loader = torch.utils.data.DataLoader(
+        SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True),
+        batch_size=args.batch_size, shuffle=True, **kwargs)
+        # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
+        # batch_size=args.batch_size, shuffle=True, **kwargs)
+
+    # Maybe reset the optimizer?
+    # optimizer = optim.Adam(model.parameters(), lr=0.0014)
+    train_routine(args.syn_epochs + args.epochs, train_loader=SOS_train_loader, test_loader=SOS_test_loader, 
+                  start_epoch=args.syn_epochs + args.start_epoch, optimizer=optimizer, scheduler=scheduler)
