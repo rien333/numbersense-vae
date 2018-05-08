@@ -146,7 +146,7 @@ def generate(fidx, nfiles, cat):
             label_idxs.append(n_idxs)
             # See how much remains
             for pixel_idxs, t_pixels in zip(label_idxs, total_pixels):
-                if len(pixel_idxs) < 1.0 * t_pixels:
+                if len(pixel_idxs) < 0.5 * t_pixels:
                     valid_im = False
                     break
                 
