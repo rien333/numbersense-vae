@@ -30,7 +30,8 @@ files_txt = MSRA10K_dir + "files_jpg.txt"
 with open(files_txt, "r") as f:
     files = f.read().splitlines()
 
-data_out = "../Datasets/synthetic"
+# data_out = "../Datasets/synthetic2-small"
+data_out = "../Datasets/test"
 b_dir = "../Datasets/SUN397"
 b_classes_txt = b_dir + "/ClassName.txt"
 with open(b_classes_txt, "r") as f:
@@ -80,21 +81,21 @@ def generate(fidx, nfiles, cat):
         # size for new basis object 
         scale = random.uniform(0.4,0.8) * DATA_H
         l_dim  = 0 if obj_ref.size[0] > obj_ref.size[1] else 1
-        scale_f = scale / obj_ref.size[l_dim] 
-        new_size = tuple(i * scale_f for i in obj_ref.size)
+        scale_f = scale / obj_ref.size[l_dim]
+        new_size = tuple(s * scale_f for s in obj_ref.size)
         # The basis which will be pasted and transformed further
         # Maybe we will could skip the resizing and just use the sizes
 
         # Paste N e [0,4] objects
-        background_arr = np.zeros((DATA_H, DATA_W))
         valid_im = True
         total_pixels = []
+        label_idxs = [] # list of sets with the indexes of a label L
         ims = [] # These are transforms with speedup
 
         for i in range(cat):
             transforms = []
             scale_f = random.uniform(0.85,1.15)
-            n_paste_size = tuple(int(i*scale_f) for i in new_size)
+            n_paste_size = tuple(int(s*scale_f) for s in new_size)
             resize = lambda i, s=n_paste_size: i.resize(s, obj_resizing)
             n_mask = resize(mask_crop)
             transforms.append(resize)
@@ -120,6 +121,12 @@ def generate(fidx, nfiles, cat):
             # paste the mask in a background array holding all the occupied pixels
             # and check if their area is still 50% after the other pastes
             m = np.array(n_mask, dtype=bool)
+            background_arr = np.zeros((DATA_H, DATA_W), dtype=np.bool)
+
+            # After the clip? (idk if clipping is occlussion)
+            # Def before bc you want objects to be somewhat visible, so take into account what
+            # of their oriignal appearance is still there
+            total_pixels += [m.sum()]
 
             end_h = box[0]+m.shape[0]
             end_w = box[1]+m.shape[1]
@@ -131,39 +138,41 @@ def generate(fidx, nfiles, cat):
                 m = m[:, :clip_w]
             if clip_h < 0:
                 m = m[:clip_h]
-            # After the clip? (idk if clipping is occlussion)
-            total_pixels += [m.sum()]
-            background_arr[box[0]:end_h, box[1]:end_w] = m.astype(int)*(i+1)
-            # plt.imshow(np.array(background))
-            # plt.show()
-            for idx, pixels in enumerate(total_pixels):
-                new_total = background_arr[background_arr == (idx+1)].sum()
-                if new_total < 0.5 * pixels:
+
+            background_arr[box[0]:end_h, box[1]:end_w] = m
+            n_idxs = set(np.where(background_arr.reshape(DATA_W*DATA_H))[0])
+            label_idxs = [idxs - n_idxs for idxs in label_idxs]
+            # Update old idxs with new
+            label_idxs.append(n_idxs)
+            # See how much remains
+            for pixel_idxs, t_pixels in zip(label_idxs, total_pixels):
+                if len(pixel_idxs) < 1.0 * t_pixels:
                     valid_im = False
                     break
-
+                
             if not valid_im:
                 break
             ims.append((transforms, box, n_mask))
 
         if not valid_im:
             continue
-
+        
         for im in ims:
             transform, box, mask = im
             paste_obj = obj_ref.copy()
             for t in transform:
                 paste_obj = t(paste_obj)
-            background.paste(paste_obj, box, mask)
-            background.save("%s/%d-%d.jpg" % (data_out, fidx, cat))
-        if cat == 0:
-            background.save("%s/%d-%d.jpg" % (data_out, fidx, cat))
-
+            # reverse the box due to PIL/numpy differences
+            background.paste(paste_obj, box[::-1], mask)
+        background.save("%s/%d-%d.jpg" % (data_out, fidx, cat))
+        
         fidx += 1
 
 # Amount per category
-nfiles = [1000, 950, 1270, 1350, 1450]
-prev=0
-for cat, n in enumerate(nfiles):
-    generate(prev, n, cat)
-    prev += n
+# nfiles = [250, 100, 400, 500, 550]
+# prev=0
+# for cat, n in enumerate(nfiles):
+#     generate(prev, n, cat)
+#     prev += n
+
+generate(0, 5, 4)
