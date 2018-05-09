@@ -63,11 +63,6 @@ data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W,
 # Rescaling is not needed for synthetic data
 syn_data_transform = data_transform[1:]
 
-# data_transform = [ColoredMNIST.Rescale((DATA_W, DATA_H)), ColoredMNIST.ToTensor(),
-#                   ColoredMNIST.NormalizeMean(), ColoredMNIST.Normalize01()]
-
-# Start training on syntethic data, and later load the "natural" image data
-
 syn_train_loader = torch.utils.data.DataLoader(
     SynDataset.SynDataset(train=True, transform=syn_data_transform),
     batch_size=args.syn_batch_size, shuffle=True, **kwargs)
@@ -87,7 +82,6 @@ SOS_test_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
     # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
-
 
 class CONV_VAE(nn.Module):
     def __init__(self):
