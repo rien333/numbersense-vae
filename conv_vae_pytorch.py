@@ -60,7 +60,7 @@ with open("/etc/hostname",'r') as f:
 
 if lisa_check:
     import os
-    DATA_DIR = os.environ["$TMPDIR"]
+    DATA_DIR = os.environ["TMPDIR"] + "/"
 
 data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
                   SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
@@ -88,6 +88,7 @@ SOS_test_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
     # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
+
 
 class CONV_VAE(nn.Module):
     def __init__(self):
