@@ -18,9 +18,9 @@ class SynDataset(Dataset):
         self.datadir = datadir
         self.train = train
         self.transform = transforms.Compose(transform)
-        self.datadir = datadir + "synthetic"
+        self.datadir = datadir + "synthetic/"
 
-        files_txt = datadir+"files.txt"
+        files_txt = self.datadir+"files.txt"
         with open(files_txt, "r") as f:
             files = f.read().splitlines()
 
