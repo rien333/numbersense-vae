@@ -58,6 +58,7 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 with open("/etc/hostname",'r') as f:
     lisa_check = "lisa" in f.read().lower()
 
+DATA_DIR = "" # assume working directory
 if lisa_check:
     import os
     DATA_DIR = os.environ["TMPDIR"] + "/"
@@ -89,6 +90,7 @@ SOS_test_loader = torch.utils.data.DataLoader(
     # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
 
+exit(0)
 
 class CONV_VAE(nn.Module):
     def __init__(self):
@@ -447,7 +449,7 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, start
             test_loss = test(epoch, test_loader)
             scheduler.step(test_loss)
 
-            new_file = 'models/vae-%s.pt' % (epoch)
+            new_file = DATA_DIR + 'models/vae-%s.pt' % (epoch)
             max_idx, max_loss = max(enumerate(best_models), key = lambda x : x[1][1])
             max_loss = max_loss[1]
             if test_loss < max_loss:
@@ -457,7 +459,7 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, start
                 best_models[max_idx] = (new_file, test_loss)
 
             # Save model and delete older versions
-            old_file = "models/vae-%s.pt" % (epoch - 2*args.test_interval)
+            old_file = DATA_DIR + "models/vae-%s.pt" % (epoch - 2*args.test_interval)
             found_best = old_file in [m[0] for m in best_models]
             if os.path.isfile(old_file) and not found_best:
                 os.remove(old_file)
@@ -465,7 +467,7 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, start
 
             # this will give you a visual idea of how well latent space can generate new things
             save_image(sample.data.view(64, -1, DATA_H, DATA_W),
-                   'results/sample_' + str(epoch) + '.png')
+                       DATA_DIR + 'results/sample_' + str(epoch) + '.png')
 
 if __name__ == "__main__":
     # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
