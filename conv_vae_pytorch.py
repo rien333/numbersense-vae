@@ -34,7 +34,6 @@ parser.add_argument('--start-epoch', type=int, default=1, metavar='N',
                     help='epoch to start at (only affects logging)')
 parser.add_argument('--test-interval', type=int, default=10, metavar='N',
                     help='when to run a test epoch')
-parser.add_argument('--grayscale', action='store_true', default=False, help='Train on grayscale data')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
@@ -56,6 +55,13 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
+with open("/etc/hostname",'r') as f:
+    lisa_check = "lisa" in f.read().lower()
+
+if lisa_check:
+    import os
+    DATA_DIR = os.environ["$TMPDIR"]
+
 data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
                   SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
                   SOSDataset.ToTensor(), SOSDataset.Normalize(), SOSDataset.NormalizeMean(), 
@@ -64,21 +70,21 @@ data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W,
 syn_data_transform = data_transform[1:]
 
 syn_train_loader = torch.utils.data.DataLoader(
-    SynDataset.SynDataset(train=True, transform=syn_data_transform),
+    SynDataset.SynDataset(train=True, transform=syn_data_transform, datadir=DATA_DIR),
     batch_size=args.syn_batch_size, shuffle=True, **kwargs)
 
 syn_test_loader = torch.utils.data.DataLoader(
-    SynDataset.SynDataset(train=False, transform=syn_data_transform),
+    SynDataset.SynDataset(train=False, transform=syn_data_transform, datadir=DATA_DIR),
     batch_size=args.syn_batch_size, shuffle=True, **kwargs)
 
 SOS_train_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True),
+    SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True, datadir=DATA_DIR),
     batch_size=args.batch_size, shuffle=True, **kwargs)
     # ColoredMNIST.ColoredMNIST(train=True, transform=data_transform),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
 
 SOS_test_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True),
+    SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True, datadir=DATA_DIR),
     batch_size=args.batch_size, shuffle=True, **kwargs)
     # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
