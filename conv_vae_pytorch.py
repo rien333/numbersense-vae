@@ -76,6 +76,19 @@ syn_test_loader = torch.utils.data.DataLoader(
     SynDataset.SynDataset(train=False, transform=syn_data_transform),
     batch_size=args.syn_batch_size, shuffle=True, **kwargs)
 
+SOS_train_loader = torch.utils.data.DataLoader(
+    SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True),
+    batch_size=args.batch_size, shuffle=True, **kwargs)
+    # ColoredMNIST.ColoredMNIST(train=True, transform=data_transform),
+    # batch_size=args.batch_size, shuffle=True, **kwargs)
+
+SOS_test_loader = torch.utils.data.DataLoader(
+    SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True),
+    batch_size=args.batch_size, shuffle=True, **kwargs)
+    # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
+    # batch_size=args.batch_size, shuffle=True, **kwargs)
+
+
 class CONV_VAE(nn.Module):
     def __init__(self):
         super(CONV_VAE, self).__init__()
@@ -455,9 +468,9 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, start
 
 if __name__ == "__main__":
     # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
-    optimizer = optim.Adam(model.parameters(), lr=0.0014)
+    optimizer = optim.Adam(model.parameters(), lr=0.0013)
     # Decay lr if nothing happens after 3 epochs (try 3?)
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.22, patience=4, cooldown=1, 
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
                                                verbose=True)
 
     # Pretrain on synthetic data
@@ -469,20 +482,7 @@ if __name__ == "__main__":
             param_group['lr'] = 0.001
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.30, patience=4, cooldown=2, 
                                                verbose=True)
-
-    # Read in only now to save on memory
-    SOS_train_loader = torch.utils.data.DataLoader(
-        SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True),
-        batch_size=args.batch_size, shuffle=True, **kwargs)
-        # ColoredMNIST.ColoredMNIST(train=True, transform=data_transform),
-        # batch_size=args.batch_size, shuffle=True, **kwargs)
-
-    SOS_test_loader = torch.utils.data.DataLoader(
-        SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True),
-        batch_size=args.batch_size, shuffle=True, **kwargs)
-        # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
-        # batch_size=args.batch_size, shuffle=True, **kwargs)
-
+    # Train on the real data
     # Maybe reset the optimizer?
     # optimizer = optim.Adam(model.parameters(), lr=0.0014)
     train_routine(args.syn_epochs + args.epochs, train_loader=SOS_train_loader, test_loader=SOS_test_loader, 
