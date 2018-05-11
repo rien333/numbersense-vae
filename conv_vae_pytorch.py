@@ -6,6 +6,7 @@ import SynDataset
 import SOSDataset
 import torch
 import torch.utils.data
+import torchvision.models as models
 from torch.optim import lr_scheduler
 from torch import nn, optim
 from torch.autograd import Variable
@@ -26,6 +27,7 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='enables CUDA training')
 parser.add_argument('--z-dims', type=int, default=20, metavar='N',
                     help='dimenstionality of the latent z variable')
+parser.add_argument('--dfc', action='store_true', default=False, help="Train with deep feature consistency loss")
 parser.add_argument('--full-con-size', type=int, default=400, metavar='N',
                     help='size of the fully connected layer')
 parser.add_argument('--load-model', type=str, default='', metavar='P',
@@ -56,10 +58,15 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
-data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
-                  SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
-                  SOSDataset.ToTensor(), SOSDataset.Normalize(), SOSDataset.NormalizeMean(), 
-                  SOSDataset.Normalize01()]
+if args.dfc:
+    data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
+                      SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
+                      SOSDataset.ToTensor(), SOSDataset.Normalize(), SOSDataset.NormalizeMeanVGG(),]
+else:
+    data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
+                      SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
+                      SOSDataset.ToTensor(), SOSDataset.Normalize(), SOSDataset.NormalizeMean(), 
+                      SOSDataset.Normalize01()]
 # Rescaling is not needed for synthetic data
 syn_data_transform = data_transform[1:]
 
@@ -217,10 +224,18 @@ class CONV_VAE(nn.Module):
             nn.BatchNorm2d(32),
         )
 
-        self.t_conv_final = nn.Sequential(
-            nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no relu or batch norm. on output
-            nn.Sigmoid() # output between 0 and 1 # Relu?
-        )
+        # some implementatationa keep the sigmiod/final activation function
+        if args.dfc:
+            self.t_conv_final = nn.Sequential(
+                nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no relu or batch norm. on output
+                # nn.Sigmoid()
+            )
+        else:
+            self.t_conv_final = nn.Sequential(
+                nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no relu or batch norm. on output
+                nn.Sigmoid()  # output between 0 and 1 # Relu?
+            )
+
 
     def encode(self, x: Variable) -> (Variable, Variable):
         """Input vector x -> fully connected 1 -> ReLU -> (fully connected
@@ -317,7 +332,42 @@ class CONV_VAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         return self.decode(z), mu, logvar
 
-# Iinitialize layers with He initialisation
+class _VGG(nn.Module):
+    '''
+    Classic pre-trained VGG19 model.
+    Its forward call returns a list of the activations from
+    the predefined content layers. Used for computing dfc loss.
+    '''
+
+    def __init__(self):
+        super(_VGG, self).__init__()
+        features = models.vgg19(pretrained=True).features
+
+        self.layer_names = ['conv1_1', 'relu1_1', 'conv1_2', 'relu1_2', 'pool1',
+               'conv2_1', 'relu2_1', 'conv2_2', 'relu2_2', 'pool2',
+               'conv3_1', 'relu3_1', 'conv3_2', 'relu3_2', 'conv3_3', 'relu3_3', 'conv3_4', 'relu3_4', 'pool3',
+               'conv4_1', 'relu4_1', 'conv4_2', 'relu4_2', 'conv4_3', 'relu4_3', 'conv4_4', 'relu4_4', 'pool4',
+               'conv5_1', 'relu5_1', 'conv5_2', 'relu5_2', 'conv5_3', 'relu5_3', 'conv5_4', 'relu5_4', 'pool5']
+        self.content_layers = ['relu3_1', 'relu4_1', 'relu5_1']
+
+        self.features = nn.Sequential()
+        for i, module in enumerate(features):
+            name = self.layer_names[i]
+            self.features.add_module(name, module)
+
+    def forward(self, x):
+        batch_size = x.size(0) # needed because sometimes the batch size is not exactly 64
+        # im not really sure if this pretrained model has the same input size
+        all_outputs = []
+        output = x.clone() # copying that is appearantly needed for gradients
+        # output = x
+        for name, module in self.features.named_children():
+            if name in self.content_layers:
+                output = module(output) # # This was above here but that seemed worthless
+                all_outputs.append(output.view(batch_size, -1))
+        return all_outputs
+
+# Initialize layers with He initialisation
 # Consider not initializing the first conv layer like Tom's code
 def weights_init(m):
     classname = m.__class__.__name__
@@ -340,10 +390,14 @@ model.apply(weights_init)
 if args.load_model:
     model.load_state_dict(
         torch.load(args.load_model, map_location=lambda storage, loc: storage))
+if args.dfc:
+    descriptor = _VGG()
+    if args.cuda:
+        descriptor.cuda()
 if args.cuda:
     model.cuda()
 
-def loss_function(recon_x, x, mu, logvar) -> Variable:
+def loss_function(recon_x, x, mu, logvar):
     # how well do input x and output recon_x agree?
     BCE = F.binary_cross_entropy(recon_x, x, size_average=False)
 
@@ -366,14 +420,28 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
     # KLD tries to push the distributions as close as possible to unit Gaussian
     return BCE + KLD
 
-def train(epoch, loader, optimizer):
-    # toggle model to train mode
-    model.train()
-    train_loss = 0
-    # in the case of MNIST, len(train_loader.dataset) is 60000
-    # each `data` is of args.batch_size samples and has shape [128, 1, 28, 28]
+def loss_function_dfc(recon_x, x, mu, logvar):
+    # loss is KLD + percetupal reconstruction loss between the convs layers
+    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
-    # if you have labels, do this
+    # not sure about the input size really
+    targets = descriptor(x) # vgg
+    recon_features = descriptor(recon_x)
+    # awkward but aviods in place error (something similar is done in the original code)
+    p1 = Variable(recon_features[0])
+    p2 = Variable(recon_features[1])
+    p3 = Variable(recon_features[2])
+    fpl = F.mse_loss(p1, targets[0].detach()) + F.mse_loss(p2, targets[1].detach()) + F.mse_loss(p3, targets[2].detach())
+    # might need style weight (i.e. times small number)
+    # fpl = 0
+    # for f, target in zip(recon_features, targets):
+    #     # fpl += F.mse_loss(f, target.detach())#.div(f.size(1))
+    #     # avoid inplace op
+        # fpl = fpl + F.mse_loss(f, target.detach())#.div(f.size(1))
+    return KLD + fpl
+
+def vanilla_train(epoch, loader, optimizer):
+    model.train()
     for batch_idx, (data, _) in enumerate(loader):
     # for batch_idx, data in enumerate(train_loader):
         data = Variable(data)
@@ -388,32 +456,42 @@ def train(epoch, loader, optimizer):
         # calculate the gradient of the loss w.r.t. the graph leaves
         # i.e. input variables -- by the power of pytorch!
         loss.backward()
-        train_loss += loss.item()
+        optimizer.step()
+
+def train_dfc(epoch, loader, optimizer):
+    model.train()
+    # x = Variable(torch.FloatTensor(args.batch_size, DATA_C, DATA_H, DATA_W))
+    for i, (data, _) in enumerate(loader):
+        data = Variable(data)
+        if args.cuda:
+            data = data.cuda()
+        # x.data.copy_(data)
+        optimizer.zero_grad()
+
+        recon_batch, mu, logvar = model(data)
+
+        loss = loss_function_dfc(recon_batch, data, mu, logvar)
+        loss.backward()
         optimizer.step()
 
 def test(epoch, loader):
-    # toggle model to test / inference mode
     model.eval()
     test_loss = 0
 
-    # each data is of args.batch_size (default 128) samples
     for i, (data, _) in enumerate(loader):
     # for i, data in enumerate(test_loader):
         if args.cuda:
-            # make sure this lives on the GPU
             data = data.cuda()
 
-        # we're only going to infer, so no autograd at all required: volatile=True
         data = Variable(data) # Unneeded?
         with torch.no_grad():
             recon_batch, mu, logvar = model(data)
-            test_loss += loss_function(recon_batch, data, mu, logvar).item()
+            if args.dfc:
+                test_loss += loss_function_dfc(recon_batch, data, mu, logvar).item()
+            else:
+                test_loss += loss_function(recon_batch, data, mu, logvar).item()
             if i == 0:
                 n = min(data.size(0), 8)
-                # for the first 128 batch of the epoch, show the first 8 input digits
-                # with right below them the reconstructed output digits
-                # the -1 is decide dim_size yourself, so could be 3 or 1 depended on color channels
-                # I think we don't need the data view?
                 comparison = torch.cat([data[:n],
                                         recon_batch.view(loader.batch_size, -1, DATA_W, DATA_H)[:n]])
                 save_image(comparison.data.cpu(),
@@ -422,7 +500,15 @@ def test(epoch, loader):
     print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
     return test_loss
 
-def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, start_epoch=0):
+# Compare convolutions recronstructions of the vgg16 model as a loss function, instead of the standard loss
+if args.dfc:
+    train = train_dfc
+    # Also load in the vgg network etc.
+else:
+    print("Normal training routine")
+    train = vanilla_train
+
+def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset=120, start_epoch=0):
     # This could/should be a dictionary
     best_models = [("", 100000000000)]*3
     for epoch in range(start_epoch, epochs + 1):
@@ -459,6 +545,12 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, start
             # this will give you a visual idea of how well latent space can generate new things
             save_image(sample.data.view(64, -1, DATA_H, DATA_W),
                    'results/sample_' + str(epoch) + '.png')
+        
+        if ((epoch - start_epoch) % reset == 0) and (epoch != start_epoch):
+            print("Resetting learning rate")
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = 0.001
+            scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, verbose=True)
 
 if __name__ == "__main__":
     # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
@@ -473,11 +565,12 @@ if __name__ == "__main__":
     print("Done with synthetic data!")
 
     for param_group in optimizer.param_groups:
-            param_group['lr'] = 0.001
+            param_group['lr'] = 0.001 # try this during synthetic pass at one point? (halfway?) ❗❗❗
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.30, patience=4, cooldown=2, 
                                                verbose=True)
     # Train on the real data
     # Maybe reset the optimizer?
     # optimizer = optim.Adam(model.parameters(), lr=0.0014)
     train_routine(args.syn_epochs + args.epochs, train_loader=SOS_train_loader, test_loader=SOS_test_loader, 
-                  start_epoch=args.syn_epochs + args.start_epoch, optimizer=optimizer, scheduler=scheduler)
+                  start_epoch=args.syn_epochs + args.start_epoch, optimizer=optimizer, scheduler=scheduler, 
+                  reset=85)
