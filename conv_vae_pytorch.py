@@ -73,10 +73,14 @@ syn_data_transform = data_transform[1:]
 with open("/etc/hostname",'r') as f:
     lisa_check = "lisa" in f.read().lower()
 
-DATA_DIR = "" # assume working directory
 if lisa_check:
     import os
-    DATA_DIR = os.environ["TMPDIR"] + "/"
+    scratchdir = os.environ["TMPDIR"]
+    DATA_DIR = scratchdir + "/"
+    SAVE_DIR = scratchdir + "/"
+else:
+    DATA_DIR = "../Datasets/"
+    SAVE_DIR = "" # assume working directory
 
 syn_train_loader = torch.utils.data.DataLoader(
     SynDataset.SynDataset(train=True, transform=syn_data_transform, datadir=DATA_DIR),
@@ -386,6 +390,9 @@ def weights_init(m):
     elif isinstance(m, nn.BatchNorm2d) or isinstance(m, nn.BatchNorm1d):
         nn.init.normal(m.weight.data, std=0.015) # Small std, maybe to small?
         m.bias.data.zero_()
+    # elif isinstance(m, nn.Linear): # done above
+    #     nn.init.xavier_uniform(m.weight.data)
+    #     m.bias.data.zero_()
 
 model = CONV_VAE()
 model.apply(weights_init)
@@ -485,6 +492,7 @@ def test(epoch, loader):
             recon_batch, mu, logvar = model(data)
             if args.dfc:
                 test_loss += loss_function_dfc(recon_batch, data, mu, logvar).item()
+                recon_batch = F.sigmoid(recon_batch)
             else:
                 test_loss += loss_function(recon_batch, data, mu, logvar).item()
             if i == 0:
@@ -523,7 +531,7 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
             test_loss = test(epoch, test_loader)
             scheduler.step(test_loss)
 
-            new_file = DATA_DIR + 'models/vae-%s.pt' % (epoch)
+            new_file = SAVE_DIR + 'models/vae-%s.pt' % (epoch)
             max_idx, max_loss = max(enumerate(best_models), key = lambda x : x[1][1])
             max_loss = max_loss[1]
             if test_loss < max_loss:
@@ -533,7 +541,7 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
                 best_models[max_idx] = (new_file, test_loss)
 
             # Save model and delete older versions
-            old_file = DATA_DIR + "models/vae-%s.pt" % (epoch - 2*args.test_interval)
+            old_file = SAVE_DIR + "models/vae-%s.pt" % (epoch - 2*args.test_interval)
             found_best = old_file in [m[0] for m in best_models]
             if os.path.isfile(old_file) and not found_best:
                 os.remove(old_file)
@@ -541,7 +549,7 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
 
             # this will give you a visual idea of how well latent space can generate new things
             save_image(sample.data.view(64, -1, DATA_H, DATA_W),
-                   DATA_DIR + 'results/sample_' + str(epoch) + '.png')
+                   SAVE_DIR + 'results/sample_' + str(epoch) + '.png')
         
         if ((epoch - start_epoch) % reset == 0) and (epoch != start_epoch):
             print("Resetting learning rate")
