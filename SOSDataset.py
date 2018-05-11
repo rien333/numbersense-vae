@@ -86,6 +86,13 @@ class NormalizeMean(object):
                                  std=[0.5, 0.5, 0.5])
         return normalize(s[0]), s[1]
 
+class NormalizeMeanVGG(object):
+
+    def __call__(self, s):
+        normalize = transforms.Normalize(mean=(0.485, 0.456, 0.406),
+                         std=(0.229, 0.224, 0.225))
+        return normalize(s[0]), s[1]
+
 class Log(object):
 
     def __call__(self, s):
