@@ -14,12 +14,13 @@ DATA_C = SOSDataset.DATA_C
 
 class SynDataset(Dataset):
 
-    def __init__(self, train=True, transform=None, datadir="../Datasets/synthetic/"):
+    def __init__(self, train=True, transform=None, datadir="../Datasets/"):
         self.datadir = datadir
         self.train = train
         self.transform = transforms.Compose(transform)
+        self.datadir = datadir + "synthetic/"
 
-        files_txt = datadir+"files.txt"
+        files_txt = self.datadir+"files.txt"
         with open(files_txt, "r") as f:
             files = f.read().splitlines()
 

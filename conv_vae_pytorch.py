@@ -36,7 +36,6 @@ parser.add_argument('--start-epoch', type=int, default=1, metavar='N',
                     help='epoch to start at (only affects logging)')
 parser.add_argument('--test-interval', type=int, default=10, metavar='N',
                     help='when to run a test epoch')
-parser.add_argument('--grayscale', action='store_true', default=False, help='Train on grayscale data')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
@@ -67,25 +66,34 @@ else:
                       SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
                       SOSDataset.ToTensor(), SOSDataset.Normalize(), SOSDataset.NormalizeMean(), 
                       SOSDataset.Normalize01()]
+
 # Rescaling is not needed for synthetic data
 syn_data_transform = data_transform[1:]
 
+with open("/etc/hostname",'r') as f:
+    lisa_check = "lisa" in f.read().lower()
+
+DATA_DIR = "" # assume working directory
+if lisa_check:
+    import os
+    DATA_DIR = os.environ["TMPDIR"] + "/"
+
 syn_train_loader = torch.utils.data.DataLoader(
-    SynDataset.SynDataset(train=True, transform=syn_data_transform),
+    SynDataset.SynDataset(train=True, transform=syn_data_transform, datadir=DATA_DIR),
     batch_size=args.syn_batch_size, shuffle=True, **kwargs)
 
 syn_test_loader = torch.utils.data.DataLoader(
-    SynDataset.SynDataset(train=False, transform=syn_data_transform),
+    SynDataset.SynDataset(train=False, transform=syn_data_transform, datadir=DATA_DIR),
     batch_size=args.syn_batch_size, shuffle=True, **kwargs)
 
 SOS_train_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True),
+    SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True, datadir=DATA_DIR),
     batch_size=args.batch_size, shuffle=True, **kwargs)
     # ColoredMNIST.ColoredMNIST(train=True, transform=data_transform),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
 
 SOS_test_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True),
+    SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True, datadir=DATA_DIR),
     batch_size=args.batch_size, shuffle=True, **kwargs)
     # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
     # batch_size=args.batch_size, shuffle=True, **kwargs)
@@ -379,11 +387,6 @@ def weights_init(m):
         nn.init.normal(m.weight.data, std=0.015) # Small std, maybe to small?
         m.bias.data.zero_()
 
-    # Not sure if thiss will help but looks interesting
-    # elif classname.find('BatchNorm') != -1:
-    #     m.weight.data.normal_(1.0, 0.02)
-    #     m.bias.data.fill_(0)
-
 model = CONV_VAE()
 model.apply(weights_init)
 
@@ -432,12 +435,6 @@ def loss_function_dfc(recon_x, x, mu, logvar):
     p2 = Variable(recon_features[1])
     p3 = Variable(recon_features[2])
     fpl = F.mse_loss(p1, targets[0].detach()) + F.mse_loss(p2, targets[1].detach()) + F.mse_loss(p3, targets[2].detach())
-    # might need style weight (i.e. times small number)
-    # fpl = 0
-    # for f, target in zip(recon_features, targets):
-    #     # fpl += F.mse_loss(f, target.detach())#.div(f.size(1))
-    #     # avoid inplace op
-        # fpl = fpl + F.mse_loss(f, target.detach())#.div(f.size(1))
     return KLD + fpl
 
 def vanilla_train(epoch, loader, optimizer):
@@ -526,7 +523,7 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
             test_loss = test(epoch, test_loader)
             scheduler.step(test_loss)
 
-            new_file = 'models/vae-%s.pt' % (epoch)
+            new_file = DATA_DIR + 'models/vae-%s.pt' % (epoch)
             max_idx, max_loss = max(enumerate(best_models), key = lambda x : x[1][1])
             max_loss = max_loss[1]
             if test_loss < max_loss:
@@ -536,7 +533,7 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
                 best_models[max_idx] = (new_file, test_loss)
 
             # Save model and delete older versions
-            old_file = "models/vae-%s.pt" % (epoch - 2*args.test_interval)
+            old_file = DATA_DIR + "models/vae-%s.pt" % (epoch - 2*args.test_interval)
             found_best = old_file in [m[0] for m in best_models]
             if os.path.isfile(old_file) and not found_best:
                 os.remove(old_file)
@@ -544,13 +541,15 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
 
             # this will give you a visual idea of how well latent space can generate new things
             save_image(sample.data.view(64, -1, DATA_H, DATA_W),
-                   'results/sample_' + str(epoch) + '.png')
+                   DATA_DIR + 'results/sample_' + str(epoch) + '.png')
         
         if ((epoch - start_epoch) % reset == 0) and (epoch != start_epoch):
             print("Resetting learning rate")
             for param_group in optimizer.param_groups:
                 param_group['lr'] = 0.001
-            scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, verbose=True)
+            scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
+                                                       verbose=True)
+
 
 if __name__ == "__main__":
     # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
@@ -573,4 +572,4 @@ if __name__ == "__main__":
     # optimizer = optim.Adam(model.parameters(), lr=0.0014)
     train_routine(args.syn_epochs + args.epochs, train_loader=SOS_train_loader, test_loader=SOS_test_loader, 
                   start_epoch=args.syn_epochs + args.start_epoch, optimizer=optimizer, scheduler=scheduler, 
-                  reset=85)
+                  reset=88)
