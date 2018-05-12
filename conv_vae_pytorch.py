@@ -52,15 +52,21 @@ if args.cuda:
 DATA_W = SOSDataset.DATA_W
 DATA_H = SOSDataset.DATA_H
 DATA_C = SOSDataset.DATA_C # Color component dimension size
+# DATA_W = 20
+# DATA_H = 20
+# DATA_C = 3
 DATA_SIZE = DATA_W * DATA_H * DATA_C
+
 
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
 if args.dfc:
+    # There is a normalizeMEANVGG that seem handy
     data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
                       SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
-                      SOSDataset.ToTensor(), SOSDataset.Normalize(), SOSDataset.NormalizeMeanVGG(),]
+                      SOSDataset.ToTensor(), SOSDataset.Normalize(), SOSDataset.NormalizeMean(), 
+                      SOSDataset.Normalize01()]
 else:
     data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
                       SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
@@ -239,12 +245,15 @@ class CONV_VAE(nn.Module):
         # some implementatationa keep the sigmiod/final activation function
         if args.dfc:
             self.t_conv_final = nn.Sequential(
-                nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no relu or batch norm. on output
-                # nn.Sigmoid()
+                nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no batch norm. on output
+                # nn.Sigmoid() # no sigmiod if that's different from the input?
+                # nn.tanh() # this is what they use in the original paper
+                nn.Tanh()
+                # nn.Softsign() # no sigmiod if that's different from the input?
             )
         else:
             self.t_conv_final = nn.Sequential(
-                nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no relu or batch norm. on output
+                nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no batch norm. on output
                 nn.Sigmoid()  # output between 0 and 1 # Relu?
             )
 
@@ -369,15 +378,16 @@ class _VGG(nn.Module):
 
     def forward(self, x):
         batch_size = x.size(0) # needed because sometimes the batch size is not exactly 64
-        # im not really sure if this pretrained model has the same input size
         all_outputs = []
-        output = x.clone() # copying that is appearantly needed for gradients
-        # output = x
+        output = x
         for name, module in self.features.named_children():
+            # go through all modules
+            output = module(output)
+            # and append when we're interesed in the output
             if name in self.content_layers:
-                output = module(output) # # This was above here but that seemed worthless
                 all_outputs.append(output.view(batch_size, -1))
         return all_outputs
+
 
 # Initialize layers with He initialisation
 # Consider not initializing the first conv layer like Tom's code
@@ -404,6 +414,7 @@ if args.dfc:
     descriptor = _VGG()
     if args.cuda:
         descriptor.cuda()
+        descriptor.eval()
 if args.cuda:
     model.cuda()
 
@@ -430,18 +441,25 @@ def loss_function(recon_x, x, mu, logvar):
     # KLD tries to push the distributions as close as possible to unit Gaussian
     return BCE + KLD
 
-def loss_function_dfc(recon_x, x, mu, logvar):
+# test is debug, remove later 
+def loss_function_dfc(recon_x, x, mu, logvar, test=False):
     # loss is KLD + percetupal reconstruction loss between the convs layers
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
     # not sure about the input size really
     targets = descriptor(x) # vgg
     recon_features = descriptor(recon_x)
+    # t1, t2, t3 = descriptor(x)
+    # r1, r2, r3 = descriptor(recon_x)
+    style_weight = 0.5
     # awkward but aviods in place error (something similar is done in the original code)
-    p1 = Variable(recon_features[0])
-    p2 = Variable(recon_features[1])
-    p3 = Variable(recon_features[2])
-    fpl = F.mse_loss(p1, targets[0].detach()) + F.mse_loss(p2, targets[1].detach()) + F.mse_loss(p3, targets[2].detach())
+    # fpl = F.mse_loss(r1, t1.detach()) + F.mse_loss(r2, t2.detach()) + F.mse_loss(r3, t3.detach())
+    fpl = 0
+    for f, target in zip(recon_features, targets):
+        fpl += F.mse_loss(f, target.detach())#.div(f.size(1))
+    fpl = fpl * style_weight
+    if test:
+        return KLD + fpl, fpl
     return KLD + fpl
 
 def vanilla_train(epoch, loader, optimizer):
@@ -469,11 +487,9 @@ def train_dfc(epoch, loader, optimizer):
         data = Variable(data)
         if args.cuda:
             data = data.cuda()
-        # x.data.copy_(data)
         optimizer.zero_grad()
-
         recon_batch, mu, logvar = model(data)
-
+        # remvoe second var
         loss = loss_function_dfc(recon_batch, data, mu, logvar)
         loss.backward()
         optimizer.step()
@@ -481,7 +497,7 @@ def train_dfc(epoch, loader, optimizer):
 def test(epoch, loader):
     model.eval()
     test_loss = 0
-
+    fpl_loss = 0
     for i, (data, _) in enumerate(loader):
     # for i, data in enumerate(test_loader):
         if args.cuda:
@@ -491,8 +507,9 @@ def test(epoch, loader):
         with torch.no_grad():
             recon_batch, mu, logvar = model(data)
             if args.dfc:
-                test_loss += loss_function_dfc(recon_batch, data, mu, logvar).item()
-                recon_batch = F.sigmoid(recon_batch)
+                loss, fpl = loss_function_dfc(recon_batch, data, mu, logvar, test=True)
+                fpl_loss += fpl.item()
+                test_loss += loss.item()
             else:
                 test_loss += loss_function(recon_batch, data, mu, logvar).item()
             if i == 0:
@@ -502,6 +519,7 @@ def test(epoch, loader):
                 save_image(comparison.data.cpu(),
                            'results/reconstruction_' + str(epoch) + '.png', nrow=n)
     test_loss /= len(loader.dataset)
+    print("fpl loss", fpl_loss)
     print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
     return test_loss
 
