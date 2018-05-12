@@ -8,12 +8,12 @@ from torchvision import transforms
 from torch.utils.data import Dataset
 from torchvision.utils import save_image
 
-# disable h5py warning
+# disable h5py warning, but disables pytorch warnings as well!!!
 np.warnings.filterwarnings('ignore')
 
 # was 256, this is after cropping. Used to be 227x227 with crop, but 224 (even) makes the math easier
-DATA_W = 225
-DATA_H = 225
+DATA_W = 209
+DATA_H = 209
 DATA_C = 3
 
 class RandomColorShift(object):
@@ -59,13 +59,16 @@ class RandHorizontalFlip(object):
 
 class ToTensor(object):
 
+    def __init__(self):
+        self.t_transform = transforms.ToTensor()
+
     def  __call__(self, s):
         # swap color axis because
         # numpy image: H x W x C
         # torch image: C X H X W
         # You can do the reshape((W,H,C)) to get the original (numpy format) back
-        im = torch.from_numpy(s[0].transpose((2,0,1))).float()
-        return im, torch.Tensor([s[1]]).byte()
+        # im = torch.from_numpy(s[0].transpose((2,0,1))).float()
+        return self.t_transform(s[0]), torch.Tensor([s[1]]).byte()
 
 class Normalize(object):
 
@@ -73,6 +76,13 @@ class Normalize(object):
         return s[0] / 255, s[1]
 
 class Normalize01(object):
+
+    """Normalize between 0-1, from -1 and 1"""
+
+    def __call__(self, s):
+        return (s[0] + 1)/2, s[1]
+
+class NormalizeMin1_1(object):
 
     """Normalize between 0-1"""
 
@@ -82,8 +92,8 @@ class Normalize01(object):
 class NormalizeMean(object):
 
     def __call__(self, s):
-        normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                 std=[0.5, 0.5, 0.5])
+        normalize = transforms.Normalize(mean=(0.5, 0.5, 0.5),
+                                 std=(0.5, 0.5, 0.5))
         return normalize(s[0]), s[1]
 
 class NormalizeMeanVGG(object):
@@ -140,7 +150,6 @@ class SOSDataset(Dataset):
             im = mat_get(fname)
             if not extended:
                 im = np.array(im, dtype=np.uint8).tostring().decode("ascii")
-                
 
             if mat_get(istest)[0]:
                 if not self.train:
@@ -148,7 +157,7 @@ class SOSDataset(Dataset):
             else:
                 if self.train:
                     self.train_data.append((im, mat_get(label)[0]))
-
+        # 10966 for train, 2741 for test
         self.nsamples = len(self.train_data) if self.train else len(self.test_data)
 
     def __len__(self):
@@ -166,10 +175,12 @@ class SOSDataset(Dataset):
 
 if __name__ == "__main__":
     # load preprocess
-    transform = [Rescale((256, 256)), RandomCrop((DATA_W, DATA_H)), RandomColorShift(), ToTensor()]
+    transform = [Rescale((256, 256)), RandomCrop((DATA_W, DATA_H)), RandomColorShift(), ToTensor(), Normalize(), NormalizeMeanVGG()]
     # transform = [Rescale((256, 256)), 
     #               ToTensor(), Normalize()]
     dataset = SOSDataset(train=False, transform=transform, extended=True)
+    print(torch.unique(dataset[1][0], sorted=True))
+    exit(0)
     for i in range(0, 10):
         cv2.imshow("im", cv2.cvtColor(dataset[i][0], cv2.COLOR_BGR2RGB))
         cv2.waitKey(0)
@@ -177,6 +188,6 @@ if __name__ == "__main__":
         cv2.waitKey(0)
 
     # Save preprocess 
-    # data_transform = [Rescale((DATA_W, DATA_H)), FlattenArrToTensor(), Normalize()]
+    # data_transform = [Rescale((DATA_2W, DATA_H)), FlattenArrToTensor(), Normalize()]
     # dataset = SOSDataset(train=True, transform=data_transform, preprocessed=False)
     # dataset.save()

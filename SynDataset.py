@@ -8,9 +8,9 @@ from torch.utils.data import Dataset
 import SOSDataset
 
 # was 256, this is after cropping. Used to be 227x227 with crop, but 224 (even) makes the math easier
-DATA_W = SOSDataset.DATA_W
-DATA_H = SOSDataset.DATA_H
-DATA_C = SOSDataset.DATA_C
+# DATA_W = SOSDataset.DATA_W
+# DATA_H = SOSDataset.DATA_H
+# DATA_C = SOSDataset.DATA_C
 
 class SynDataset(Dataset):
 
@@ -28,9 +28,9 @@ class SynDataset(Dataset):
         shuffle(files)
         self.files = files
         nfiles = len(files)
-        self.train_range = int(0.8 * nfiles)-1 # convert to idx
+        self.train_range = int(0.8 * nfiles) # convert to idx
         self.nsamples = self.train_range if train else nfiles - self.train_range
-        
+
     def __len__(self):
         return self.nsamples
 

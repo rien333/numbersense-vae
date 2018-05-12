@@ -49,12 +49,14 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 # Width and height of a sample from the dataset
+# SOS DATAset size was changed! bc of the whole vgg/dfc thing
+# DATA_W = 64
+# DATA_H = 64
+# DATA_C = 3
 DATA_W = SOSDataset.DATA_W
 DATA_H = SOSDataset.DATA_H
 DATA_C = SOSDataset.DATA_C # Color component dimension size
-# DATA_W = 20
-# DATA_H = 20
-# DATA_C = 3
+
 DATA_SIZE = DATA_W * DATA_H * DATA_C
 
 
@@ -63,18 +65,21 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
 if args.dfc:
     # There is a normalizeMEANVGG that seem handy
-    data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
+    # Okay the vgg norm is now done in the net so that the original data is not as screwed up
+    # data is originally 64x64, so try smaller sizes?
+    # also not sure if it's between 0-1 and one per se, but maybe 0-255
+    data_transform = [SOSDataset.Rescale((236, 236)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
                       SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
-                      SOSDataset.ToTensor(), SOSDataset.Normalize(), SOSDataset.NormalizeMean(), 
-                      SOSDataset.Normalize01()]
+                      SOSDataset.ToTensor(),]
+    syn_data_transform = list(data_transform)
 else:
+    # ToTensor already puts everything in range 0-1
     data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
                       SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
-                      SOSDataset.ToTensor(), SOSDataset.Normalize(), SOSDataset.NormalizeMean(), 
+                      SOSDataset.ToTensor(), SOSDataset.NormalizeMean(), 
                       SOSDataset.Normalize01()]
-
-# Rescaling is not needed for synthetic data
-syn_data_transform = data_transform[1:]
+    # Rescaling is not needed for synthetic data
+    syn_data_transform = data_transform[1:]
 
 with open("/etc/hostname",'r') as f:
     lisa_check = "lisa" in f.read().lower()
@@ -156,7 +161,7 @@ class CONV_VAE(nn.Module):
         # conv4/conv-out should be flattened
         # fc1 conv depth * (DATA_W*DATA_H / (number of pools * 2)) (with some rounding)
         self.fc1 = nn.Sequential(
-            nn.Linear(256*14*14, args.full_con_size),
+            nn.Linear(256*13*13, args.full_con_size),
             nn.LeakyReLU(0.2),
             nn.BatchNorm1d(args.full_con_size)
         )
@@ -201,9 +206,9 @@ class CONV_VAE(nn.Module):
         # 128*14*14 * a few (4) upsampling = the original input size
         # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
-            nn.Linear(args.full_con_size, 256*15*15),
+            nn.Linear(args.full_con_size, 256*14*14),
             nn.LeakyReLU(0.2),
-            nn.BatchNorm1d(256*15*15)
+            nn.BatchNorm1d(256*14*14)
         )
 
         # stride in 1st covn. = 1 bc we don't wanna miss anything (interdependence) from the z layer
@@ -246,9 +251,8 @@ class CONV_VAE(nn.Module):
         if args.dfc:
             self.t_conv_final = nn.Sequential(
                 nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no batch norm. on output
-                # nn.Sigmoid() # no sigmiod if that's different from the input?
-                # nn.tanh() # this is what they use in the original paper
-                nn.Tanh()
+                nn.Sigmoid() # no sigmiod if that's different from the input?
+                # nn.Tanh() # this is what they use in the original paper
                 # nn.Softsign() # no sigmiod if that's different from the input?
             )
         else:
@@ -340,7 +344,7 @@ class CONV_VAE(nn.Module):
         h3 = self.fc3(z)
         # another layer that maps h3 to a conv shape
         h4 = self.fc4(h3)
-        h4_expanded = h4.view(-1, 256, 15, 15) # 15 * (4 * 2x upsamling conv) ~= 224
+        h4_expanded = h4.view(-1, 256, 14, 14) # 15 * (4 * 2x upsamling conv) ~= 224
         up_conv1 = self.t_conv1(h4_expanded)
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
         up_conv3 = self.t_conv3(up_conv2)
@@ -353,6 +357,18 @@ class CONV_VAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         return self.decode(z), mu, logvar
 
+# Use special vgg normalisation layer as to not make the input weird
+class ImageNet_Norm_Layer_2(nn.Module):
+
+    def __init__(self, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
+        super(ImageNet_Norm_Layer_2, self).__init__()
+        dtype = torch.cuda.FloatTensor if args.cuda else torch.FloatTensor
+        self.mean = Variable(torch.FloatTensor(mean).type(dtype), requires_grad=0)
+        self.std = Variable(torch.FloatTensor(std).type(dtype), requires_grad=0)
+
+    def forward(self, input):
+        return ((input.permute(0, 2, 3, 1) - self.mean) / self.std).permute(0, 3, 1, 2)
+
 class _VGG(nn.Module):
     '''
     Classic pre-trained VGG19 model.
@@ -363,13 +379,14 @@ class _VGG(nn.Module):
     def __init__(self):
         super(_VGG, self).__init__()
         features = models.vgg19(pretrained=True).features
+        self.norm_layer = ImageNet_Norm_Layer_2() # norm done in net to net screw the input
 
         self.layer_names = ['conv1_1', 'relu1_1', 'conv1_2', 'relu1_2', 'pool1',
                'conv2_1', 'relu2_1', 'conv2_2', 'relu2_2', 'pool2',
                'conv3_1', 'relu3_1', 'conv3_2', 'relu3_2', 'conv3_3', 'relu3_3', 'conv3_4', 'relu3_4', 'pool3',
                'conv4_1', 'relu4_1', 'conv4_2', 'relu4_2', 'conv4_3', 'relu4_3', 'conv4_4', 'relu4_4', 'pool4',
                'conv5_1', 'relu5_1', 'conv5_2', 'relu5_2', 'conv5_3', 'relu5_3', 'conv5_4', 'relu5_4', 'pool5']
-        self.content_layers = ['relu3_1', 'relu4_1', 'relu5_1']
+        self.content_layers = ['relu1_1', 'relu2_1', 'relu3_1']
 
         self.features = nn.Sequential()
         for i, module in enumerate(features):
@@ -379,6 +396,7 @@ class _VGG(nn.Module):
     def forward(self, x):
         batch_size = x.size(0) # needed because sometimes the batch size is not exactly 64
         all_outputs = []
+        x = self.norm_layer(x)
         output = x
         for name, module in self.features.named_children():
             # go through all modules
@@ -388,6 +406,21 @@ class _VGG(nn.Module):
                 all_outputs.append(output.view(batch_size, -1))
         return all_outputs
 
+# this has to be a trainable module for some reason
+# maybe put in the loss function
+class Content_Loss(nn.Module):
+
+    def __init__(self, alpha=1, beta=0.5):
+        super(Content_Loss, self).__init__()
+        self.alpha = alpha
+        self.beta = beta
+        self.criterion = nn.MSELoss()
+
+    def forward(self, output, target, mean, logvar):
+        kld = -0.5 * torch.mean(1 + logvar - mean.pow(2) - logvar.exp())  # or should we use torch.sum() ?
+        loss_list = [self.criterion(output[layer], target[layer]) for layer in range(len(output))]
+        content = sum(loss_list)
+        return self.alpha * kld + self.beta * content
 
 # Initialize layers with He initialisation
 # Consider not initializing the first conv layer like Tom's code
@@ -395,10 +428,10 @@ def weights_init(m):
     classname = m.__class__.__name__
     if (isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d)
         or isinstance(m, nn.Linear)):
-        nn.init.kaiming_uniform(m.weight.data) # This is He initialization
+        nn.init.kaiming_uniform_(m.weight.data) # This is He initialization
         m.bias.data.zero_()
     elif isinstance(m, nn.BatchNorm2d) or isinstance(m, nn.BatchNorm1d):
-        nn.init.normal(m.weight.data, std=0.015) # Small std, maybe to small?
+        nn.init.normal_(m.weight.data, std=0.015) # Small std, maybe to small?
         m.bias.data.zero_()
     # elif isinstance(m, nn.Linear): # done above
     #     nn.init.xavier_uniform(m.weight.data)
@@ -412,13 +445,18 @@ if args.load_model:
         torch.load(args.load_model, map_location=lambda storage, loc: storage))
 if args.dfc:
     descriptor = _VGG()
+    # The exact style seems less relevant, but try different values
+    content_loss = Content_Loss(alpha=0.5)
     if args.cuda:
         descriptor.cuda()
-        descriptor.eval()
+        # content_loss.cuda() # Skip cuda and save memory?
+    descriptor.eval()
+    for param in descriptor.parameters():
+        param.requires_grad = False
 if args.cuda:
     model.cuda()
 
-def loss_function(recon_x, x, mu, logvar):
+def loss_function_van(recon_x, x, mu, logvar):
     # how well do input x and output recon_x agree?
     BCE = F.binary_cross_entropy(recon_x, x, size_average=False)
 
@@ -441,28 +479,19 @@ def loss_function(recon_x, x, mu, logvar):
     # KLD tries to push the distributions as close as possible to unit Gaussian
     return BCE + KLD
 
-# test is debug, remove later 
-def loss_function_dfc(recon_x, x, mu, logvar, test=False):
+def loss_function_dfc(recon_x, x, mu, logvar):
     # loss is KLD + percetupal reconstruction loss between the convs layers
-    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-
-    # not sure about the input size really
     targets = descriptor(x) # vgg
     recon_features = descriptor(recon_x)
-    # t1, t2, t3 = descriptor(x)
-    # r1, r2, r3 = descriptor(recon_x)
-    style_weight = 0.5
-    # awkward but aviods in place error (something similar is done in the original code)
-    # fpl = F.mse_loss(r1, t1.detach()) + F.mse_loss(r2, t2.detach()) + F.mse_loss(r3, t3.detach())
-    fpl = 0
-    for f, target in zip(recon_features, targets):
-        fpl += F.mse_loss(f, target.detach())#.div(f.size(1))
-    fpl = fpl * style_weight
-    if test:
-        return KLD + fpl, fpl
-    return KLD + fpl
+    return content_loss(recon_features, targets, mu, logvar)
 
-def vanilla_train(epoch, loader, optimizer):
+# Check for dfc loss
+if args.dfc:
+    loss_function = loss_function_dfc
+else:
+    loss_function = loss_function_van
+
+def train(epoch, loader, optimizer):
     model.train()
     for batch_idx, (data, _) in enumerate(loader):
     # for batch_idx, data in enumerate(train_loader):
@@ -480,24 +509,9 @@ def vanilla_train(epoch, loader, optimizer):
         loss.backward()
         optimizer.step()
 
-def train_dfc(epoch, loader, optimizer):
-    model.train()
-    # x = Variable(torch.FloatTensor(args.batch_size, DATA_C, DATA_H, DATA_W))
-    for i, (data, _) in enumerate(loader):
-        data = Variable(data)
-        if args.cuda:
-            data = data.cuda()
-        optimizer.zero_grad()
-        recon_batch, mu, logvar = model(data)
-        # remvoe second var
-        loss = loss_function_dfc(recon_batch, data, mu, logvar)
-        loss.backward()
-        optimizer.step()
-
 def test(epoch, loader):
     model.eval()
     test_loss = 0
-    fpl_loss = 0
     for i, (data, _) in enumerate(loader):
     # for i, data in enumerate(test_loader):
         if args.cuda:
@@ -506,12 +520,7 @@ def test(epoch, loader):
         data = Variable(data) # Unneeded?
         with torch.no_grad():
             recon_batch, mu, logvar = model(data)
-            if args.dfc:
-                loss, fpl = loss_function_dfc(recon_batch, data, mu, logvar, test=True)
-                fpl_loss += fpl.item()
-                test_loss += loss.item()
-            else:
-                test_loss += loss_function(recon_batch, data, mu, logvar).item()
+            test_loss += loss_function(recon_batch, data, mu, logvar).item()
             if i == 0:
                 n = min(data.size(0), 8)
                 comparison = torch.cat([data[:n],
@@ -519,17 +528,8 @@ def test(epoch, loader):
                 save_image(comparison.data.cpu(),
                            'results/reconstruction_' + str(epoch) + '.png', nrow=n)
     test_loss /= len(loader.dataset)
-    print("fpl loss", fpl_loss)
     print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
     return test_loss
-
-# Compare convolutions recronstructions of the vgg16 model as a loss function, instead of the standard loss
-if args.dfc:
-    train = train_dfc
-    # Also load in the vgg network etc.
-else:
-    print("Normal training routine")
-    train = vanilla_train
 
 def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset=120, start_epoch=0):
     # This could/should be a dictionary
@@ -563,7 +563,8 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
             found_best = old_file in [m[0] for m in best_models]
             if os.path.isfile(old_file) and not found_best:
                 os.remove(old_file)
-            torch.save(model.state_dict(), new_file)
+            torch.save(model.cpu().state_dict(), new_file)
+            model.cuda()
 
             # this will give you a visual idea of how well latent space can generate new things
             save_image(sample.data.view(64, -1, DATA_H, DATA_W),
@@ -576,26 +577,24 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
             scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
                                                        verbose=True)
 
-
 if __name__ == "__main__":
     # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
     optimizer = optim.Adam(model.parameters(), lr=0.0013)
-    # Decay lr if nothing happens after 3 epochs (try 3?)
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
-                                               verbose=True)
+    # # Decay lr if nothing happens after 3 epochs (try 3?)
+    # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
+    #                                            verbose=True)
 
-    # Pretrain on synthetic data
-    train_routine(args.syn_epochs, train_loader=syn_train_loader, test_loader=syn_test_loader, 
-                  optimizer=optimizer, scheduler=scheduler)
-    print("Done with synthetic data!")
+    # # Pretrain on synthetic data
+    # train_routine(args.syn_epochs, train_loader=syn_train_loader, test_loader=syn_test_loader, 
+    #               optimizer=optimizer, scheduler=scheduler)
+    # print("Done with synthetic data!")
 
     for param_group in optimizer.param_groups:
             param_group['lr'] = 0.001 # try this during synthetic pass at one point? (halfway?) ❗❗❗
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.30, patience=4, cooldown=2, 
                                                verbose=True)
     # Train on the real data
-    # Maybe reset the optimizer?
-    # optimizer = optim.Adam(model.parameters(), lr=0.0014)
+    # Maybe reset the optimizer? (done)
     train_routine(args.syn_epochs + args.epochs, train_loader=SOS_train_loader, test_loader=SOS_test_loader, 
                   start_epoch=args.syn_epochs + args.start_epoch, optimizer=optimizer, scheduler=scheduler, 
                   reset=88)
