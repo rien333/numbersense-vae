@@ -73,10 +73,14 @@ syn_data_transform = data_transform[1:]
 with open("/etc/hostname",'r') as f:
     lisa_check = "lisa" in f.read().lower()
 
-DATA_DIR = "" # assume working directory
 if lisa_check:
     import os
-    DATA_DIR = os.environ["TMPDIR"] + "/"
+    scratchdir = os.environ["TMPDIR"]
+    DATA_DIR = scratchdir + "/Datasets/"
+    SAVE_DIR = scratchdir + "/"
+else:
+    DATA_DIR = "../Datasets/"
+    SAVE_DIR = "" # assume working directory
 
 syn_train_loader = torch.utils.data.DataLoader(
     SynDataset.SynDataset(train=True, transform=syn_data_transform, datadir=DATA_DIR),
@@ -502,7 +506,6 @@ if args.dfc:
     train = train_dfc
     # Also load in the vgg network etc.
 else:
-    print("Normal training routine")
     train = vanilla_train
 
 def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset=120, start_epoch=0):
