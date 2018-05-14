@@ -8,15 +8,6 @@ Z_DIMS = vae_pytorch.args.z_dims # input size
 FC1_SIZE = 768 # try some different values as well
 FC2_SIZE = 384 # To small to support all outputs?
 
-data_transform = vae_pytorch.data_transform
-train_loader = torch.utils.data.DataLoader(
-        SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True),
-        batch_size=vae_pytorch.args.batch_size, shuffle=True, **vae_pytorch.kwargs)
-
-test_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True),
-    batch_size=vae_pytorch.args.batch_size, shuffle=True, **vae_pytorch.kwargs)
-
 class Classifier(nn.Module):
     
     def __init__(self):
@@ -55,11 +46,11 @@ if vae_pytorch.args.cuda:
     classifier.cuda()
     model.cuda() # need to call this here again 
 
-def train(epoch):
+def train(epoch, loader):
     classifier.train()
     running_loss = 0.0
     # Test set is fairly small, also consider training on a larger set
-    for i, (ims, labels) in enumerate(train_loader, 1): # unseen data
+    for i, (ims, labels) in enumerate(loader, 1): # unseen data
         # convert ims to z vector
         # You should reparameterize these z's, and make sure to set the model in testing/evalution mode when
         # sampling with model.reparameterize(zs), as that will draw zs with the highest means
@@ -83,14 +74,14 @@ def train(epoch):
             print('[Epoch %d, it.: %5d] loss: %.17f' %
                   (epoch + 1, i + 1, running_loss / 2000)) # average by datasize?
 
-def test(epoch):
+def test(epoch, loader):
     classifier.eval()
     # How well does the classifier (that now has seen the test data) perform on unseen data?
     # i.e. the train data?
     correct = 0
     total = 0
     with torch.no_grad():
-        for i, (ims, labels) in enumerate(test_loader): # unseen data
+        for i, (ims, labels) in enumerate(loader): # unseen data
             mu, logvar = model.encode(ims.cuda())
             zs = model.reparameterize(mu, logvar)
             outputs = classifier(zs)
@@ -106,7 +97,7 @@ def test(epoch):
     class_correct = list(0. for i in range(10))
     class_total = list(0.0000000001 for i in range(10))
     with torch.no_grad():
-        for im, labels in train_loader:
+        for im, labels in loader:
             mu, logvar = model.encode(im.cuda()) # Might need .cuda
             zs = model.reparameterize(mu, logvar)
             outputs = classifier(zs)
@@ -124,15 +115,15 @@ def test(epoch):
 
     return accuracy
 
-if __name__ == "__main__":
+def train_routine(epochs, train_loader, test_loader, start_epoch=0):
     best_models = [("", -100000000000)]*4
     test_interval = 7
     # Save models according to loss instead of acc?
-    for epoch in range(1, 1501):
-        train(epoch)
+    for epoch in range(start_epoch, start_epoch+epochs):
+        train(epoch, train_loader)
 
         if epoch % test_interval == 0:
-            test_acc = test(epoch)
+            test_acc = test(epoch, test_loader)
             # Save best performing models
             new_file = 'classifier-models/vae-%s.pt' % (epoch)
             min_idx, min_acc = min(enumerate(best_models), key = lambda x : x[1][1])
@@ -149,6 +140,11 @@ if __name__ == "__main__":
             if os.path.isfile(old_file) and not found_best:
                 os.remove(old_file)
             torch.save(classifier.state_dict(), new_file)
+
+if __name__ == "__main__":
+    train_routine(100, vae_pytorch.syn_train_loader, vae_pytorch.syn_test_loader)
+    print("Done with synthetic data!")
+    train_routine(120, vae_pytorch.SOS_train_loader, vae_pytorch.SOS_test_loader, start_epoch=100)
 
 # classifier.load_state_dict(
 #         torch.load("classifier-models/vae-180.pt", map_location=lambda storage, loc: storage))
