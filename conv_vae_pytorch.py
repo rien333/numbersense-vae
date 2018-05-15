@@ -59,7 +59,6 @@ DATA_C = SOSDataset.DATA_C # Color component dimension size
 
 DATA_SIZE = DATA_W * DATA_H * DATA_C
 
-
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
@@ -68,11 +67,11 @@ if args.dfc:
     # Okay the vgg norm is now done in the net so that the original data is not as screwed up
     # data is originally 64x64, so try smaller sizes?
     # also not sure if it's between 0-1 and one per se, but maybe 0-255
-    data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
+    data_transform = [SOSDataset.Rescale((238, 238)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
                       SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
-                      SOSDataset.ToTensor(),]
-    # syn_data_transform = list(data_transform)
-    syn_data_transform = data_transform[1:]
+                      SOSDataset.ToTensor(), SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
+    syn_data_transform = list(data_transform)
+    # syn_data_transform = data_transform[1:]
 else:
     # ToTensor already puts everything in range 0-1
     data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
@@ -82,17 +81,21 @@ else:
     # Rescaling is not needed for synthetic data
     syn_data_transform = data_transform[1:]
 
-with open("/etc/hostname",'r') as f:
-    lisa_check = "lisa" in f.read().lower()
+# with open("/etc/hostname",'r') as f:
+#     lisa_check = "lisa" in f.read().lower()
 
-if lisa_check:
-    import os
-    scratchdir = os.environ["TMPDIR"]
-    DATA_DIR = scratchdir + "/"
-    SAVE_DIR = scratchdir + "/"
-else:
-    DATA_DIR = "../Datasets/"
-    SAVE_DIR = "" # assume working directory
+# if lisa_check:
+#     import os
+#     scratchdir = os.environ["TMPDIR"]
+#     DATA_DIR = scratchdir + "/"
+#     # SAVE_DIR = scratchdir + "/"
+#     SAVE_DIR = ""
+# else:
+#     DATA_DIR = "../Datasets/"
+#     SAVE_DIR = "" # assume working directory
+
+DATA_DIR = "../Datasets/"
+SAVE_DIR = "" # assume working directory
 
 syn_train_loader = torch.utils.data.DataLoader(
     SynDataset.SynDataset(train=True, transform=syn_data_transform, datadir=DATA_DIR),
@@ -161,24 +164,24 @@ class CONV_VAE(nn.Module):
 
         # conv4/conv-out should be flattened
         # fc1 conv depth * (DATA_W*DATA_H / (number of pools * 2)) (with some rounding)
-        # self.fc1 = nn.Sequential(
-        #     nn.Linear(256*13*13, args.full_con_size),
-        #     nn.LeakyReLU(0.2),
-        #     nn.BatchNorm1d(args.full_con_size)
-        # )
+        self.fc1 = nn.Sequential(
+            nn.Linear(256*13*13, args.full_con_size),
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm1d(args.full_con_size)
+        )
 
         # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
         self.fc21 = nn.Sequential(  # mean network
-            # nn.Linear(args.full_con_size, args.z_dims),
-            nn.Linear(256*14*14, args.z_dims),
+            nn.Linear(args.full_con_size, args.z_dims),
+            # nn.Linear(256*13*13, args.z_dims),
             # nn.LeakyReLU(),
             # nn.ReLU(),
             # nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
         )
         # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
         self.fc22 = nn.Sequential(  # variance network, linear
-            # nn.Linear(args.full_con_size, args.z_dims),
-            nn.Linear(256*14*14, args.z_dims),
+            nn.Linear(args.full_con_size, args.z_dims),
+            # nn.Linear(256*13*13, args.z_dims),
             # nn.ReLU(),
             # nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
             # nn.ReLU(), # Gaussian std must be positive # don't think this works here
@@ -197,21 +200,21 @@ class CONV_VAE(nn.Module):
         # DECODER
         
         # self.fc3 = nn.Linear(args.z_dims, args.full_con_size) # Relu
-        # self.fc3 = nn.Sequential(
-        #     nn.Linear(args.z_dims, args.full_con_size),
-        #     nn.LeakyReLU(0.2),
-        #     nn.BatchNorm1d(args.full_con_size)
-        # )
+        self.fc3 = nn.Sequential(
+            nn.Linear(args.z_dims, args.full_con_size),
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm1d(args.full_con_size)
+        )
 
         # form the decoder output to a conv shape
         # should be the size of a convolution/the last conv size
         # 128*14*14 * a few (4) upsampling = the original input size
         # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
-            # nn.Linear(args.full_con_size, 256*14*14),
-            nn.Linear(args.z_dims, 256*15*15),
+            nn.Linear(args.full_con_size, 256*14*14), # was 15
+            # nn.Linear(args.z_dims, 256*15*15),
             nn.LeakyReLU(0.2),
-            nn.BatchNorm1d(256*15*15)
+            nn.BatchNorm1d(256*14*14)
         )
 
         # stride in 1st covn. = 1 bc we don't wanna miss anything (interdependence) from the z layer
@@ -283,10 +286,10 @@ class CONV_VAE(nn.Module):
         c3 = self.conv3(c2)
         c4 = self.conv4(c3)
         flatten_c4 = c4.view(c4.size(0), -1) # flatten conv2 to (batch_size, red_data_dim)
-        # h1 = self.fc1(flatten_c4)
+        h1 = self.fc1(flatten_c4)
         # add a small epsilon for numerical stability?
-        # return self.fc21(h1), self.fc22(h1) + 1e-6
-        return self.fc21(flatten_c4), self.fc22(flatten_c4) + 1e-6
+        return self.fc21(h1), self.fc22(h1) + 1e-6
+        # return self.fc21(flatten_c4), self.fc22(flatten_c4) + 1e-6
 
     def reparameterize(self, mu: Variable, logvar: Variable) -> Variable:
         """THE REPARAMETERIZATION IDEA:
@@ -341,11 +344,11 @@ class CONV_VAE(nn.Module):
             return mu
 
     def decode(self, z: Variable) -> Variable:
-        # h3 = self.fc3(z)
+        h3 = self.fc3(z)
         # another layer that maps h3 to a conv shape
-        # h4 = self.fc4(h3)
-        h4 = self.fc4(z)
-        h4_expanded = h4.view(-1, 256, 15, 15) # 15 * (4 * 2x upsamling conv) ~= 225
+        h4 = self.fc4(h3)
+        # h4 = self.fc4(z)
+        h4_expanded = h4.view(-1, 256, 14, 14) # 15 * (4 * 2x upsamling conv) ~= 225
         up_conv1 = self.t_conv1(h4_expanded)
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
         up_conv3 = self.t_conv3(up_conv2)
@@ -379,15 +382,24 @@ class _VGG(nn.Module):
 
     def __init__(self):
         super(_VGG, self).__init__()
+
         features = models.vgg19(pretrained=True).features
         self.norm_layer = ImageNet_Norm_Layer_2() # norm done in net to net screw the input
+        # ngpu = torch.cuda.device_count()
+        ngpu = 0 # too much mem 
+        if ngpu > 1:
+            # Functional equivalent of below (idkkk if this is problematic? maybe it's good)
+            self.gpu_func = lambda module, output: nn.parallel.data_parallel(module, output, range(ngpu))
+            # Norm layer errors on multiple GPUs :( 
+        else:
+            self.gpu_func= lambda module, output: module(output)
 
         self.layer_names = ['conv1_1', 'relu1_1', 'conv1_2', 'relu1_2', 'pool1',
                'conv2_1', 'relu2_1', 'conv2_2', 'relu2_2', 'pool2',
                'conv3_1', 'relu3_1', 'conv3_2', 'relu3_2', 'conv3_3', 'relu3_3', 'conv3_4', 'relu3_4', 'pool3',
                'conv4_1', 'relu4_1', 'conv4_2', 'relu4_2', 'conv4_3', 'relu4_3', 'conv4_4', 'relu4_4', 'pool4',
                'conv5_1', 'relu5_1', 'conv5_2', 'relu5_2', 'conv5_3', 'relu5_3', 'conv5_4', 'relu5_4', 'pool5']
-        self.content_layers = ['relu1_1', 'relu2_1', 'relu3_1']
+        self.content_layers = ['relu3_1', 'relu4_1', 'relu5_1']
 
         self.features = nn.Sequential()
         for i, module in enumerate(features):
@@ -395,21 +407,15 @@ class _VGG(nn.Module):
             self.features.add_module(name, module)
 
     def forward(self, x):
-        batch_size = x.size(0) # needed because sometimes the batch size is not exactly 64
+        batch_size = x.size(0) # needed because sometimes the batch size is not exactly args.batch_size
         all_outputs = []
         x = self.norm_layer(x)
         output = x
-        # visited = 0 # not sure if "if" statements are perfectly safe to use
-        # visits = len(self.content_layers)
         for name, module in self.features.named_children():
-            # go through all modules
-            output = module(output)
-            # and append when we're interesed in the output
+            # Forward output through one module of vgg, with or without multiple gpus
+            output = self.gpu_func(module, output)
             if name in self.content_layers:
                 all_outputs.append(output.view(batch_size, -1))
-                # visited += 1
-                # if visited >= visits:
-                    # break
         return all_outputs
 
 # this has to be a trainable module for some reason
@@ -435,7 +441,6 @@ def weights_init(m):
     classname = m.__class__.__name__
     if (isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d)
         or isinstance(m, nn.Linear)):
-        # Deprecated syntax
         nn.init.kaiming_uniform_(m.weight.data) # This is He initialization
         m.bias.data.zero_()
     elif isinstance(m, nn.BatchNorm2d) or isinstance(m, nn.BatchNorm1d):
@@ -452,16 +457,20 @@ if args.load_model:
     model.load_state_dict(
         torch.load(args.load_model, map_location=lambda storage, loc: storage))
 if args.dfc:
-    descriptor = _VGG()
     # The exact style seems less relevant, but try different values
-    content_loss = Content_Loss(alpha=0.5, beta=1.0)
+    content_loss = Content_Loss(alpha=0.4, beta=1.0)
+    descriptor = _VGG()
     if args.cuda:
-        descriptor.cuda()
-        content_loss.cuda() # Skip cuda and save memory?
+        descriptor.cuda() # descriptor has it's own parallelism thingy
+        content_loss.cuda()
     descriptor.eval()
     for param in descriptor.parameters():
         param.requires_grad = False
+
 if args.cuda:
+    if torch.cuda.device_count() > 1:
+        print("Using", torch.cuda.device_count(), "GPUs!")
+        model = nn.DataParallel(model)
     model.cuda()
 
 def loss_function_van(recon_x, x, mu, logvar):
@@ -521,7 +530,6 @@ def test(epoch, loader):
     model.eval()
     test_loss = 0
     for i, (data, _) in enumerate(loader):
-    # for i, data in enumerate(test_loader):
         if args.cuda:
             data = data.cuda()
 
@@ -533,8 +541,8 @@ def test(epoch, loader):
                 n = min(data.size(0), 8)
                 comparison = torch.cat([data[:n],
                                         recon_batch.view(loader.batch_size, -1, DATA_W, DATA_H)[:n]])
-                save_image(comparison.data.cpu(),
-                           'results/reconstruction_' + str(epoch) + '.png', nrow=n)
+                save_image(comparison.cpu(),
+                           SAVE_DIR + 'results/reconstruction_' + str(epoch) + '.png', nrow=n)
     test_loss /= len(loader.dataset)
     print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
     return test_loss
@@ -542,15 +550,9 @@ def test(epoch, loader):
 def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset=120, start_epoch=0):
     # This could/should be a dictionary
     best_models = [("", 100000000000)]*3
+    ngpu = torch.cuda.device_count()
     for epoch in range(start_epoch, epochs + 1):
         train(epoch, train_loader, optimizer)
-
-        # 64 sets of random ZDIMS-float vectors, i.e. 64 locations / MNIST
-        # digits in latent space
-        sample = Variable(torch.randn(64, args.z_dims))
-        if args.cuda:
-            sample = sample.cuda()
-        sample = model.decode(sample).cpu()
 
         # Write out data and print loss
         if epoch % args.test_interval == 0:
@@ -573,6 +575,16 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
                 os.remove(old_file)
             torch.save(model.state_dict(), new_file)
 
+            # 64 sets of random ZDIMS-float vectors, i.e. 64 locations / MNIST
+            # digits in latent space
+            sample = Variable(torch.randn(64, args.z_dims))
+            if args.cuda:
+                sample = sample.cuda()
+            if ngpu > 1:
+                sample = model.module.decode(sample).cpu()
+            else:
+                sample = model.decode(sample).cpu()
+
             # this will give you a visual idea of how well latent space can generate new things
             save_image(sample.data.view(64, -1, DATA_H, DATA_W),
                    SAVE_DIR + 'results/sample_' + str(epoch) + '.png')
@@ -587,18 +599,18 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
 if __name__ == "__main__":
     # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
     optimizer = optim.Adam(model.parameters(), lr=0.0012)
-    # # # Decay lr if nothing happens after 3 epochs (try 3?)
-    # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
-    #                                            verbose=True)
+    # Decay lr if nothing happens after 4 epochs (try 3?)
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
+                                               verbose=True)
 
-    # # Pretrain on synthetic data
-    # train_routine(args.syn_epochs, train_loader=syn_train_loader, test_loader=syn_test_loader, 
-    #               optimizer=optimizer, scheduler=scheduler)
-    # print("Done with synthetic data!")
+    # Pretrain on synthetic data
+    train_routine(args.syn_epochs, train_loader=syn_train_loader, test_loader=syn_test_loader, 
+                  optimizer=optimizer, scheduler=scheduler)
+    print("Done with synthetic data!")
 
     for param_group in optimizer.param_groups:
             # Was 0.001
-            param_group['lr'] = 0.0012 # try this during synthetic pass at one point? (halfway?) ❗❗❗
+            param_group['lr'] = 0.001 # try this during synthetic pass at one point? (halfway?) ❗❗❗
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.30, patience=4, cooldown=2, 
                                                verbose=True)
     # Train on the real data
