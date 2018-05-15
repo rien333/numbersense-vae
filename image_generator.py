@@ -18,10 +18,12 @@ DATA_W = 256
 DATA_H = 256
 data_t = transforms.Compose(vae_pytorch.data_transform)
 classifier = zclassifier.classifier
+if vae_pytorch.args.cuda:
+    zclassifier.cuda()
 # some relev`ant settings are done in z-classifier for conv_vae
 model = zclassifier.model
 classifier.load_state_dict(
-        torch.load("classifier-models/vae-180.pt", map_location=lambda storage, loc: storage))
+        torch.load("classifier-models/vae-224.pt", map_location=lambda storage, loc: storage))
 classifier.eval()
 
 MSRA10K_dir = "../Datasets/MSRA10K_Imgs_GT/"
@@ -30,7 +32,7 @@ with open(files_txt, "r") as f:
     files = f.read().splitlines()
 
 # data_out = "../Datasets/synthetic2-small"
-data_out = "../Datasets/test"
+data_out = "../Datasets/syn-new"
 b_dir = "../Datasets/SUN397"
 b_classes_txt = b_dir + "/ClassName.txt"
 with open(b_classes_txt, "r") as f:
@@ -165,7 +167,7 @@ def generate(fidx, nfiles, cat, thresh=0.5):
         mask = cv2.imread(fname.replace(".jpg", ".png"), 0).astype(np.float) / 255.0 # Grayscale
 
         # Check for only one object
-        im = data_t((obj, 0))[0].view(1, 3, vae_pytorch.DATA_H, vae_pytorch.DATA_W)
+        im = data_t((cv2.cvtColor(obj, cv2.COLOR_BGR2RGB), 0))[0].view(1, 3, vae_pytorch.DATA_H, vae_pytorch.DATA_W)
         save_image(im, "test.png")
         mu, logvar = model.encode(im)
         zs = model.reparameterize(mu, logvar)
@@ -173,28 +175,25 @@ def generate(fidx, nfiles, cat, thresh=0.5):
         # This always fails for some reason!? ❗❗❗
         # get max index
         if torch.argmax(outputs).item() != 1 or outputs[0][1] < 0.90:
-            print("failing salient object")
             continue
-        print("Succes")
 
         rnd_class = random.choice(b_classes)
         rnd_class_p = b_dir + rnd_class + "/"
         b_ims = random.choice(os.listdir(rnd_class_p))
         background = cv2.imread(rnd_class_p + b_ims, 1) # RGB
-        background = cv2.resize(background, (DATA_H, DATA_W)).astype(np.float)
+        background = cv2.resize(background, (DATA_H, DATA_W))
 
         # Check if the background is valid, i.e. contains no clear salient object
         # This always fails for some reason!? ❗❗❗
-        # im = data_t((background, 0))[0].view(1, vae_pytorch.DATA_C, vae_pytorch.DATA_H, vae_pytorch.DATA_W)
-        # mu, logvar = model.encode(im)
-        # zs = model.reparameterize(mu, logvar)
-        # outputs = classifier(zs)
+        im = data_t((cv2.cvtColor(background, cv2.COLOR_BGR2RGB), 0))[0].view(1, vae_pytorch.DATA_C, vae_pytorch.DATA_H, vae_pytorch.DATA_W)
+        mu, logvar = model.encode(im)
+        zs = model.reparameterize(mu, logvar)
+        outputs = classifier(zs)
         
-        # if outputs[0][0] < 0.96:
-        #     print("background failed")
-        #     continue
-        # print("background succes")
+        if outputs[0][0] < 0.96:
+            continue
 
+        background = background.astype(np.float)
         # Get boundix box of white region
         coords = np.argwhere(mask.astype(bool))
         # Bounding box of non-black pixels.
@@ -209,7 +208,6 @@ def generate(fidx, nfiles, cat, thresh=0.5):
         # The basis which will be pasted and transformed further
 
         # Paste N e [0,4] objects
-        print("Generating transform")
         valid_t = False
         while not valid_t:
             scale = random.uniform(0.4,0.8) * DATA_H
@@ -249,8 +247,7 @@ def generate(fidx, nfiles, cat, thresh=0.5):
 #     prev += n
 
 
-# generate(0, 1020, 1, thresh=0.5)
-# generate(0, 1550, 2, thresh=0.5)
-# generate(1463, 1750, 3, thresh=0.6)
-generate(1, 20, cat=4, thresh=0.7)
-
+generate(0, 4000, cat=4, thresh=0.7)
+generate(0, 4000, 3, thresh=0.6)
+generate(0, 4000, 2, thresh=0.5)
+generate(0, 4000, 1, thresh=0.5)
