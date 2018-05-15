@@ -68,7 +68,7 @@ if args.dfc:
     # Okay the vgg norm is now done in the net so that the original data is not as screwed up
     # data is originally 64x64, so try smaller sizes?
     # also not sure if it's between 0-1 and one per se, but maybe 0-255
-    data_transform = [SOSDataset.Rescale((238, 238)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
+    data_transform = [SOSDataset.Rescale((219, 219)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
                       SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
                       SOSDataset.ToTensor(), SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
     syn_data_transform = list(data_transform)
@@ -82,22 +82,22 @@ else:
     # Rescaling is not needed for synthetic data
     syn_data_transform = data_transform[1:]
 
-# with open("/etc/hostname",'r') as f:
-#     lisa_check = "lisa" in f.read().lower()
+with open("/etc/hostname",'r') as f:
+    lisa_check = "lisa" in f.read().lower()
 
-# if lisa_check:
-#     import os
-#     scratchdir = os.environ["TMPDIR"]
-#     DATA_DIR = scratchdir + "/"
-#     # SAVE_DIR = scratchdir + "/"
-#     SAVE_DIR = ""
-# else:
-#     DATA_DIR = "../Datasets/"
-#     SAVE_DIR = "" # assume working directory
+if lisa_check:
+    import os
+    scratchdir = os.environ["TMPDIR"]
+    DATA_DIR = scratchdir + "/"
+    # SAVE_DIR = scratchdir + "/"
+    SAVE_DIR = ""
+else:
+    DATA_DIR = "../Datasets/"
+    SAVE_DIR = "" # assume working directory
 
 
-DATA_DIR = "../Datasets/"
-SAVE_DIR = "" # assume working directory
+# DATA_DIR = "../Datasets/"
+# SAVE_DIR = "" # assume working directory
 
 syn_train_loader = torch.utils.data.DataLoader(
     SynDataset.SynDataset(train=True, transform=syn_data_transform, datadir=DATA_DIR),
@@ -166,9 +166,8 @@ class CONV_VAE(nn.Module):
 
         # conv4/conv-out should be flattened
         # fc1 conv depth * (DATA_W*DATA_H / (number of pools * 2)) (with some rounding)
-<<<<<<< HEAD
         self.fc1 = nn.Sequential(
-            nn.Linear(256*13*13, args.full_con_size),
+            nn.Linear(256*12*12, args.full_con_size),
             nn.LeakyReLU(0.2),
             nn.BatchNorm1d(args.full_con_size)
         )
@@ -213,10 +212,10 @@ class CONV_VAE(nn.Module):
         # 128*14*14 * a few (4) upsampling = the original input size
         # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
-            nn.Linear(args.full_con_size, 256*14*14), # was 15
+            nn.Linear(args.full_con_size, 256*13*13), # was 15
             # nn.Linear(args.z_dims, 256*15*15),
             nn.LeakyReLU(0.2),
-            nn.BatchNorm1d(256*14*14)
+            nn.BatchNorm1d(256*13*13)
         )
 
         # stride in 1st covn. = 1 bc we don't wanna miss anything (interdependence) from the z layer
@@ -340,7 +339,7 @@ class CONV_VAE(nn.Module):
         # another layer that maps h3 to a conv shape
         h4 = self.fc4(h3)
         # h4 = self.fc4(z)
-        h4_expanded = h4.view(-1, 256, 14, 14) # 15 * (4 * 2x upsamling conv) ~= 225
+        h4_expanded = h4.view(-1, 256, 13, 13) # 15 * (4 * 2x upsamling conv) ~= 225
         up_conv1 = self.t_conv1(h4_expanded)
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
         up_conv3 = self.t_conv3(up_conv2)
@@ -464,9 +463,11 @@ if args.dfc:
         param.requires_grad = False
 
 if args.cuda:
-    if torch.cuda.device_count() > 1:
-        print("Using", torch.cuda.device_count(), "GPUs!")
+    if torch.cuda.device_count() > 1 and lisa_check:
+        print("Using", torch.cuda.device_count(), "GPUs")
         model = nn.DataParallel(model)
+    else:
+        print("Using 1 GPU")
     model.cuda()
 
 def loss_function_van(recon_x, x, mu, logvar):
@@ -599,10 +600,10 @@ if __name__ == "__main__":
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
                                                verbose=True)
 
-    # # Pretrain on synthetic data
-    # train_routine(args.syn_epochs, train_loader=syn_train_loader, test_loader=syn_test_loader, 
-    #               optimizer=optimizer, scheduler=scheduler)
-    # print("Done with synthetic data!")
+    # Pretrain on synthetic data
+    train_routine(args.syn_epochs, train_loader=syn_train_loader, test_loader=syn_test_loader, 
+                  optimizer=optimizer, scheduler=scheduler)
+    print("Done with synthetic data!")
 
     for param_group in optimizer.param_groups:
             param_group['lr'] = 0.001 # try this during synthetic pass at one point? (halfway?) ❗❗❗
