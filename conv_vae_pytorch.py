@@ -59,6 +59,7 @@ DATA_C = SOSDataset.DATA_C # Color component dimension size
 
 DATA_SIZE = DATA_W * DATA_H * DATA_C
 
+
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
@@ -93,6 +94,7 @@ else:
 # else:
 #     DATA_DIR = "../Datasets/"
 #     SAVE_DIR = "" # assume working directory
+
 
 DATA_DIR = "../Datasets/"
 SAVE_DIR = "" # assume working directory
@@ -164,6 +166,7 @@ class CONV_VAE(nn.Module):
 
         # conv4/conv-out should be flattened
         # fc1 conv depth * (DATA_W*DATA_H / (number of pools * 2)) (with some rounding)
+<<<<<<< HEAD
         self.fc1 = nn.Sequential(
             nn.Linear(256*13*13, args.full_con_size),
             nn.LeakyReLU(0.2),
@@ -173,7 +176,6 @@ class CONV_VAE(nn.Module):
         # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
         self.fc21 = nn.Sequential(  # mean network
             nn.Linear(args.full_con_size, args.z_dims),
-            # nn.Linear(256*13*13, args.z_dims),
             # nn.LeakyReLU(),
             # nn.ReLU(),
             # nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
@@ -253,19 +255,10 @@ class CONV_VAE(nn.Module):
             nn.BatchNorm2d(32),
         )
 
-        # some implementatationa keep the sigmiod/final activation function
-        if args.dfc:
-            self.t_conv_final = nn.Sequential(
-                nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no batch norm. on output
-                nn.Sigmoid() # no sigmiod if that's different from the input?
-                # nn.Tanh() # this is what they use in the original paper
-                # nn.Softsign() # no sigmiod if that's different from the input?
-            )
-        else:
-            self.t_conv_final = nn.Sequential(
-                nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no batch norm. on output
-                nn.Sigmoid()  # output between 0 and 1 # Relu?
-            )
+        self.t_conv_final = nn.Sequential(
+            nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no batch norm. on output
+            nn.Sigmoid()  # output between 0 and 1 # Relu?
+        )
 
 
     def encode(self, x: Variable) -> (Variable, Variable):
@@ -289,7 +282,6 @@ class CONV_VAE(nn.Module):
         h1 = self.fc1(flatten_c4)
         # add a small epsilon for numerical stability?
         return self.fc21(h1), self.fc22(h1) + 1e-6
-        # return self.fc21(flatten_c4), self.fc22(flatten_c4) + 1e-6
 
     def reparameterize(self, mu: Variable, logvar: Variable) -> Variable:
         """THE REPARAMETERIZATION IDEA:
@@ -385,6 +377,7 @@ class _VGG(nn.Module):
 
         features = models.vgg19(pretrained=True).features
         self.norm_layer = ImageNet_Norm_Layer_2() # norm done in net to net screw the input
+
         # ngpu = torch.cuda.device_count()
         ngpu = 0 # too much mem 
         if ngpu > 1:
@@ -399,7 +392,7 @@ class _VGG(nn.Module):
                'conv3_1', 'relu3_1', 'conv3_2', 'relu3_2', 'conv3_3', 'relu3_3', 'conv3_4', 'relu3_4', 'pool3',
                'conv4_1', 'relu4_1', 'conv4_2', 'relu4_2', 'conv4_3', 'relu4_3', 'conv4_4', 'relu4_4', 'pool4',
                'conv5_1', 'relu5_1', 'conv5_2', 'relu5_2', 'conv5_3', 'relu5_3', 'conv5_4', 'relu5_4', 'pool5']
-        self.content_layers = ['relu3_1', 'relu4_1', 'relu5_1']
+        self.content_layers = ['relu1_1', 'relu2_1', 'relu3_1']
 
         self.features = nn.Sequential()
         for i, module in enumerate(features):
@@ -416,6 +409,9 @@ class _VGG(nn.Module):
             output = self.gpu_func(module, output)
             if name in self.content_layers:
                 all_outputs.append(output.view(batch_size, -1))
+                # visited += 1
+                # if visited >= visits:
+                    # break
         return all_outputs
 
 # this has to be a trainable module for some reason
@@ -603,13 +599,12 @@ if __name__ == "__main__":
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
                                                verbose=True)
 
-    # Pretrain on synthetic data
-    train_routine(args.syn_epochs, train_loader=syn_train_loader, test_loader=syn_test_loader, 
-                  optimizer=optimizer, scheduler=scheduler)
-    print("Done with synthetic data!")
+    # # Pretrain on synthetic data
+    # train_routine(args.syn_epochs, train_loader=syn_train_loader, test_loader=syn_test_loader, 
+    #               optimizer=optimizer, scheduler=scheduler)
+    # print("Done with synthetic data!")
 
     for param_group in optimizer.param_groups:
-            # Was 0.001
             param_group['lr'] = 0.001 # try this during synthetic pass at one point? (halfway?) ❗❗❗
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.30, patience=4, cooldown=2, 
                                                verbose=True)
