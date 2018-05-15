@@ -181,7 +181,10 @@ def generate(fidx, nfiles, cat, thresh=0.5):
         rnd_class_p = b_dir + rnd_class + "/"
         b_ims = random.choice(os.listdir(rnd_class_p))
         background = cv2.imread(rnd_class_p + b_ims, 1) # RGB
-        background = cv2.resize(background, (DATA_H, DATA_W))
+        try:
+            background = cv2.resize(background, (DATA_H, DATA_W))
+        except:
+            continue
 
         # Check if the background is valid, i.e. contains no clear salient object
         # This always fails for some reason!? ❗❗❗
@@ -208,7 +211,8 @@ def generate(fidx, nfiles, cat, thresh=0.5):
         # The basis which will be pasted and transformed further
 
         # Paste N e [0,4] objects
-        valid_t = False
+        valid_t = False if cat > 0 else True
+        transforms = []
         while not valid_t:
             scale = random.uniform(0.4,0.8) * DATA_H
             scale_f = scale / mask_crop.shape[l_dim]
@@ -247,7 +251,8 @@ def generate(fidx, nfiles, cat, thresh=0.5):
 #     prev += n
 
 
-generate(0, 4000, cat=4, thresh=0.7)
-generate(0, 4000, 3, thresh=0.6)
-generate(0, 4000, 2, thresh=0.5)
-generate(0, 4000, 1, thresh=0.5)
+# generate(0, 4000, cat=4, thresh=0.7)
+# generate(4000, 4000, 3, thresh=0.6)
+# generate(0, 4000, 2, thresh=0.5)
+# generate(2061, 4000, 1, thresh=0.5)
+generate(0, 4000, cat=0, thresh=0.5)
