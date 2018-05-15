@@ -12,7 +12,7 @@ class Classifier(nn.Module):
     
     def __init__(self):
         super(Classifier, self).__init__()
-        
+        # Try dropout for classification with pre training with synthetic data
         self.fc1 = nn.Sequential(
             nn.Linear(Z_DIMS, FC1_SIZE),
             nn.LeakyReLU(),
