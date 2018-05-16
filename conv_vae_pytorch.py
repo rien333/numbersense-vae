@@ -86,18 +86,18 @@ else:
 with open("/etc/hostname",'r') as f:
     lisa_check = "lisa" in f.read().lower()
 
-# if lisa_check:
-#     import os
-#     scratchdir = os.environ["TMPDIR"]
-#     DATA_DIR = scratchdir + "/"
-#     # SAVE_DIR = scratchdir + "/"
-#     SAVE_DIR = ""
-# else:
-#     DATA_DIR = "../Datasets/"
-#     SAVE_DIR = "" # assume working directory
+if lisa_check:
+    import os
+    scratchdir = os.environ["TMPDIR"]
+    DATA_DIR = scratchdir + "/"
+    # SAVE_DIR = scratchdir + "/"
+    SAVE_DIR = ""
+else:
+    DATA_DIR = "../Datasets/"
+    SAVE_DIR = "" # assume working directory
 
-DATA_DIR = "../Datasets/"
-SAVE_DIR = "" # assume working directory
+# DATA_DIR = "../Datasets/"
+# SAVE_DIR = "" # assume working directory
 
 syn_train_loader = torch.utils.data.DataLoader(
     SynDataset.SynDataset(train=True, transform=syn_data_transform, datadir=DATA_DIR),
