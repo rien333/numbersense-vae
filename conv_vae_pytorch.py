@@ -1,4 +1,5 @@
 import os, argparse
+from math import ceil, floor
 import random
 import numpy as np
 # import ColoredMNIST
@@ -63,11 +64,12 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
 if args.dfc:
+    scale = ceil(1.137 * DATA_H) # SOS uses a 1.137 factor between cropped and original size
     # There is a normalizeMEANVGG that seem handy
     # Okay the vgg norm is now done in the net so that the original data is not as screwed up
     # data is originally 64x64, so try smaller sizes?
     # also not sure if it's between 0-1 and one per se, but maybe 0-255
-    data_transform = [SOSDataset.Rescale((238, 238)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
+    data_transform = [SOSDataset.Rescale((scale, scale)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
                       SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
                       SOSDataset.ToTensor(), SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
     syn_data_transform = list(data_transform)
@@ -104,7 +106,6 @@ elif "quva" in hostname:
     ngpu = 2
 else:
     ngpu = 1
-
 
 syn_train_loader = torch.utils.data.DataLoader(
     SynDataset.SynDataset(train=True, transform=syn_data_transform, datadir=DATA_DIR),
@@ -170,11 +171,12 @@ class CONV_VAE(nn.Module):
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(256),
         )
-
+        end_elems = floor(DATA_H / 16) # 16 = 2**4 downsample,
+        end_shape = (end_elems**2) * 256 # eg 256*13*13 conv shape
         # conv4/conv-out should be flattened
         # fc1 conv depth * (DATA_W*DATA_H / (number of pools * 2)) (with some rounding)
         # self.fc1 = nn.Sequential(
-        #     nn.Linear(256*13*13, args.full_con_size),
+        #     nn.Linear(end_shape, args.full_con_size),
         #     nn.LeakyReLU(0.2),
         #     nn.BatchNorm1d(args.full_con_size)
         # )
@@ -182,7 +184,7 @@ class CONV_VAE(nn.Module):
         # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
         self.fc21 = nn.Sequential(  # mean network
             # nn.Linear(args.full_con_size, args.z_dims),
-            nn.Linear(256*13*13, args.z_dims),
+            nn.Linear(end_shape, args.z_dims),
             # nn.LeakyReLU(),
             # nn.ReLU(),
             # nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
@@ -190,40 +192,29 @@ class CONV_VAE(nn.Module):
         # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
         self.fc22 = nn.Sequential(  # variance network, linear
             # nn.Linear(args.full_con_size, args.z_dims),
-            nn.Linear(256*13*13, args.z_dims),
+            nn.Linear(end_shape, args.z_dims),
             # nn.ReLU(),
             # nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
             # nn.ReLU(), # Gaussian std must be positive # don't think this works here
             nn.Softplus()
         )
-
-        # Old Encoder
-        # # 28 x 28 pixels = 784 input pixels (for minst), 400 outputs
-        # self.fc1 = nn.Linear(DATA_SIZE, args.full_con_size)
-        # # rectified linear unit layer from 400 to 400
-        # self.relu = nn.ReLU()
-        # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mu layer
-        # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # logvariance layer
-        # # this last layer bottlenecks through args.z_dims connections
-
-        # DECODER
         
-        # self.fc3 = nn.Linear(args.z_dims, args.full_con_size) # Relu
         self.fc3 = nn.Sequential(
             nn.Linear(args.z_dims, args.full_con_size),
             nn.LeakyReLU(0.2),
             nn.BatchNorm1d(args.full_con_size)
         )
 
+        self.deconv_shape = (256, end_elems+1, end_elems+1)
         # form the decoder output to a conv shape
         # should be the size of a convolution/the last conv size
         # 128*14*14 * a few (4) upsampling = the original input size
         # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
-            nn.Linear(args.full_con_size, 256*14*14), # was 15
+            nn.Linear(args.full_con_size, np.prod(self.deconv_shape)[0]), # was 15
             # nn.Linear(args.z_dims, 256*15*15),
             nn.LeakyReLU(0.2),
-            nn.BatchNorm1d(256*14*14)
+            nn.BatchNorm1d(np.prod(self.deconv_shape)[0])
         )
 
         # stride in 1st covn. = 1 bc we don't wanna miss anything (interdependence) from the z layer
@@ -348,7 +339,7 @@ class CONV_VAE(nn.Module):
         # another layer that maps h3 to a conv shape
         h4 = self.fc4(h3)
         # h4 = self.fc4(z)
-        h4_expanded = h4.view(-1, 256, 14, 14) # 15 * (4 * 2x upsamling conv) ~= 225
+        h4_expanded = h4.view(-1, self.deconv_shape) # 15 * (4 * 2x upsamling conv) ~= 225
         up_conv1 = self.t_conv1(h4_expanded)
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
         up_conv3 = self.t_conv3(up_conv2)
