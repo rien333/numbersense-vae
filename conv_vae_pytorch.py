@@ -598,7 +598,7 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
 
 if __name__ == "__main__":
     # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
-    optimizer = optim.Adam(model.parameters(), lr=0.0012)
+    optimizer = optim.Adam(model.parameters(), lr=0.0014)
     # Decay lr if nothing happens after 4 epochs (try 3?)
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
                                                verbose=True)
