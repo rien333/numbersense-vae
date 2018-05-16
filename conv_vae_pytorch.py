@@ -61,8 +61,6 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
-ngpu = torch.cuda.device_count()
-# ngpu = 1
 
 if args.dfc:
     # There is a normalizeMEANVGG that seem handy
@@ -84,7 +82,8 @@ else:
     syn_data_transform = data_transform[1:]
 
 with open("/etc/hostname",'r') as f:
-    lisa_check = "lisa" in f.read().lower()
+    hostname = f.read().lower()
+    lisa_check = "lisa" in hostname
 
 if lisa_check:
     import os
@@ -98,6 +97,14 @@ else:
 
 # DATA_DIR = "../Datasets/"
 # SAVE_DIR = "" # assume working directory
+
+if lisa_check:
+    ngpu = torch.cuda.device_count()
+elif "quva" in hostname:
+    ngpu = 2
+else:
+    ngpu = 1
+
 
 syn_train_loader = torch.utils.data.DataLoader(
     SynDataset.SynDataset(train=True, transform=syn_data_transform, datadir=DATA_DIR),
@@ -538,7 +545,7 @@ def test(epoch, loader):
             recon_batch, mu, logvar = model(data)
             test_loss += loss_function(recon_batch, data, mu, logvar).item()
             if i == 0:
-                n = min(data.size(0), 8)
+                n = min(data.size(0), 7)
                 comparison = torch.cat([data[:n],
                                         recon_batch.view(loader.batch_size, -1, DATA_W, DATA_H)[:n]])
                 save_image(comparison,
