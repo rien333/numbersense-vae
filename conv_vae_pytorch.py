@@ -1,4 +1,5 @@
 import os, argparse
+from math import ceil, floor
 import random
 import numpy as np
 # import ColoredMNIST
@@ -64,11 +65,12 @@ DATA_SIZE = DATA_W * DATA_H * DATA_C
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
 if args.dfc:
+    scale = ceil(1.137 * DATA_H) # SOS uses a 1.137 factor between cropped and original size
     # There is a normalizeMEANVGG that seem handy
     # Okay the vgg norm is now done in the net so that the original data is not as screwed up
     # data is originally 64x64, so try smaller sizes?
     # also not sure if it's between 0-1 and one per se, but maybe 0-255
-    data_transform = [SOSDataset.Rescale((238, 238)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
+    data_transform = [SOSDataset.Rescale((scale, scale)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
                       SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
                       SOSDataset.ToTensor(), SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
     syn_data_transform = list(data_transform)
@@ -170,60 +172,50 @@ class CONV_VAE(nn.Module):
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(256),
         )
-
+        end_elems = floor(DATA_H / 16) # 16 = 2**4 downsample,
+        end_shape = (end_elems**2) * 256 # eg 256*13*13 conv shape
         # conv4/conv-out should be flattened
         # fc1 conv depth * (DATA_W*DATA_H / (number of pools * 2)) (with some rounding)
         # self.fc1 = nn.Sequential(
-        #     nn.Linear(256*13*13, args.full_con_size),
+        #     nn.Linear(end_shape, args.full_con_size),
         #     nn.LeakyReLU(0.2),
         #     nn.BatchNorm1d(args.full_con_size)
         # )
 
-        # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mean network, linear
         self.fc21 = nn.Sequential(  # mean network
             # nn.Linear(args.full_con_size, args.z_dims),
-            nn.Linear(256*13*13, args.z_dims),
+            nn.Linear(end_shape, args.z_dims),
             # nn.LeakyReLU(),
             # nn.ReLU(),
             # nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
         )
+
         # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
         self.fc22 = nn.Sequential(  # variance network, linear
             # nn.Linear(args.full_con_size, args.z_dims),
-            nn.Linear(256*13*13, args.z_dims),
+            nn.Linear(end_shape, args.z_dims),
             # nn.ReLU(),
             # nn.BatchNorm1d(args.z_dims), # This doesn't seem okay at all
             # nn.ReLU(), # Gaussian std must be positive # don't think this works here
             nn.Softplus()
         )
-
-        # Old Encoder
-        # # 28 x 28 pixels = 784 input pixels (for minst), 400 outputs
-        # self.fc1 = nn.Linear(DATA_SIZE, args.full_con_size)
-        # # rectified linear unit layer from 400 to 400
-        # self.relu = nn.ReLU()
-        # self.fc21 = nn.Linear(args.full_con_size, args.z_dims) # mu layer
-        # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # logvariance layer
-        # # this last layer bottlenecks through args.z_dims connections
-
-        # DECODER
         
-        # self.fc3 = nn.Linear(args.z_dims, args.full_con_size) # Relu
         self.fc3 = nn.Sequential(
             nn.Linear(args.z_dims, args.full_con_size),
             nn.LeakyReLU(0.2),
             nn.BatchNorm1d(args.full_con_size)
         )
 
+        self.deconv_shape = (256, end_elems+1, end_elems+1)
         # form the decoder output to a conv shape
         # should be the size of a convolution/the last conv size
         # 128*14*14 * a few (4) upsampling = the original input size
         # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
-            nn.Linear(args.full_con_size, 256*14*14), # was 15
+            nn.Linear(args.full_con_size, int(np.prod(self.deconv_shape))), # was 15
             # nn.Linear(args.z_dims, 256*15*15),
             nn.LeakyReLU(0.2),
-            nn.BatchNorm1d(256*14*14)
+            nn.BatchNorm1d(int(np.prod(self.deconv_shape)))
         )
 
         # stride in 1st covn. = 1 bc we don't wanna miss anything (interdependence) from the z layer
@@ -348,7 +340,7 @@ class CONV_VAE(nn.Module):
         # another layer that maps h3 to a conv shape
         h4 = self.fc4(h3)
         # h4 = self.fc4(z)
-        h4_expanded = h4.view(-1, 256, 14, 14) # 15 * (4 * 2x upsamling conv) ~= 225
+        h4_expanded = h4.view(-1, *self.deconv_shape) # 15 * (4 * 2x upsamling conv) ~= 225
         up_conv1 = self.t_conv1(h4_expanded)
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
         up_conv3 = self.t_conv3(up_conv2)
@@ -435,7 +427,7 @@ class Content_Loss(nn.Module):
     def forward(self, output, target, mean, logvar):
         kld = -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp())  # or should we use torch.sum() ?
         # Note detach
-        loss_list = [self.criterion(output[layer], target[layer]) for layer in range(len(output))]
+        loss_list = [self.criterion(output[layer], target[layer].detach()) for layer in range(len(output))]
         content = sum(loss_list)
         return self.alpha * kld + self.beta * content
 
@@ -463,7 +455,7 @@ if args.load_model:
 
 if args.dfc:
     # The exact style seems less relevant, but try different values
-    content_loss = Content_Loss(alpha=0.42, beta=1.0)
+    content_loss = Content_Loss(alpha=0.5, beta=1.0)
     descriptor = _VGG()
     descriptor.to(device) # descriptor has it's own parallelism thingy
     content_loss.to(device)
@@ -517,9 +509,7 @@ def train(epoch, loader, optimizer):
     # the enum thingy can be removed I guess
     for data, _ in loader:
     # for batch_idx, data in enumerate(train_loader):
-        data = Variable(data)
-        if args.cuda:
-            data = data.cuda()
+        data = data.to(device)
         optimizer.zero_grad()
 
         # push whole batch of data through VAE.forward() to get recon_loss
@@ -534,11 +524,9 @@ def train(epoch, loader, optimizer):
 def test(epoch, loader):
     model.eval()
     test_loss = 0
-    for i, (data, _) in enumerate(loader):
-        if args.cuda:
-            data = data.cuda()
-
-        with torch.no_grad():
+    with torch.no_grad():
+        for i, (data, _) in enumerate(loader):
+            data = data.to(device)
             recon_batch, mu, logvar = model(data)
             test_loss += loss_function(recon_batch, data, mu, logvar).item()
             if i == 0:
@@ -548,19 +536,17 @@ def test(epoch, loader):
                 save_image(comparison,
                            SAVE_DIR + 'results/reconstruction_' + str(epoch) + '.png', nrow=n)
 
-                # 64 sets of random ZDIMS-float vectors, i.e. 64 locations / MNIST
-                # digits in latent space
-                sample = Variable(torch.randn(49, args.z_dims))
-                if args.cuda:
-                    sample = sample.cuda()
-                if ngpu > 1:
-                    sample = model.module.decode(sample)
-                else:
-                    sample = model.decode(sample)
+        # ~50 sets of random ZDIMS-float vectors to images
+        sample = Variable(torch.randn(49, args.z_dims))
+        sample.to(device)
+        if ngpu > 1:
+            sample = model.module.decode(sample)
+        else:
+            sample = model.decode(sample)
+        # this will give you a visual idea of how well latent space can generate new things
+        save_image(sample.data.view(49, -1, DATA_H, DATA_W),
+               SAVE_DIR + 'results/sample_' + str(epoch) + '.png', nrow=n)
 
-                # this will give you a visual idea of how well latent space can generate new things
-                save_image(sample.data.view(49, -1, DATA_H, DATA_W),
-                       SAVE_DIR + 'results/sample_' + str(epoch) + '.png')
     test_loss /= len(loader.dataset)
     print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
     return test_loss
