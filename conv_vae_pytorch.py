@@ -43,6 +43,7 @@ parser.add_argument('--log-interval', type=int, default=10, metavar='N',
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
+device = torch.device("cuda" if args.cuda else "cpu")
 
 torch.manual_seed(args.seed)
 if args.cuda:
@@ -104,7 +105,6 @@ elif "quva" in hostname:
     ngpu = 2
 else:
     ngpu = 1
-
 
 syn_train_loader = torch.utils.data.DataLoader(
     SynDataset.SynDataset(train=True, transform=syn_data_transform, datadir=DATA_DIR),
@@ -460,24 +460,22 @@ model.apply(weights_init)
 if args.load_model:
     model.load_state_dict(
         torch.load(args.load_model, map_location=lambda storage, loc: storage))
+
 if args.dfc:
     # The exact style seems less relevant, but try different values
     content_loss = Content_Loss(alpha=0.42, beta=1.0)
     descriptor = _VGG()
-    if args.cuda:
-        descriptor.cuda() # descriptor has it's own parallelism thingy
-        content_loss.cuda()
+    descriptor.to(device) # descriptor has it's own parallelism thingy
+    content_loss.to(device)
     descriptor.eval()
     for param in descriptor.parameters():
         param.requires_grad = False
-
-if args.cuda:
-    if  ngpu > 1:
-        print("Using", ngpu, "GPUs!")
-        model = nn.DataParallel(model)
-    else:
-        print("Using one gpu.")
-    model.cuda()
+if  ngpu > 1:
+    print("Using", ngpu, "GPUs!")
+    model = nn.DataParallel(model)
+else:
+    print("Using one gpu.")
+model.to(device)
 
 def loss_function_van(recon_x, x, mu, logvar):
     # how well do input x and output recon_x agree?
@@ -540,7 +538,6 @@ def test(epoch, loader):
         if args.cuda:
             data = data.cuda()
 
-        data = Variable(data) # Unneeded?
         with torch.no_grad():
             recon_batch, mu, logvar = model(data)
             test_loss += loss_function(recon_batch, data, mu, logvar).item()
