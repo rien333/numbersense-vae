@@ -184,7 +184,9 @@ class CONV_VAE(nn.Module):
         self.fc21 = nn.Sequential(  # mean network
             # nn.Linear(args.full_con_size, args.z_dims),
             nn.Linear(end_shape, args.z_dims),
-            nn.Tanhshrink()
+            # nn.LeakyReLU(),
+            # nn.ReLU(),
+            # nn.BatchNorm1d(args.z_dims)  # This doesn't seem okay at all
         )
 
         # self.fc22 = nn.Linear(args.full_con_size, args.z_dims) # variance network, linear
@@ -424,7 +426,7 @@ class Content_Loss(nn.Module):
     def forward(self, output, target, mean, logvar):
         kld = -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp())  # or should we use torch.sum() ?
         # Note detach
-        loss_list = [self.criterion(output[layer], target[layer].detach()) for layer in range(len(output))]
+        loss_list = [self.criterion(output[layer], target[layer]) for layer in range(len(output))]
         content = sum(loss_list)
         return self.alpha * kld + self.beta * content
 
@@ -542,7 +544,7 @@ def test(epoch, loader):
 
                 # 64 sets of random ZDIMS-float vectors, i.e. 64 locations / MNIST
                 # digits in latent space
-                sample = Variable(torch.randn(48, args.z_dims))
+                sample = Variable(torch.randn(49, args.z_dims))
                 if args.cuda:
                     sample = sample.cuda()
                 if ngpu > 1:
@@ -551,7 +553,7 @@ def test(epoch, loader):
                     sample = model.decode(sample)
 
                 # this will give you a visual idea of how well latent space can generate new things
-                save_image(sample.data.view(48, -1, DATA_H, DATA_W),
+                save_image(sample.data.view(49, -1, DATA_H, DATA_W),
                        SAVE_DIR + 'results/sample_' + str(epoch) + '.png')
     test_loss /= len(loader.dataset)
     print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
