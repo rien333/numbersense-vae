@@ -527,12 +527,11 @@ def train(epoch, loader, optimizer):
 def test(epoch, loader):
     model.eval()
     test_loss = 0
-    for i, (data, _) in enumerate(loader):
-        if args.cuda:
-            data = data.cuda()
+    with torch.no_grad():
+        for i, (data, _) in enumerate(loader):
+            if args.cuda:
+                data = data.cuda()
 
-        data = Variable(data) # Unneeded?
-        with torch.no_grad():
             recon_batch, mu, logvar = model(data)
             test_loss += loss_function(recon_batch, data, mu, logvar).item()
             if i == 0:
@@ -542,19 +541,18 @@ def test(epoch, loader):
                 save_image(comparison,
                            SAVE_DIR + 'results/reconstruction_' + str(epoch) + '.png', nrow=n)
 
-                # 64 sets of random ZDIMS-float vectors, i.e. 64 locations / MNIST
-                # digits in latent space
-                sample = Variable(torch.randn(49, args.z_dims))
-                if args.cuda:
-                    sample = sample.cuda()
-                if ngpu > 1:
-                    sample = model.module.decode(sample)
-                else:
-                    sample = model.decode(sample)
+        # ~50 sets of random ZDIMS-float vectors to images
+        sample = Variable(torch.randn(49, args.z_dims))
+        if args.cuda:
+            sample = sample.cuda()
+        if ngpu > 1:
+            sample = model.module.decode(sample)
+        else:
+            sample = model.decode(sample)
+        # this will give you a visual idea of how well latent space can generate new things
+        save_image(sample.data.view(49, -1, DATA_H, DATA_W),
+               SAVE_DIR + 'results/sample_' + str(epoch) + '.png', nrow=n)
 
-                # this will give you a visual idea of how well latent space can generate new things
-                save_image(sample.data.view(49, -1, DATA_H, DATA_W),
-                       SAVE_DIR + 'results/sample_' + str(epoch) + '.png')
     test_loss /= len(loader.dataset)
     print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
     return test_loss
