@@ -158,14 +158,13 @@ if __name__ == "__main__":
         SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True, datadir=DATA_DIR),
         batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
 
-    grow_f=0.25
+    grow_f=0.3
     hybrid_train_loader = torch.utils.data.DataLoader(
         HybridEqualDataset.HybridEqualDataset(epochs=30, train=True, t=1.1, transform=data_transform, 
                                               grow_f=grow_f, datadir=DATA_DIR),
         batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
 
-
-    train_routine(281, hybrid_test_loader, SOS_test_loader)
+    train_routine(281, hybrid_train_loader, SOS_test_loader)
 
 # classifier.load_state_dict(
 #         torch.load("classifier-models/vae-180.pt", map_location=lambda storage, loc: storage))
