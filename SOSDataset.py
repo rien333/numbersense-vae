@@ -1,19 +1,19 @@
 import cv2
-from random import randint, gauss
+from random import randint, gauss, shuffle
 import numpy as np
-from numpy import linalg as LA
 import os
 import torch
 from torchvision import transforms
 from torch.utils.data import Dataset
 from torchvision.utils import save_image
+import pickle
 
 # disable h5py warning, but disables pytorch warnings as well!!!
 np.warnings.filterwarnings('ignore')
 
 # was 256, this is after cropping. Used to be 227x227 with crop, but 224 (even) makes the math easier
-DATA_W = 225
-DATA_H = 225
+DATA_W = 161
+DATA_H = 161
 DATA_C = 3
 
 class RandomColorShift(object):
@@ -129,6 +129,7 @@ class SOSDataset(Dataset):
             self.transform_name = ''.join([t.__class__.__name__ for t in transform])
         else:
             self.transform = None
+        self.sorted_loc = "/tmp/sorted_classes_sos_" + str(self.train)+".pickle"
 
         # Read in the .mat file
         if extended:
@@ -157,6 +158,10 @@ class SOSDataset(Dataset):
             else:
                 if self.train:
                     self.train_data.append((im, mat_get(label)[0]))
+        if train:
+            shuffle(self.train_data)
+        else:
+            shuffle(self.test_data)
         # 10966 for train, 2741 for test
         self.nsamples = len(self.train_data) if self.train else len(self.test_data)
 
@@ -173,20 +178,40 @@ class SOSDataset(Dataset):
         s = cv2.cvtColor(cv2.imread(self.datadir + s[0]), cv2.COLOR_BGR2RGB), s[1]
         return self.transform(s)
 
+
+    def load_sorted_classes(self):
+        # Sorting all the indices by class takes really long for some reason, so save and read from file
+        if os.path.isfile(self.sorted_loc):
+            with open (self.sorted_loc, 'rb') as f:
+                c = pickle.load(f)
+        else:
+            c = self.sorted_classes()
+            # save
+            with open(self.sorted_loc, 'wb') as f:
+                pickle.dump(c, f)
+        return c
+
+    def sorted_classes(self):
+        """ Returns a list with all examples sorted by class """
+        classes = [[]] * 5
+        for i in range(self.nsamples):
+            c = int(self[i][1])
+            classes[c] = classes[c] + [i]
+        return classes
+
+
 if __name__ == "__main__":
     # load preprocess
-    transform = [Rescale((256, 256)), RandomCrop((DATA_W, DATA_H)), RandomColorShift(), ToTensor(), Normalize(), NormalizeMeanVGG()]
+    transform = [Rescale((256, 256))]
     # transform = [Rescale((256, 256)), 
     #               ToTensor(), Normalize()]
     dataset = SOSDataset(train=False, transform=transform, extended=True)
-    print(torch.unique(dataset[1][0], sorted=True))
-    exit(0)
-    for i in range(0, 10):
-        cv2.imshow("im", cv2.cvtColor(dataset[i][0], cv2.COLOR_BGR2RGB))
-        cv2.waitKey(0)
-        cv2.imshow("im", cv2.cvtColor(dataset[i][0], cv2.COLOR_BGR2RGB))
-        cv2.waitKey(0)
-
+    # print(torch.unique(dataset[1][0], sorted=True))
+    classes = dataset.load_sorted_classes()
+    for l in classes:
+        print(len(l))
+    # cv2.imwrite("test.jpg", cv2.cvtColor(dataset[dataset.sorted()[2][8]][0], cv2.COLOR_BGR2RGB))
+    
     # Save preprocess 
     # data_transform = [Rescale((DATA_2W, DATA_H)), FlattenArrToTensor(), Normalize()]
     # dataset = SOSDataset(train=True, transform=data_transform, preprocessed=False)
