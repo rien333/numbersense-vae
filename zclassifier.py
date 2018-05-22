@@ -2,11 +2,12 @@ import os
 import torch
 from torch import nn, optim
 import SOSDataset
+import HybridEqualDataset
 import conv_vae_pytorch as vae_pytorch
 
 Z_DIMS = vae_pytorch.args.z_dims # input size
-FC1_SIZE = 768 # try some different values as well
-FC2_SIZE = 384 # To small to support all outputs?
+FC1_SIZE = 256 # try some different values as well
+FC2_SIZE = 256 # To small to support all outputs?
 
 class Classifier(nn.Module):
     
@@ -142,9 +143,29 @@ def train_routine(epochs, train_loader, test_loader, start_epoch=0):
             torch.save(classifier.state_dict(), new_file)
 
 if __name__ == "__main__":
-    train_routine(100, vae_pytorch.syn_train_loader, vae_pytorch.syn_test_loader)
-    print("Done with synthetic data!")
-    train_routine(120, vae_pytorch.SOS_train_loader, vae_pytorch.SOS_test_loader, start_epoch=100)
+    scale = vae_pytorch.scale
+    DATA_W = SOSDataset.DATA_W
+    DATA_H = SOSDataset.DATA_H
+    DATA_C = SOSDataset.DATA_C # Color component dimension size
+    DATA_DIR = vae_pytorch.DATA_DIR
+
+    kwargs = {'num_workers': 1, 'pin_memory': True} if vae_pytorch.args.cuda else {}
+    data_transform = [SOSDataset.Rescale((scale, scale)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
+                      SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
+                      SOSDataset.ToTensor(), SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
+
+    SOS_test_loader = torch.utils.data.DataLoader(
+        SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True, datadir=DATA_DIR),
+        batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
+
+    grow_f=0.25
+    hybrid_train_loader = torch.utils.data.DataLoader(
+        HybridEqualDataset.HybridEqualDataset(epochs=30, train=True, t=1.1, transform=data_transform, 
+                                              grow_f=grow_f, datadir=DATA_DIR),
+        batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
+
+
+    train_routine(281, hybrid_test_loader, SOS_test_loader)
 
 # classifier.load_state_dict(
 #         torch.load("classifier-models/vae-180.pt", map_location=lambda storage, loc: storage))
