@@ -592,7 +592,7 @@ def test(epoch, loader):
         # print(torch.unique(sample.cpu(), sorted=True))
 
     test_loss /= len(loader.dataset)
-    print('====> Epoch: {} Test set loss: {:.10f} Content loss: {:.4f} KLD loss: {:.4f}'.format(epoch, test_loss, content_loss/len(loader.dataset), kld_loss/len loader.dataset)))
+    print('====> Epoch: {} Test set loss: {:.10f} Content loss: {:.4f} KLD loss: {:.4f}'.format(epoch, test_loss, content_loss/len(loader.dataset), kld_loss/len(loader.dataset)))
     return test_loss
 
 def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset=120, start_epoch=0):
@@ -635,12 +635,12 @@ if __name__ == "__main__":
     grow_f=6.3055
     hybrid_train_loader = torch.utils.data.DataLoader(
         HybridEqualDataset.HybridEqualDataset(epochs=args.epochs-6, train=True, transform=data_transform, 
-                                              grow_f=grow_f, datadir=DATA_DIR),
+                                              t=0.775,grow_f=6.2952, datadir=DATA_DIR),
         batch_size=args.batch_size, shuffle=True, **kwargs)
 
     hybrid_test_loader = torch.utils.data.DataLoader(
         HybridEqualDataset.HybridEqualDataset(epochs=args.epochs-6, train=False, transform=data_transform, 
-                                              grow_f=2.0, datadir=DATA_DIR),
+                                              t=0.775,grow_f=2.0, datadir=DATA_DIR),
         batch_size=args.batch_size, shuffle=True, **kwargs)
 
     # # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
@@ -657,6 +657,8 @@ if __name__ == "__main__":
         if l in model_access.freeze_layers:
             for p in l.parameters():
                 p.requires_grad = False
+
+    hybrid_train_loader = None
 
     # Fine tune on real data
     SOS_train_loader = torch.utils.data.DataLoader(
