@@ -7,8 +7,8 @@ import HybridEqualDataset
 import conv_vae_pytorch as vae_pytorch
 
 Z_DIMS = vae_pytorch.args.z_dims # input size
-FC1_SIZE = 276 # try some different values as well
-FC2_SIZE = 250 # To small to support all outputs?
+FC1_SIZE = 376 # try some different values as well
+FC2_SIZE = 376 # To small to support all outputs?
 
 class Classifier(nn.Module):
     
@@ -160,7 +160,7 @@ if __name__ == "__main__":
                       SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
                       SOSDataset.ToTensor(), SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
 
-    class_weights = torch.cuda.FloatTensor([0.232, 0.4, 1.0, 1.0, 0.955])
+    class_weights = torch.cuda.FloatTensor([0.232, 0.485, 1.0, 1.0, 0.955])
     criterion = nn.CrossEntropyLoss(weight=class_weights)
     optimizer = optim.SGD(classifier.parameters(), lr=0.001, momentum=0.9)
     # syn_samples = [1500] * 5
@@ -219,8 +219,8 @@ if __name__ == "__main__":
     #     HybridEqualDataset.HybridEqualDataset(epochs=30, train=True, t=1.1, transform=data_transform,
     #                                           grow_f=grow_f, datadir=DATA_DIR, real_samples=real_samples),
     #     batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
-    criterion = nn.CrossEntropyLoss(weight=class_weights)
     class_weights = torch.cuda.FloatTensor([0.24, 0.65, 0.97, 1.0, 0.95]) # 1 and 0.8 are reversed
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
     train_routine(73, train_loader=SOS_train_loader, test_loader=SOS_test_loader, optimizer=optimizer, criterion=criterion)
 
 
