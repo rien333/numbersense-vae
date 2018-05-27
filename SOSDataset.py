@@ -158,10 +158,10 @@ class SOSDataset(Dataset):
             else:
                 if self.train:
                     self.train_data.append((im, mat_get(label)[0]))
-        if train:
-            shuffle(self.train_data)
-        else:
-            shuffle(self.test_data)
+        # if train:
+        #     shuffle(self.train_data)
+        # else:
+        #     shuffle(self.test_data)
         # 10966 for train, 2741 for test
         self.nsamples = len(self.train_data) if self.train else len(self.test_data)
 
@@ -183,7 +183,7 @@ class SOSDataset(Dataset):
         # Sorting all the indices by class takes really long for some reason, so save and read from file
         if os.path.isfile(self.sorted_loc):
             with open (self.sorted_loc, 'rb') as f:
-                c = pickle.load(f)
+                c = pickle.load(f,encoding='latin1')
         else:
             c = self.sorted_classes()
             # save
@@ -193,6 +193,7 @@ class SOSDataset(Dataset):
 
     def sorted_classes(self):
         """ Returns a list with all examples sorted by class """
+
         classes = [[]] * 5
         for i in range(self.nsamples):
             c = int(self[i][1])

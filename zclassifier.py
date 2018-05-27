@@ -2,11 +2,13 @@ import os
 import torch
 from torch import nn, optim
 import SOSDataset
+import SynDataset
+import HybridEqualDataset
 import conv_vae_pytorch as vae_pytorch
 
 Z_DIMS = vae_pytorch.args.z_dims # input size
-FC1_SIZE = 768 # try some different values as well
-FC2_SIZE = 384 # To small to support all outputs?
+FC1_SIZE = 276 # try some different values as well
+FC2_SIZE = 250 # To small to support all outputs?
 
 class Classifier(nn.Module):
     
@@ -15,13 +17,14 @@ class Classifier(nn.Module):
         # Try dropout for classification with pre training with synthetic data
         self.fc1 = nn.Sequential(
             nn.Linear(Z_DIMS, FC1_SIZE),
-            nn.LeakyReLU(),
-            nn.BatchNorm1d(FC1_SIZE)
+            nn.Dropout(),
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm1d(FC1_SIZE),
         )
         self.fc2 = nn.Sequential(
             nn.Linear(FC1_SIZE, FC2_SIZE),
-            nn.LeakyReLU(),
-            nn.BatchNorm1d(FC2_SIZE)
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm1d(FC2_SIZE),
         )
         self.fc3 = nn.Linear(FC2_SIZE, 5) # output 5 labels
         self.sigmoid = nn.Sigmoid()
@@ -33,8 +36,10 @@ class Classifier(nn.Module):
         return self.sigmoid(self.fc3(x))
 
 classifier = Classifier()
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(classifier.parameters(), lr=0.001, momentum=0.9)
+# print("Classifier: loading model 56")
+# classifier.load_state_dict(
+#     torch.load("classifier-models/vae-56.pt", map_location=lambda storage, loc: storage))
+
 
 model = vae_pytorch.model
 # toggle model to test / inference mode
@@ -46,20 +51,22 @@ if vae_pytorch.args.cuda:
     classifier.cuda()
     model.cuda() # need to call this here again 
 
-def train(epoch, loader):
+def train(epoch, loader, optimizer, criterion):
     classifier.train()
-    running_loss = 0.0
+    # running_loss = 0.0
     # Test set is fairly small, also consider training on a larger set
     for i, (ims, labels) in enumerate(loader, 1): # unseen data
         # convert ims to z vector
         # You should reparameterize these z's, and make sure to set the model in testing/evalution mode when
         # sampling with model.reparameterize(zs), as that will draw zs with the highest means
         # I guess the output will be a batch of z vectors with Z_DIM
-        mu, logvar = model.encode(ims.cuda()) # Might need .cuda
-        zs = model.reparameterize(mu, logvar)
+
+        optimizer.zero_grad()
+        # Assume more than one gpu!!!
+        mu, logvar = model.module.encode(ims.cuda()) # Might need .cuda
+        zs = model.module.reparameterize(mu, logvar)
         
         # zero the parameter gradients
-        optimizer.zero_grad()
         # forward + backward + optimize
         outputs = classifier(zs)
         # target ("labels") should be 1D
@@ -69,10 +76,10 @@ def train(epoch, loader):
         optimizer.step()
 
         # print statistics
-        running_loss += loss.item()
-        if i % 15 == 0:
-            print('[Epoch %d, it.: %5d] loss: %.17f' %
-                  (epoch + 1, i + 1, running_loss / 2000)) # average by datasize?
+        # running_loss += loss.item()
+        # if i % 15 == 0:
+        #     print('[Epoch %d, it.: %5d] loss: %.17f' %
+                  # (epoch + 1, i + 1, running_loss / 2000)) # average by datasize?
 
 def test(epoch, loader):
     classifier.eval()
@@ -82,8 +89,8 @@ def test(epoch, loader):
     total = 0
     with torch.no_grad():
         for i, (ims, labels) in enumerate(loader): # unseen data
-            mu, logvar = model.encode(ims.cuda())
-            zs = model.reparameterize(mu, logvar)
+            mu, logvar = model.module.encode(ims.cuda())
+            zs = model.module.reparameterize(mu, logvar)
             outputs = classifier(zs)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
@@ -98,8 +105,8 @@ def test(epoch, loader):
     class_total = list(0.0000000001 for i in range(10))
     with torch.no_grad():
         for im, labels in loader:
-            mu, logvar = model.encode(im.cuda()) # Might need .cuda
-            zs = model.reparameterize(mu, logvar)
+            mu, logvar = model.module.encode(im.cuda()) # Might need .cuda
+            zs = model.module.reparameterize(mu, logvar)
             outputs = classifier(zs)
             labels = labels.long().cuda().view(-1) # Might need .cuda
             _, predicted = torch.max(outputs, 1)
@@ -115,12 +122,12 @@ def test(epoch, loader):
 
     return accuracy
 
-def train_routine(epochs, train_loader, test_loader, start_epoch=0):
+def train_routine(epochs, train_loader, test_loader, optimizer, criterion, start_epoch=0,):
     best_models = [("", -100000000000)]*4
     test_interval = 7
     # Save models according to loss instead of acc?
     for epoch in range(start_epoch, start_epoch+epochs):
-        train(epoch, train_loader)
+        train(epoch, train_loader, optimizer, criterion)
 
         if epoch % test_interval == 0:
             test_acc = test(epoch, test_loader)
@@ -142,12 +149,83 @@ def train_routine(epochs, train_loader, test_loader, start_epoch=0):
             torch.save(classifier.state_dict(), new_file)
 
 if __name__ == "__main__":
-    train_routine(100, vae_pytorch.syn_train_loader, vae_pytorch.syn_test_loader)
-    print("Done with synthetic data!")
-    train_routine(120, vae_pytorch.SOS_train_loader, vae_pytorch.SOS_test_loader, start_epoch=100)
+    scale = vae_pytorch.scale
+    DATA_W = SOSDataset.DATA_W
+    DATA_H = SOSDataset.DATA_H
+    DATA_C = SOSDataset.DATA_C # Color component dimension size
+    DATA_DIR = vae_pytorch.DATA_DIR
+
+    kwargs = {'num_workers': 1, 'pin_memory': True} if vae_pytorch.args.cuda else {}
+    data_transform = [SOSDataset.Rescale((scale, scale)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
+                      SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
+                      SOSDataset.ToTensor(), SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
+
+    class_weights = torch.cuda.FloatTensor([0.232, 0.4, 1.0, 1.0, 0.955])
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
+    optimizer = optim.SGD(classifier.parameters(), lr=0.001, momentum=0.9)
+    # syn_samples = [1500] * 5
+    grow_f=3.481
+    # syn_samples = [1900, 1000, 8923, 8900, 7100] # These work quite well I believe
+    # real_samples = [1800, 3402, 1604, 1058, 853]
+    # real_samples = [0] * 5
+    # real_samples = [853] * 5
+    hybrid_train_loader = torch.utils.data.DataLoader(
+        HybridEqualDataset.HybridEqualDataset(epochs=30-5, train=True, t=1.1, transform=data_transform, 
+                                              grow_f=grow_f, datadir=DATA_DIR,),
+        batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
+
+
+    # syn_samples = [750] * 5 
+    # real_samples = [1] * 5
+    # hybrid_test_loader = torch.utils.data.DataLoader(
+    #     HybridEqualDataset.HybridEqualDataset(epochs=30-5, train=False, t=0.5, transform=data_transform, 
+    #                                           grow_f=1.5, datadir=DATA_DIR, syn_samples=syn_samples, 
+    #     real_samples=real_samples),
+    #     batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
+
+    # syn_train_loader = torch.utils.data.DataLoader(
+    #     SynDataset.SynDataset(train=True, transform=data_transform,),
+    #     batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
+
+    # syn_test_loader = torch.utils.data.DataLoader(
+    #     SynDataset.SynDataset(train=False, transform=data_transform, ),
+    #     batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
+
+    SOS_test_loader = torch.utils.data.DataLoader(
+        SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True, datadir=DATA_DIR),
+        batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
+
+    # Evalaute on synthetic data first when fine tuning
+    # train_routine(30, train_loader=syn_train_loader, test_loader=syn_test_loader, optimizer=optimizer)
+    train_routine(72, train_loader=hybrid_train_loader, test_loader=SOS_test_loader, optimizer=optimizer, 
+                  criterion=criterion)
+    # train_routine(30, train_loader=hybrid_train_loader, test_loader=hybrid_test_loader, optimizer=optimizer)
+
+
+    # Fine tune later (load in all synthetic data at first step, and then mostly sos)
+    for p in classifier.fc1.parameters():
+        p.requires_grad = False
+    optimizer = optim.SGD(filter(lambda p: p.requires_grad, classifier.parameters()),  lr=0.00015, momentum=0.85)
+
+    # real_samples = [1597, 1595, 1604, 1058, 853]
+    grow_f=0.22 # How small can you make this?
+    # balance classes a little
+        # Fine tune on real data
+    SOS_train_loader = torch.utils.data.DataLoader(
+        SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True, datadir=DATA_DIR),
+        batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
+
+    # hybrid_train_loader = torch.utils.data.DataLoader(
+    #     HybridEqualDataset.HybridEqualDataset(epochs=30, train=True, t=1.1, transform=data_transform,
+    #                                           grow_f=grow_f, datadir=DATA_DIR, real_samples=real_samples),
+    #     batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
+    class_weights = torch.cuda.FloatTensor([0.24, 0.65, 0.97, 1.0, 0.95]) # 1 and 0.8 are reversed
+    train_routine(73, train_loader=SOS_train_loader, test_loader=SOS_test_loader, optimizer=optimizer, criterion=criterion)
+
 
 # classifier.load_state_dict(
-#         torch.load("classifier-models/vae-180.pt", map_location=lambda storage, loc: storage))
+#         torch.load("classifier-models/vae-180.pt", map_location=lambda storage, loc: storage)
 # classifier.eval()
 
 # Test on which classes the model performs well

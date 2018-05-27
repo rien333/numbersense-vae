@@ -3,8 +3,10 @@ from math import ceil, floor
 import random
 import numpy as np
 # import ColoredMNIST
+# import CelebDataset
 import SynDataset
 import SOSDataset
+import HybridEqualDataset
 import torch
 import torch.utils.data
 import torchvision.models as models
@@ -18,12 +20,12 @@ from torchvision.utils import save_image
 parser = argparse.ArgumentParser(description='Annotated PyTorch VAE with conv layers')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                     help='input batch size for training (default: 128)')
-parser.add_argument('--syn-batch-size', type=int, default=32, metavar='N',
+parser.add_argument('--tune-batch-size', type=int, default=32, metavar='N',
                     help='input batch size for training with the synthetic dataset')
 parser.add_argument('--epochs', type=int, default=10000, metavar='N',
-                    help='number of epochs to train (default: 10)')
-parser.add_argument('--syn-epochs', type=int, default=180, metavar='N',
-                    help='number of epochs to train on synthetic data')
+                    help='number of epochs to train with hybrid data')
+parser.add_argument('--tune-epochs', type=int, default=280, metavar='N',
+                    help='number of epochs to train on real data')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='enables CUDA training')
 parser.add_argument('--z-dims', type=int, default=20, metavar='N',
@@ -55,9 +57,14 @@ if args.cuda:
 # DATA_W = 64
 # DATA_H = 64
 # DATA_C = 3
+
 DATA_W = SOSDataset.DATA_W
 DATA_H = SOSDataset.DATA_H
 DATA_C = SOSDataset.DATA_C # Color component dimension size
+
+# DATA_W = CelebDataset.DATA_W
+# DATA_H = CelebDataset.DATA_H
+# DATA_C = CelebDataset.DATA_C # Color component dimension size
 
 DATA_SIZE = DATA_W * DATA_H * DATA_C
 
@@ -72,9 +79,12 @@ if args.dfc:
     # also not sure if it's between 0-1 and one per se, but maybe 0-255
     data_transform = [SOSDataset.Rescale((scale, scale)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
                       SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
-                      SOSDataset.ToTensor(), SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
+                      SOSDataset.ToTensor(),]
     syn_data_transform = list(data_transform)
-    # syn_data_transform = data_transform[1:]
+    # celeb_transform = [CelebDataset.Rescale((DATA_H, DATA_W)), CelebDataset.RandomColorShift(), 
+    #                    CelebDataset.RandHorizontalFlip(),  CelebDataset.ToTensor(), CelebDataset.NormalizeMean(),
+    #                    CelebDataset.Normalize01()]
+    # # syn_data_transform = data_transform[1:]
 else:
     # ToTensor already puts everything in range 0-1
     data_transform = [SOSDataset.Rescale((256, 256)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
@@ -104,29 +114,25 @@ else:
 if lisa_check:
     ngpu = torch.cuda.device_count()
 elif "quva" in hostname:
-    ngpu = 2
+    ngpu = torch.cuda.device_count()
 else:
     ngpu = 1
 
-syn_train_loader = torch.utils.data.DataLoader(
-    SynDataset.SynDataset(train=True, transform=syn_data_transform, datadir=DATA_DIR),
-    batch_size=args.syn_batch_size, shuffle=True, **kwargs)
+# celeb_train_loader = torch.utils.data.DataLoader(
+#     CelebDataset.CelebDataset(train=True, transform=celeb_transform,),
+#     batch_size=args.batch_size, shuffle=True, **kwargs)
 
-syn_test_loader = torch.utils.data.DataLoader(
-    SynDataset.SynDataset(train=False, transform=syn_data_transform, datadir=DATA_DIR),
-    batch_size=args.syn_batch_size, shuffle=True, **kwargs)
+# celeb_test_loader = torch.utils.data.DataLoader(
+#     CelebDataset.CelebDataset(train=False, transform=celeb_transform,),
+#     batch_size=args.batch_size, shuffle=True, **kwargs)
 
-SOS_train_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True, datadir=DATA_DIR),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
-    # ColoredMNIST.ColoredMNIST(train=True, transform=data_transform),
-    # batch_size=args.batch_size, shuffle=True, **kwargs)
+# syn_train_loader = torch.utils.data.DataLoader(
+#     SynDataset.SynDataset(train=True, transform=syn_data_transform, datadir=DATA_DIR),
+#     batch_size=args.syn_batch_size, shuffle=True, **kwargs)
 
-SOS_test_loader = torch.utils.data.DataLoader(
-    SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True, datadir=DATA_DIR),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
-    # ColoredMNIST.ColoredMNIST(train=False, transform=data_transform),
-    # batch_size=args.batch_size, shuffle=True, **kwargs)
+# syn_test_loader = torch.utils.data.DataLoader(
+#     SynDataset.SynDataset(train=False, transform=syn_data_transform, datadir=DATA_DIR),
+#     batch_size=args.syn_batch_size, shuffle=True, **kwargs)
 
 class CONV_VAE(nn.Module):
     def __init__(self):
@@ -143,6 +149,15 @@ class CONV_VAE(nn.Module):
 
         # ENCODER (cnn architecture based on simple vgg16)
         self.conv1 = nn.Sequential(	# input shape (3, DATA_H, DATA_W)
+            # nn.Conv2d(
+            #     in_channels=3,		# RGB
+            #     out_channels=32,        # output depth
+            #     kernel_size=4,
+            #     stride=1,
+            #     padding=1
+            # ),				# out (64, DATA_H, DATA_W) should be same HxW as in
+            # nn.LeakyReLU(0.2),          # inplace=True saves memory but discouraged (worth the try)
+            # nn.BatchNorm2d(32),         # C channel input, 4d input (NxCxHxW)
             nn.Conv2d(
                 in_channels=3,		# RGB
                 out_channels=32,        # output depth
@@ -212,8 +227,8 @@ class CONV_VAE(nn.Module):
         # 128*14*14 * a few (4) upsampling = the original input size
         # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
-            nn.Linear(args.full_con_size, int(np.prod(self.deconv_shape))), # was 15
-            # nn.Linear(args.z_dims, 256*15*15),
+            nn.Linear(args.full_con_size, int(np.prod(self.deconv_shape))),
+            # nn.Linear(args.z_dims, int(np.prod(self.deconv_shape))),
             nn.LeakyReLU(0.2),
             nn.BatchNorm1d(int(np.prod(self.deconv_shape)))
         )
@@ -259,6 +274,7 @@ class CONV_VAE(nn.Module):
             nn.Sigmoid()  # output between 0 and 1 # Relu?
         )
 
+        self.freeze_layers = [self.conv1, self.conv2,]
 
     def encode(self, x: Variable) -> (Variable, Variable):
         """Input vector x -> fully connected 1 -> ReLU -> (fully connected
@@ -379,7 +395,7 @@ class _VGG(nn.Module):
         self.norm_layer = ImageNet_Norm_Layer_2() # norm done in net to net screw the input
 
         # ngpu = torch.cuda.device_count()
-        self.ngpu = 0 # too much mem # assign to ngpu
+        self.ngpu = ngpu if not lisa_check else 1  # too much mem # assign to ngpu
         if self.ngpu > 1:
             # Functional equivalent of below (idkkk if this is problematic? maybe it's good)
             self.gpu_func = lambda module, output: nn.parallel.data_parallel(module, output, range(self.ngpu))
@@ -392,7 +408,8 @@ class _VGG(nn.Module):
                'conv3_1', 'relu3_1', 'conv3_2', 'relu3_2', 'conv3_3', 'relu3_3', 'conv3_4', 'relu3_4', 'pool3',
                'conv4_1', 'relu4_1', 'conv4_2', 'relu4_2', 'conv4_3', 'relu4_3', 'conv4_4', 'relu4_4', 'pool4',
                'conv5_1', 'relu5_1', 'conv5_2', 'relu5_2', 'conv5_3', 'relu5_3', 'conv5_4', 'relu5_4', 'pool5']
-        self.content_layers = ['relu1_1', 'relu2_1', 'relu3_1']
+        # Add one?
+        self.content_layers = ['relu1_1', 'relu2_1', 'relu3_1',]
 
         self.features = nn.Sequential()
         for i, module in enumerate(features):
@@ -425,7 +442,7 @@ class Content_Loss(nn.Module):
         self.criterion = nn.MSELoss(size_average=False)
 
     def forward(self, output, target, mean, logvar):
-        kld = -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp())  # or should we use torch.sum() ?
+        kld = -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp()) 
         # Note detach
         loss_list = [self.criterion(output[layer], target[layer].detach()) for layer in range(len(output))]
         content = sum(loss_list)
@@ -449,25 +466,27 @@ def weights_init(m):
 model = CONV_VAE()
 model.apply(weights_init)
 
-if args.load_model:
-    model.load_state_dict(
-        torch.load(args.load_model, map_location=lambda storage, loc: storage))
-
 if args.dfc:
     # The exact style seems less relevant, but try different values
-    content_loss = Content_Loss(alpha=0.5, beta=1.0)
     descriptor = _VGG()
     descriptor.to(device) # descriptor has it's own parallelism thingy
-    content_loss.to(device)
     descriptor.eval()
     for param in descriptor.parameters():
         param.requires_grad = False
+
+    content_loss = Content_Loss(alpha=0.50, beta=1.0)
+    content_loss.to(device)
+
 if  ngpu > 1:
     print("Using", ngpu, "GPUs!")
     model = nn.DataParallel(model)
 else:
     print("Using one gpu.")
 model.to(device)
+
+if args.load_model:
+    model.load_state_dict(
+        torch.load(args.load_model, map_location=lambda storage, loc: storage))
 
 def loss_function_van(recon_x, x, mu, logvar):
     # how well do input x and output recon_x agree?
@@ -496,7 +515,22 @@ def loss_function_dfc(recon_x, x, mu, logvar):
     # loss is KLD + percetupal reconstruction loss between the convs layers
     targets = descriptor(x) # vgg
     recon_features = descriptor(recon_x)
+    # BCE = F.binary_cross_entropy(recon_x, x)
+    # return content_loss(recon_features, targets, mu, logvar) + (20000000*BCE)
     return content_loss(recon_features, targets, mu, logvar)
+
+# REMOVE ❗
+def loss_function_dfc_split(recon_x, x, mu, logvar):
+    # loss is KLD + percetupal reconstruction loss between the convs layers
+    targets = descriptor(x) # vgg
+    recon_features = descriptor(recon_x)
+    # BCE = F.binary_cross_entropy(recon_x, x)
+    kld = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    loss_list = [F.mse_loss(recon_features[layer], targets[layer].detach(), size_average=False) for layer in range(len(recon_features))]
+    content = sum(loss_list)
+    
+    return 0.5*kld, 1.0*content,
+    # return content_loss(recon_features, targets, mu, logvar)
 
 # Check for dfc loss
 if args.dfc:
@@ -504,11 +538,12 @@ if args.dfc:
 else:
     loss_function = loss_function_van
 
+
 def train(epoch, loader, optimizer):
     model.train()
     # the enum thingy can be removed I guess
     for data, _ in loader:
-    # for batch_idx, data in enumerate(train_loader):
+    # for data in loader:
         data = data.to(device)
         optimizer.zero_grad()
 
@@ -524,11 +559,18 @@ def train(epoch, loader, optimizer):
 def test(epoch, loader):
     model.eval()
     test_loss = 0
+    kld_loss, content_loss  = 0, 0,
     with torch.no_grad():
         for i, (data, _) in enumerate(loader):
+        # for i, data in enumerate(loader):
             data = data.to(device)
             recon_batch, mu, logvar = model(data)
-            test_loss += loss_function(recon_batch, data, mu, logvar).item()
+            # test_loss += loss_function_dfc(recon_batch, data, mu, logvar).item()
+            kld, content = [l.item() for l in loss_function_dfc_split(recon_batch, data, mu, logvar)]
+            kld_loss += kld
+            content_loss += content
+            # bce_loss += bce
+            test_loss += kld + content
             if i == 0:
                 n = min(data.size(0), 7)
                 comparison = torch.cat([data[:n],
@@ -537,8 +579,9 @@ def test(epoch, loader):
                            SAVE_DIR + 'results/reconstruction_' + str(epoch) + '.png', nrow=n)
 
         # ~50 sets of random ZDIMS-float vectors to images
-        sample = Variable(torch.randn(49, args.z_dims))
-        sample.to(device)
+        # Weird hack bc this is drawn from ~ N(0, 1), and our distribution looks different
+        sample = torch.randn(49, args.z_dims).to(device)
+        
         if ngpu > 1:
             sample = model.module.decode(sample)
         else:
@@ -546,9 +589,11 @@ def test(epoch, loader):
         # this will give you a visual idea of how well latent space can generate new things
         save_image(sample.data.view(49, -1, DATA_H, DATA_W),
                SAVE_DIR + 'results/sample_' + str(epoch) + '.png', nrow=n)
+        # print(torch.unique(sample.cpu(), sorted=True))
 
     test_loss /= len(loader.dataset)
-    print('====> Epoch: {} Test set loss: {:.17f}'.format(epoch, test_loss))
+    # print("kdl %s content %s bce %s" % (kld_loss, content_loss, bce_loss))
+    print('====> Epoch: {} Test set loss: {:.10f} Content loss: {:.4f} KLD loss: {:.4f}'.format(epoch, test_loss, content, kld_loss))
     return test_loss
 
 def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset=120, start_epoch=0):
@@ -583,27 +628,49 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
             print("Resetting learning rate")
             for param_group in optimizer.param_groups:
                 param_group['lr'] = 0.001
-            scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
+            scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.33, patience=4, cooldown=1, 
                                                        verbose=True)
 
 if __name__ == "__main__":
-    # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
-    optimizer = optim.Adam(model.parameters(), lr=0.0014)
+
+    grow_f=3.100
+    hybrid_train_loader = torch.utils.data.DataLoader(
+        HybridEqualDataset.HybridEqualDataset(epochs=args.epochs-6, train=True, transform=data_transform, 
+                                              grow_f=grow_f, datadir=DATA_DIR),
+        batch_size=args.batch_size, shuffle=True, **kwargs)
+
+    hybrid_test_loader = torch.utils.data.DataLoader(
+        HybridEqualDataset.HybridEqualDataset(epochs=args.epochs-6, train=False, transform=data_transform, 
+                                              grow_f=grow_f, datadir=DATA_DIR),
+        batch_size=args.batch_size, shuffle=True, **kwargs)
+
+    # # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
+    optimizer = optim.Adam(model.parameters(), lr=0.00135)
     # Decay lr if nothing happens after 4 epochs (try 3?)
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
                                                verbose=True)
+    train_routine(args.epochs, train_loader=hybrid_test_loader, test_loader=hybrid_test_loader, 
+                  optimizer=optimizer, scheduler=scheduler, reset=120)
 
-    # Pretrain on synthetic data
-    train_routine(args.syn_epochs, train_loader=syn_train_loader, test_loader=syn_test_loader, 
-                  optimizer=optimizer, scheduler=scheduler, reset=70)
-    print("Done with synthetic data!")
+    # Freeze early layers
+    model_access = model.modules if ngpu > 1 else model
+    for l in model.modules():
+        if l in model_access.freeze_layers:
+            for p in l.parameters():
+                p.requires_grad = False
 
-    for param_group in optimizer.param_groups:
-            param_group['lr'] = 0.001 # try this during synthetic pass at one point? (halfway?) ❗❗❗
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.30, patience=4, cooldown=2, 
+    # Fine tune on real data
+    SOS_train_loader = torch.utils.data.DataLoader(
+        SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True, datadir=DATA_DIR),
+        batch_size=args.tune_batch_size, shuffle=True, **kwargs)
+    SOS_test_loader = torch.utils.data.DataLoader(
+        SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True, datadir=DATA_DIR),
+        batch_size=args.tune_batch_size, shuffle=True, **kwargs)
+
+    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=0.0005)
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.33, patience=4, cooldown=2, 
                                                verbose=True)
-    # Train on the real data
-    # Maybe reset the optimizer? (done)
-    train_routine(args.syn_epochs + args.epochs, train_loader=SOS_train_loader, test_loader=SOS_test_loader, 
-                  start_epoch=args.syn_epochs + args.start_epoch, optimizer=optimizer, scheduler=scheduler, 
+
+    train_routine(args.tune_epochs, train_loader=SOS_train_loader, test_loader=SOS_test_loader, 
+                  start_epoch=args.epochs, optimizer=optimizer, scheduler=scheduler, 
                   reset=90)

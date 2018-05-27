@@ -26,7 +26,7 @@ class SynDataset(Dataset):
             files = f.read().splitlines()
 
         # Is it okay to shuffle the train and test set everytime?
-        shuffle(files) # Okay uhm I think the dataloader already shuffles?
+        # shuffle(files) # Okay uhm I think the dataloader already shuffles?
         self.files = files[:n]
         nfiles = len(self.files)
         self.train_range = int(split * nfiles) # convert to idx
@@ -71,9 +71,22 @@ class SynDataset(Dataset):
 
 if __name__ == "__main__":
     transform = [SOSDataset.Rescale((232, 232))]
-    dataset = SynDataset(train=True, transform=transform, split=1)
+    dataset = SynDataset(train=True, transform=transform, split=0.8)
+    from collections import Counter
+    classes = Counter()
+    samples = len(dataset)
+    for s in range(samples):
+        try:
+            classes[int(dataset[s][1])] += 1
+        except:
+            print(s)
+            print(samples)
+            exit(0)
+
+    print("All", sorted(classes.items(), key=lambda pair: pair[0], reverse=False))
+
     # print(sorted(dataset.files, key=lambda k: k[-5])[:10])
-    classes = dataset.load_sorted_classes()
-    for l in classes:
-        print(len(l))
+    # classes = dataset.load_sorted_classes()
+    # for l in classes:
+    #     print(len(l))
     # cv2.imwrite("test.jpg", cv2.cvtColor(dataset[dataset.sorted()[3][8]][0], cv2.COLOR_BGR2RGB))
