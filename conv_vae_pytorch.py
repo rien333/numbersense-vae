@@ -474,7 +474,7 @@ if args.dfc:
     for param in descriptor.parameters():
         param.requires_grad = False
 
-    content_loss = Content_Loss(alpha=0.50, beta=1.0)
+    content_loss = Content_Loss(alpha=1.0, beta=0.001)
     content_loss.to(device)
 
 if  ngpu > 1:
@@ -592,7 +592,6 @@ def test(epoch, loader):
         # print(torch.unique(sample.cpu(), sorted=True))
 
     test_loss /= len(loader.dataset)
-    # print("kdl %s content %s bce %s" % (kld_loss, content_loss, bce_loss))
     print('====> Epoch: {} Test set loss: {:.10f} Content loss: {:.4f} KLD loss: {:.4f}'.format(epoch, test_loss, content, kld_loss))
     return test_loss
 
