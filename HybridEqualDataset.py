@@ -61,8 +61,8 @@ class HybridEqualDataset(Dataset):
         from collections import Counter
         self.syn_counter = 0
         self.generate_samples()
+        self.nsamples = len(self.samples)
         if self.syn_samples or self.real_samples:
-            self.nsamples = len(self.samples)
             if self.nsamples % self.classes != 0:
                 print("Number of samples", self.nsamples, "should be divisible by", self.classes)
                 exit(0)
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     # syn_samples = [4700, 5400, 8023, 8200, 8700]
     # real_samples = [1101, 1100, 1604, 1058, 853]
     
-    hd = HybridEqualDataset(epochs=epochs, transform=t, train=True, t=1.1, grow_f=3.5032)
+    hd = HybridEqualDataset(epochs=epochs, transform=t, train=True, t=1.1, grow_f=3.5048)
     samples = len(hd)
     for epoch in range(epochs+2):
         classes = Counter()
