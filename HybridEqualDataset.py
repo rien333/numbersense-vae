@@ -15,15 +15,15 @@ class HybridEqualDataset(Dataset):
     # Consider the dynamic between test and train (syn are totally random, and pseuod generated)
     # as syn examples are pseudo generated, consider importing way more
 
-    def __init__(self, epochs, transform=None, grow_f=0.38, t=0.0, datadir="../Datasets/", syn_samples=[],
-                 real_samples=[], train=True,):
+    def __init__(self, epochs, transform=None, grow_f=0.38, t=0.0, datadir="../Datasets/", sorted_loc="/tmp",
+                 syn_samples=[], real_samples=[], train=True,):
         """
         grow_f is a factor [0,1] by how much we should grow the datasize with synthetic examples
         """
 
         self.train = train
         self.classes = 5
-        self.sos = SOSDataset.SOSDataset(train=train, extended=True, transform=transform, datadir=datadir)
+        self.sos = SOSDataset.SOSDataset(train=train, extended=True, transform=transform, datadir=datadir, sorted_loc=sorted_loc)
         # load the sorted list from a file for speed
         self.sos_sort = self.sos.load_sorted_classes()
         self.sos_n = [len(s) for s in self.sos_sort]
@@ -49,7 +49,7 @@ class HybridEqualDataset(Dataset):
             self.real_samples = False
 
 
-        self.syn = SynDataset.SynDataset(train=True, transform=transform, split=1, datadir=datadir)
+        self.syn = SynDataset.SynDataset(train=True, transform=transform, split=1, datadir=datadir, sorted_loc=sorted_loc)
         # load the sorted list from a file for speed
         self.syn_sort = self.syn.load_sorted_classes()
         self.t_incr = 1/(epochs+1)
@@ -119,8 +119,8 @@ if __name__ == "__main__":
     epochs=20
     # syn_samples = [4700, 5400, 8023, 8200, 8700]
     # real_samples = [1101, 1100, 1604, 1058, 853]
-
-    hd = HybridEqualDataset(epochs=epochs, transform=t, train=True, t=1.1,grow_f=3.051)
+    
+    hd = HybridEqualDataset(epochs=epochs, transform=t, train=True, t=1.1, grow_f=3.5032)
     samples = len(hd)
     for epoch in range(epochs+2):
         classes = Counter()
