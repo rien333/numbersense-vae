@@ -115,14 +115,12 @@ class Grayscale(object):
 
 class SOSDataset(Dataset):
 
-    # Maybe add the ability to either load data from disk or in RAM
     def __init__(self, train=True, transform=None, datadir="../Datasets/",  sorted_loc="/tmp", extended=True):
 
         self.datadir = datadir
         self.train = train
         self.test_data = []
         self.train_data = []
-        self.load_ram = load_ram
         if transform:
             self.transform = transforms.Compose(transform)
             self.transform_name = ''.join([t.__class__.__name__ for t in transform])
