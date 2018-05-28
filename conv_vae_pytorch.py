@@ -632,10 +632,10 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
 
 if __name__ == "__main__":
 
-    grow_f=6.3055
+    grow_f=3.100
     hybrid_train_loader = torch.utils.data.DataLoader(
         HybridEqualDataset.HybridEqualDataset(epochs=args.epochs-6, train=True, transform=data_transform, 
-                                              t=0.775,grow_f=6.2952, datadir=DATA_DIR),
+                                              t=0.775,grow_f=grow_f, datadir=DATA_DIR),
         batch_size=args.batch_size, shuffle=True, **kwargs)
 
     hybrid_test_loader = torch.utils.data.DataLoader(
