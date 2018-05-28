@@ -1,5 +1,5 @@
 import cv2
-from random import randint, gauss, shuffle
+from random import randint, gauss
 import numpy as np
 import os
 import torch
@@ -116,8 +116,7 @@ class Grayscale(object):
 class SOSDataset(Dataset):
 
     # Maybe add the ability to either load data from disk or in RAM
-    def __init__(self, train=True, transform=None, datadir="../Datasets/", 
-                 grayscale=False, load_ram=False, extended=False):
+    def __init__(self, train=True, transform=None, datadir="../Datasets/",  sorted_loc="/tmp", extended=True):
 
         self.datadir = datadir
         self.train = train
@@ -129,7 +128,7 @@ class SOSDataset(Dataset):
             self.transform_name = ''.join([t.__class__.__name__ for t in transform])
         else:
             self.transform = None
-        self.sorted_loc = "/tmp/sorted_classes_sos_" + str(self.train)+".pickle"
+        self.sorted_loc = sorted_loc + "/sorted_classes_sos_" + str(self.train)+".pickle"
 
         # Read in the .mat file
         if extended:
@@ -158,10 +157,7 @@ class SOSDataset(Dataset):
             else:
                 if self.train:
                     self.train_data.append((im, mat_get(label)[0]))
-        # if train:
-        #     shuffle(self.train_data)
-        # else:
-        #     shuffle(self.test_data)
+
         # 10966 for train, 2741 for test
         self.nsamples = len(self.train_data) if self.train else len(self.test_data)
 

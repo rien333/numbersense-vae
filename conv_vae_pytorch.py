@@ -636,12 +636,12 @@ if __name__ == "__main__":
     grow_f=3.5032
     hybrid_train_loader = torch.utils.data.DataLoader(
         HybridEqualDataset.HybridEqualDataset(epochs=args.epochs-6, train=True, transform=data_transform, 
-                                              t=0.775,grow_f=grow_f, datadir=DATA_DIR),
+                                              t=0.775,grow_f=grow_f, datadir=DATA_DIR, sorted_loc=DATA_DIR),
         batch_size=args.batch_size, shuffle=True, **kwargs)
 
     hybrid_test_loader = torch.utils.data.DataLoader(
         HybridEqualDataset.HybridEqualDataset(epochs=args.epochs-6, train=False, transform=data_transform, 
-                                              t=0.775,grow_f=2.0, datadir=DATA_DIR),
+                                              t=0.775,grow_f=2.0, datadir=DATA_DIR, sorted_loc=DATA_DIR),
         batch_size=args.batch_size, shuffle=True, **kwargs)
 
     # # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
