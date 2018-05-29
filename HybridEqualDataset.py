@@ -125,11 +125,7 @@ if __name__ == "__main__":
     # syn_samples = [4700, 5400, 8023, 8200, 8700]
     # real_samples = [1101, 1100, 1604, 1058, 853]
     
-<<<<<<< HEAD
     hd = HybridEqualDataset(epochs=epochs, transform=t, train=True, t=1.1, grow_f=6.2952)
-=======
-    hd = HybridEqualDataset(epochs=epochs, transform=t, train=True, t=1.1, grow_f=3.5048)
->>>>>>> ea82c040216c3409dd55a6b6ae804cf48213d4fb
     samples = len(hd)
     for epoch in range(epochs+2):
         classes = Counter()

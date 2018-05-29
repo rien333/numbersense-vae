@@ -126,13 +126,8 @@ class SOSDataset(Dataset):
             self.transform_name = ''.join([t.__class__.__name__ for t in transform])
         else:
             self.transform = None
-<<<<<<< HEAD
         self.sorted_loc = sorted_loc + "sorted_classes_sos_" + str(self.train)+".pickle"
         print(self.sorted_loc)
-=======
-        self.sorted_loc = sorted_loc + "/sorted_classes_sos_" + str(self.train)+".pickle"
-
->>>>>>> ea82c040216c3409dd55a6b6ae804cf48213d4fb
         # Read in the .mat file
         if extended:
             import scipy.io as sio
