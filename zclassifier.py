@@ -7,23 +7,23 @@ import HybridEqualDataset
 import conv_vae_pytorch as vae_pytorch
 
 Z_DIMS = vae_pytorch.args.z_dims # input size
-FC1_SIZE = 376 # try some different values as well
-FC2_SIZE = 376 # To small to support all outputs?
+FC1_SIZE = 350 # try some different values as well
+FC2_SIZE = 350 # To small to support all outputs?
 
 class Classifier(nn.Module):
     
     def __init__(self):
         super(Classifier, self).__init__()
-        # Try dropout for classification with pre training with synthetic data
         self.fc1 = nn.Sequential(
             nn.Linear(Z_DIMS, FC1_SIZE),
-            nn.Dropout(),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.2), # Normal relu has dropout before activation as the ordening then does not matter
+            nn.Dropout(0.5), # probability of a zeroing out an element of the input to prevent co-adaptation
             nn.BatchNorm1d(FC1_SIZE),
         )
         self.fc2 = nn.Sequential(
             nn.Linear(FC1_SIZE, FC2_SIZE),
             nn.LeakyReLU(0.2),
+            nn.Dropout(),
             nn.BatchNorm1d(FC2_SIZE),
         )
         self.fc3 = nn.Linear(FC2_SIZE, 5) # output 5 labels
@@ -124,7 +124,7 @@ def test(epoch, loader):
 
 def train_routine(epochs, train_loader, test_loader, optimizer, criterion, start_epoch=0,):
     best_models = [("", -100000000000)]*4
-    test_interval = 7
+    test_interval = 5
     # Save models according to loss instead of acc?
     for epoch in range(start_epoch, start_epoch+epochs):
         train(epoch, train_loader, optimizer, criterion)
@@ -158,30 +158,16 @@ if __name__ == "__main__":
     kwargs = {'num_workers': 1, 'pin_memory': True} if vae_pytorch.args.cuda else {}
     data_transform = [SOSDataset.Rescale((scale, scale)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
                       SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
-                      SOSDataset.ToTensor(), SOSDataset.NormalizeMean(), SOSDataset.Normalize01()]
+                      SOSDataset.ToTensor(),]
 
-    class_weights = torch.cuda.FloatTensor([0.232, 0.485, 1.0, 1.0, 0.955])
+    class_weights = torch.cuda.FloatTensor([0.2, 0.389, 0.95, 1.0, 0.93])
     criterion = nn.CrossEntropyLoss(weight=class_weights)
     optimizer = optim.SGD(classifier.parameters(), lr=0.001, momentum=0.9)
-    # syn_samples = [1500] * 5
     grow_f=3.481
-    # syn_samples = [1900, 1000, 8923, 8900, 7100] # These work quite well I believe
-    # real_samples = [1800, 3402, 1604, 1058, 853]
-    # real_samples = [0] * 5
-    # real_samples = [853] * 5
     hybrid_train_loader = torch.utils.data.DataLoader(
         HybridEqualDataset.HybridEqualDataset(epochs=30-5, train=True, t=1.1, transform=data_transform, 
                                               grow_f=grow_f, datadir=DATA_DIR,),
         batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
-
-
-    # syn_samples = [750] * 5 
-    # real_samples = [1] * 5
-    # hybrid_test_loader = torch.utils.data.DataLoader(
-    #     HybridEqualDataset.HybridEqualDataset(epochs=30-5, train=False, t=0.5, transform=data_transform, 
-    #                                           grow_f=1.5, datadir=DATA_DIR, syn_samples=syn_samples, 
-    #     real_samples=real_samples),
-    #     batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
 
     # syn_train_loader = torch.utils.data.DataLoader(
     #     SynDataset.SynDataset(train=True, transform=data_transform,),
@@ -199,27 +185,21 @@ if __name__ == "__main__":
     # train_routine(30, train_loader=syn_train_loader, test_loader=syn_test_loader, optimizer=optimizer)
     train_routine(72, train_loader=hybrid_train_loader, test_loader=SOS_test_loader, optimizer=optimizer, 
                   criterion=criterion)
-    # train_routine(30, train_loader=hybrid_train_loader, test_loader=hybrid_test_loader, optimizer=optimizer)
 
 
+    class_weights = torch.cuda.FloatTensor([0.34, 0.65, 0.95, 0.98, 1.0]) # 1 and 0.8 are reversed
     # Fine tune later (load in all synthetic data at first step, and then mostly sos)
     for p in classifier.fc1.parameters():
         p.requires_grad = False
-    optimizer = optim.SGD(filter(lambda p: p.requires_grad, classifier.parameters()),  lr=0.00015, momentum=0.85)
+    optimizer = optim.SGD(filter(lambda p: p.requires_grad, classifier.parameters()),  lr=0.0001, momentum=0.85)
 
-    # real_samples = [1597, 1595, 1604, 1058, 853]
-    grow_f=0.22 # How small can you make this?
+    # grow_f=0.22 # How small can you make this?
     # balance classes a little
         # Fine tune on real data
     SOS_train_loader = torch.utils.data.DataLoader(
         SOSDataset.SOSDataset(train=True, transform=data_transform, extended=True, datadir=DATA_DIR),
-        batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
+        batch_size=vae_pytorch.args.tune_batch_size, shuffle=True, **kwargs)
 
-    # hybrid_train_loader = torch.utils.data.DataLoader(
-    #     HybridEqualDataset.HybridEqualDataset(epochs=30, train=True, t=1.1, transform=data_transform,
-    #                                           grow_f=grow_f, datadir=DATA_DIR, real_samples=real_samples),
-    #     batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
-    class_weights = torch.cuda.FloatTensor([0.24, 0.65, 0.97, 1.0, 0.95]) # 1 and 0.8 are reversed
     criterion = nn.CrossEntropyLoss(weight=class_weights)
     train_routine(73, train_loader=SOS_train_loader, test_loader=SOS_test_loader, optimizer=optimizer, criterion=criterion)
 

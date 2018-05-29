@@ -104,12 +104,16 @@ if lisa_check:
     DATA_DIR = scratchdir + "/"
     # SAVE_DIR = scratchdir + "/"
     SAVE_DIR = ""
+    SORT_DIR = scratchdir + "/"
 else:
     DATA_DIR = "../Datasets/"
     SAVE_DIR = "" # assume working directory
+    SORT_DIR = "/tmp/"
 
-# DATA_DIR = "../Datasets/"
-# SAVE_DIR = "" # assume working directory
+if lisa_check and not args.cuda:
+    DATA_DIR = "../Datasets/"
+    SAVE_DIR = "" # assume working directory
+    SORT_DIR = ""
 
 if lisa_check:
     ngpu = torch.cuda.device_count()
@@ -149,46 +153,46 @@ class CONV_VAE(nn.Module):
 
         # ENCODER (cnn architecture based on simple vgg16)
         self.conv1 = nn.Sequential(	# input shape (3, DATA_H, DATA_W)
-            # nn.Conv2d(
-            #     in_channels=3,		# RGB
-            #     out_channels=32,        # output depth
-            #     kernel_size=4,
-            #     stride=1,
-            #     padding=1
-            # ),				# out (64, DATA_H, DATA_W) should be same HxW as in
-            # nn.LeakyReLU(0.2),          # inplace=True saves memory but discouraged (worth the try)
-            # nn.BatchNorm2d(32),         # C channel input, 4d input (NxCxHxW)
             nn.Conv2d(
                 in_channels=3,		# RGB
-                out_channels=32,        # output depth
+                out_channels=64,        # output depth
+                kernel_size=4,
+                stride=1,
+                padding=1
+            ),				# out (64, DATA_H, DATA_W) should be same HxW as in
+            nn.LeakyReLU(0.2),          # inplace=True saves memory but discouraged (worth the try)
+            nn.BatchNorm2d(64),         # C channel input, 4d input (NxCxHxW)
+            nn.Conv2d(
+                in_channels=64,		# RGB
+                out_channels=64,        # output depth
                 kernel_size=4,
                 stride=2,
                 padding=1
             ),				# out (64, DATA_H, DATA_W) should be same HxW as in
             nn.LeakyReLU(0.2),          # inplace=True saves memory but discouraged (worth the try)
-            nn.BatchNorm2d(32),         # C channel input, 4d input (NxCxHxW)
+            nn.BatchNorm2d(64),         # C channel input, 4d input (NxCxHxW)
         )
 
         # These two in the middle can maybe downsample with a conv
         self.conv2 = nn.Sequential(
-            nn.Conv2d(32, 64, 4, 2, 1),
+            nn.Conv2d(64, 128, 4, 2, 1),
             nn.LeakyReLU(0.2),		# Slight negative slope
-            nn.BatchNorm2d(64),
+            nn.BatchNorm2d(128),
         )
         
         self.conv3 = nn.Sequential(
-            nn.Conv2d(64, 128, 4, 2, 1),
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm2d(128),
-        )
-
-        self.conv4 = nn.Sequential(	# DATA_W/H is ~= 28
             nn.Conv2d(128, 256, 4, 2, 1),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(256),
         )
+
+        self.conv4 = nn.Sequential(	# DATA_W/H is ~= 28
+            nn.Conv2d(256, 512, 4, 2, 1),
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm2d(512),
+        )
         end_elems = floor(DATA_H / 16) # 16 = 2**4 downsample,
-        end_shape = (end_elems**2) * 256 # eg 256*13*13 conv shape
+        end_shape = (end_elems**2) * 512 # eg 256*13*13 conv shape
         # conv4/conv-out should be flattened
         # fc1 conv depth * (DATA_W*DATA_H / (number of pools * 2)) (with some rounding)
         # self.fc1 = nn.Sequential(
@@ -215,20 +219,20 @@ class CONV_VAE(nn.Module):
             nn.Softplus()
         )
         
-        self.fc3 = nn.Sequential(
-            nn.Linear(args.z_dims, args.full_con_size),
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm1d(args.full_con_size)
-        )
+        # self.fc3 = nn.Sequential(
+        #     nn.Linear(args.z_dims, args.full_con_size),
+        #     nn.LeakyReLU(0.2),
+        #     nn.BatchNorm1d(args.full_con_size)
+        # )
 
-        self.deconv_shape = (256, end_elems+1, end_elems+1)
+        self.deconv_shape = (512, end_elems+1, end_elems+1)
         # form the decoder output to a conv shape
         # should be the size of a convolution/the last conv size
         # 128*14*14 * a few (4) upsampling = the original input size
         # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
-            nn.Linear(args.full_con_size, int(np.prod(self.deconv_shape))),
-            # nn.Linear(args.z_dims, int(np.prod(self.deconv_shape))),
+            # nn.Linear(args.full_con_size, int(np.prod(self.deconv_shape))),
+            nn.Linear(args.z_dims, int(np.prod(self.deconv_shape))),
             nn.LeakyReLU(0.2),
             nn.BatchNorm1d(int(np.prod(self.deconv_shape)))
         )
@@ -249,28 +253,28 @@ class CONV_VAE(nn.Module):
         # z is pretty important, so set stride=1 to not miss anything first
         # so consider uncommenting the first deconv as well
         self.t_conv1 = nn.Sequential(
-            nn.ConvTranspose2d(256, 256, 3, 1, 1),
+            nn.ConvTranspose2d(512, 512, 3, 1, 1),
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm2d(512),
+            nn.ConvTranspose2d(512, 256, 3, 2, 1),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(256),
+        )
+
+        self.t_conv2 = nn.Sequential( # this used to be p different (or the one below idk)
             nn.ConvTranspose2d(256, 128, 3, 2, 1),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(128),
         )
 
-        self.t_conv2 = nn.Sequential( # this used to be p different (or the one below idk)
+        self.t_conv3 = nn.Sequential(
             nn.ConvTranspose2d(128, 64, 3, 2, 1),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(64),
         )
 
-        self.t_conv3 = nn.Sequential(
-            nn.ConvTranspose2d(64, 32, 3, 2, 1),
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm2d(32),
-        )
-
         self.t_conv_final = nn.Sequential(
-            nn.ConvTranspose2d(32, 3, 3, 2, 1), # RGB, no batch norm. on output
+            nn.ConvTranspose2d(64, 3, 3, 2, 1), # RGB, no batch norm. on output
             nn.Sigmoid()  # output between 0 and 1 # Relu?
         )
 
@@ -352,10 +356,10 @@ class CONV_VAE(nn.Module):
             return mu
 
     def decode(self, z: Variable) -> Variable:
-        h3 = self.fc3(z)
+        # h3 = self.fc3(z)
         # another layer that maps h3 to a conv shape
-        h4 = self.fc4(h3)
-        # h4 = self.fc4(z)
+        # h4 = self.fc4(h3)
+        h4 = self.fc4(z)
         h4_expanded = h4.view(-1, *self.deconv_shape) # 15 * (4 * 2x upsamling conv) ~= 225
         up_conv1 = self.t_conv1(h4_expanded)
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
@@ -632,16 +636,16 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
 
 if __name__ == "__main__":
 
-    # grow_f=6.2952 # Lisa size
-    grow_f=3.5032
+    grow_f=6.2952 # Lisa size
+    # grow_f=3.5032
     hybrid_train_loader = torch.utils.data.DataLoader(
         HybridEqualDataset.HybridEqualDataset(epochs=args.epochs-6, train=True, transform=data_transform, 
-                                              t=0.775,grow_f=grow_f, datadir=DATA_DIR, sorted_loc=DATA_DIR),
+                                              t=0.775,grow_f=grow_f, datadir=DATA_DIR, sorted_loc=SORT_DIR),
         batch_size=args.batch_size, shuffle=True, **kwargs)
 
     hybrid_test_loader = torch.utils.data.DataLoader(
         HybridEqualDataset.HybridEqualDataset(epochs=args.epochs-6, train=False, transform=data_transform, 
-                                              t=0.775,grow_f=2.0, datadir=DATA_DIR, sorted_loc=DATA_DIR),
+                                              t=0.775,grow_f=2.0, datadir=DATA_DIR, sorted_loc=SORT_DIR),
         batch_size=args.batch_size, shuffle=True, **kwargs)
 
     # # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
