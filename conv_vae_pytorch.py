@@ -149,17 +149,17 @@ class CONV_VAE(nn.Module):
 
         # ENCODER (cnn architecture based on simple vgg16)
         self.conv1 = nn.Sequential(	# input shape (3, DATA_H, DATA_W)
+            # nn.Conv2d(
+            #     in_channels=3,		# RGB
+            #     out_channels=32,        # output depth
+            #     kernel_size=4,
+            #     stride=1,
+            #     padding=1
+            # ),				# out (64, DATA_H, DATA_W) should be same HxW as in
+            # nn.LeakyReLU(0.2),          # inplace=True saves memory but discouraged (worth the try)
+            # nn.BatchNorm2d(32),         # C channel input, 4d input (NxCxHxW)
             nn.Conv2d(
                 in_channels=3,		# RGB
-                out_channels=32,        # output depth
-                kernel_size=4,
-                stride=1,
-                padding=1
-            ),				# out (64, DATA_H, DATA_W) should be same HxW as in
-            nn.LeakyReLU(0.2),          # inplace=True saves memory but discouraged (worth the try)
-            nn.BatchNorm2d(32),         # C channel input, 4d input (NxCxHxW)
-            nn.Conv2d(
-                in_channels=32,		# RGB
                 out_channels=32,        # output depth
                 kernel_size=4,
                 stride=2,
@@ -215,11 +215,11 @@ class CONV_VAE(nn.Module):
             nn.Softplus()
         )
         
-        # self.fc3 = nn.Sequential(
-        #     nn.Linear(args.z_dims, args.full_con_size),
-        #     nn.LeakyReLU(0.2),
-        #     nn.BatchNorm1d(args.full_con_size)
-        # )
+        self.fc3 = nn.Sequential(
+            nn.Linear(args.z_dims, args.full_con_size),
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm1d(args.full_con_size)
+        )
 
         self.deconv_shape = (256, end_elems+1, end_elems+1)
         # form the decoder output to a conv shape
@@ -227,8 +227,8 @@ class CONV_VAE(nn.Module):
         # 128*14*14 * a few (4) upsampling = the original input size
         # self.fc4 = nn.Linear(args.full_con_size, 128*15*14)
         self.fc4 = nn.Sequential(
-            # nn.Linear(args.full_con_size, int(np.prod(self.deconv_shape))),
-            nn.Linear(args.z_dims, int(np.prod(self.deconv_shape))),
+            nn.Linear(args.full_con_size, int(np.prod(self.deconv_shape))),
+            # nn.Linear(args.z_dims, int(np.prod(self.deconv_shape))),
             nn.LeakyReLU(0.2),
             nn.BatchNorm1d(int(np.prod(self.deconv_shape)))
         )
@@ -352,10 +352,10 @@ class CONV_VAE(nn.Module):
             return mu
 
     def decode(self, z: Variable) -> Variable:
-        # h3 = self.fc3(z)
+        h3 = self.fc3(z)
         # another layer that maps h3 to a conv shape
-        # h4 = self.fc4(h3)
-        h4 = self.fc4(z)
+        h4 = self.fc4(h3)
+        # h4 = self.fc4(z)
         h4_expanded = h4.view(-1, *self.deconv_shape) # 15 * (4 * 2x upsamling conv) ~= 225
         up_conv1 = self.t_conv1(h4_expanded)
         up_conv2 = self.t_conv2(up_conv1) # every layer upsamples by 2 basically
@@ -632,15 +632,16 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
 
 if __name__ == "__main__":
 
-    grow_f=6.3055
+    # grow_f=6.2952 # Lisa size
+    grow_f=3.5032
     hybrid_train_loader = torch.utils.data.DataLoader(
         HybridEqualDataset.HybridEqualDataset(epochs=args.epochs-6, train=True, transform=data_transform, 
-                                              t=0.775,grow_f=6.2952, datadir=DATA_DIR),
+                                              t=0.775,grow_f=grow_f, datadir=DATA_DIR, sorted_loc=DATA_DIR),
         batch_size=args.batch_size, shuffle=True, **kwargs)
 
     hybrid_test_loader = torch.utils.data.DataLoader(
         HybridEqualDataset.HybridEqualDataset(epochs=args.epochs-6, train=False, transform=data_transform, 
-                                              t=0.775,grow_f=2.0, datadir=DATA_DIR),
+                                              t=0.775,grow_f=2.0, datadir=DATA_DIR, sorted_loc=DATA_DIR),
         batch_size=args.batch_size, shuffle=True, **kwargs)
 
     # # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001

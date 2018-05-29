@@ -1,5 +1,4 @@
 import cv2
-from random import shuffle
 import numpy as np
 import os
 import torch
@@ -15,7 +14,7 @@ DATA_C = SOSDataset.DATA_C
 
 class SynDataset(Dataset):
 
-    def __init__(self, train=True, transform=None, datadir="../Datasets/", n=None, split=0.8):
+    def __init__(self, train=True, transform=None, datadir="../Datasets/", sorted_loc="/tmp/", n=None, split=0.8):
         self.datadir = datadir
         self.train = train
         self.transform = transforms.Compose(transform)
@@ -25,13 +24,11 @@ class SynDataset(Dataset):
         with open(files_txt, "r") as f:
             files = f.read().splitlines()
 
-        # Is it okay to shuffle the train and test set everytime?
-        # shuffle(files) # Okay uhm I think the dataloader already shuffles?
         self.files = files[:n]
         nfiles = len(self.files)
         self.train_range = int(split * nfiles) # convert to idx
         self.nsamples = self.train_range if train else nfiles - self.train_range
-        self.sorted_loc = "/tmp/sorted_classes_syn.pickle"
+        self.sorted_loc = sorted_loc + "sorted_classes_syn.pickle"
         if os.path.isfile(self.sorted_loc):
             with open (self.sorted_loc, 'rb') as f:
                 sorted_classes = pickle.load(f)
@@ -72,6 +69,7 @@ class SynDataset(Dataset):
 if __name__ == "__main__":
     transform = [SOSDataset.Rescale((232, 232))]
     dataset = SynDataset(train=True, transform=transform, split=0.8)
+
     from collections import Counter
     classes = Counter()
     samples = len(dataset)
