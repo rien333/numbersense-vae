@@ -15,7 +15,7 @@ class HybridEqualDataset(Dataset):
     # Consider the dynamic between test and train (syn are totally random, and pseuod generated)
     # as syn examples are pseudo generated, consider importing way more
 
-    def __init__(self, epochs, transform=None, grow_f=0.38, t=0.0, datadir="../Datasets/", sorted_loc="/tmp",
+    def __init__(self, epochs, transform=None, grow_f=0.38, t=0.0, datadir="../Datasets/", sorted_loc="/tmp/",
                  syn_samples=[], real_samples=[], train=True,):
         """
         grow_f is a factor [0,1] by how much we should grow the datasize with synthetic examples
@@ -48,7 +48,6 @@ class HybridEqualDataset(Dataset):
         else:
             self.real_samples = False
 
-
         self.syn = SynDataset.SynDataset(train=True, transform=transform, split=1, datadir=datadir, sorted_loc=sorted_loc)
         # load the sorted list from a file for speed
         self.syn_sort = self.syn.load_sorted_classes()
@@ -80,8 +79,6 @@ class HybridEqualDataset(Dataset):
         n_real_samples = np.clip(np.round_(self.syn_ratio * np.array(self.sos_n)), 0, self.class_n)
         # You can take the absolute value of this array i think
         missing_real_samples = n_real_samples - self.class_n
-        print(self.sos_n)
-        print("Missing 1", missing_real_samples)
         if self.real_samples:
             real_samples = [sample(self.sos_sort[idx], n) for idx, n in enumerate(self.real_samples)]
         else:
@@ -91,8 +88,6 @@ class HybridEqualDataset(Dataset):
         else:
             if self.real_samples:
                 missing_real_samples = np.array(self.real_samples) - self.class_n
-            print([len(l) for l in self.syn_sort])
-            print("Missing 2", missing_real_samples)
             syn_samples = [sample(self.syn_sort[idx], abs(int(n))) if n < 0 else [] for idx, n in enumerate(missing_real_samples)]
         syn_samples = list(itertools.chain.from_iterable(syn_samples)) # flatten
         real_samples = list(itertools.chain.from_iterable(real_samples)) # flatten
@@ -125,11 +120,7 @@ if __name__ == "__main__":
     # syn_samples = [4700, 5400, 8023, 8200, 8700]
     # real_samples = [1101, 1100, 1604, 1058, 853]
     
-<<<<<<< HEAD
-    hd = HybridEqualDataset(epochs=epochs, transform=t, train=True, t=1.1, grow_f=6.2952)
-=======
-    hd = HybridEqualDataset(epochs=epochs, transform=t, train=True, t=1.1, grow_f=3.5048)
->>>>>>> ea82c040216c3409dd55a6b6ae804cf48213d4fb
+    hd = HybridEqualDataset(epochs=epochs, transform=t, train=True, t=0.775, grow_f=6.2952)
     samples = len(hd)
     for epoch in range(epochs+2):
         classes = Counter()

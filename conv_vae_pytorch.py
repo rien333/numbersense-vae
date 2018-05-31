@@ -160,7 +160,7 @@ class CONV_VAE(nn.Module):
                 stride=1,
                 padding=1
             ),				# out (64, DATA_H, DATA_W) should be same HxW as in
-            nn.LeakyReLU(0.2),          # inplace=True saves memory but discouraged (worth the try)
+            nn.LeakyReLU(0.01),          # inplace=True saves memory but discouraged (worth the try)
             nn.BatchNorm2d(64),         # C channel input, 4d input (NxCxHxW)
             nn.Conv2d(
                 in_channels=64,		# RGB
@@ -169,35 +169,35 @@ class CONV_VAE(nn.Module):
                 stride=2,
                 padding=1
             ),				# out (64, DATA_H, DATA_W) should be same HxW as in
-            nn.LeakyReLU(0.2),          # inplace=True saves memory but discouraged (worth the try)
+            nn.LeakyReLU(0.01),          # inplace=True saves memory but discouraged (worth the try)
             nn.BatchNorm2d(64),         # C channel input, 4d input (NxCxHxW)
         )
 
         # These two in the middle can maybe downsample with a conv
         self.conv2 = nn.Sequential(
             nn.Conv2d(64, 128, 4, 2, 1),
-            nn.LeakyReLU(0.2),		# Slight negative slope
+            nn.LeakyReLU(0.01),		# Slight negative slope
             nn.BatchNorm2d(128),
         )
         
         self.conv3 = nn.Sequential(
             nn.Conv2d(128, 256, 4, 2, 1),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.01),
             nn.BatchNorm2d(256),
         )
 
         self.conv4 = nn.Sequential(	# DATA_W/H is ~= 28
-            nn.Conv2d(256, 512, 4, 2, 1),
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm2d(512),
+            nn.Conv2d(256, 768, 4, 2, 1),
+            nn.LeakyReLU(0.01),
+            nn.BatchNorm2d(768),
         )
         end_elems = floor(DATA_H / 16) # 16 = 2**4 downsample,
-        end_shape = (end_elems**2) * 512 # eg 256*13*13 conv shape
+        end_shape = (end_elems**2) * 768 # eg 256*13*13 conv shape
         # conv4/conv-out should be flattened
         # fc1 conv depth * (DATA_W*DATA_H / (number of pools * 2)) (with some rounding)
         # self.fc1 = nn.Sequential(
         #     nn.Linear(end_shape, args.full_con_size),
-        #     nn.LeakyReLU(0.2),
+        #     nn.LeakyReLU(0.01),
         #     nn.BatchNorm1d(args.full_con_size)
         # )
 
@@ -221,11 +221,11 @@ class CONV_VAE(nn.Module):
         
         # self.fc3 = nn.Sequential(
         #     nn.Linear(args.z_dims, args.full_con_size),
-        #     nn.LeakyReLU(0.2),
+        #     nn.LeakyReLU(0.01),
         #     nn.BatchNorm1d(args.full_con_size)
         # )
 
-        self.deconv_shape = (512, end_elems+1, end_elems+1)
+        self.deconv_shape = (768, end_elems+1, end_elems+1)
         # form the decoder output to a conv shape
         # should be the size of a convolution/the last conv size
         # 128*14*14 * a few (4) upsampling = the original input size
@@ -233,8 +233,8 @@ class CONV_VAE(nn.Module):
         self.fc4 = nn.Sequential(
             # nn.Linear(args.full_con_size, int(np.prod(self.deconv_shape))),
             nn.Linear(args.z_dims, int(np.prod(self.deconv_shape))),
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm1d(int(np.prod(self.deconv_shape)))
+            nn.LeakyReLU(0.01), # Some people use normal relu here
+            nn.BatchNorm1d(int(np.prod(self.deconv_shape))) # unneeded? 
         )
 
         # stride in 1st covn. = 1 bc we don't wanna miss anything (interdependence) from the z layer
@@ -253,23 +253,23 @@ class CONV_VAE(nn.Module):
         # z is pretty important, so set stride=1 to not miss anything first
         # so consider uncommenting the first deconv as well
         self.t_conv1 = nn.Sequential(
-            nn.ConvTranspose2d(512, 512, 3, 1, 1),
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm2d(512),
-            nn.ConvTranspose2d(512, 256, 3, 2, 1),
-            nn.LeakyReLU(0.2),
+            nn.ConvTranspose2d(768, 768, 3, 1, 1),
+            nn.LeakyReLU(0.01),
+            nn.BatchNorm2d(768),
+            nn.ConvTranspose2d(768, 256, 3, 2, 1),
+            nn.LeakyReLU(0.01),
             nn.BatchNorm2d(256),
         )
 
         self.t_conv2 = nn.Sequential( # this used to be p different (or the one below idk)
             nn.ConvTranspose2d(256, 128, 3, 2, 1),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.01),
             nn.BatchNorm2d(128),
         )
 
         self.t_conv3 = nn.Sequential(
             nn.ConvTranspose2d(128, 64, 3, 2, 1),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.01),
             nn.BatchNorm2d(64),
         )
 
@@ -478,7 +478,7 @@ if args.dfc:
     for param in descriptor.parameters():
         param.requires_grad = False
 
-    content_loss = Content_Loss(alpha=1.0, beta=0.85)
+    content_loss = Content_Loss(alpha=1.0, beta=0.5)
     content_loss.to(device)
 
 if  ngpu > 1:
@@ -533,7 +533,7 @@ def loss_function_dfc_split(recon_x, x, mu, logvar):
     loss_list = [F.mse_loss(recon_features[layer], targets[layer].detach(), size_average=False) for layer in range(len(recon_features))]
     content = sum(loss_list)
     
-    return 0.5*kld, 1.0*content,
+    return 1.0*kld, 0.5*content,
     # return content_loss(recon_features, targets, mu, logvar)
 
 # Check for dfc loss
@@ -584,7 +584,7 @@ def test(epoch, loader):
 
         # ~50 sets of random ZDIMS-float vectors to images
         # Weird hack bc this is drawn from ~ N(0, 1), and our distribution looks different
-        sample = torch.randn(49, args.z_dims).to(device)
+        sample = torch.randn(49, args.z_dims).to(device) * 1.1
         
         if ngpu > 1:
             sample = model.module.decode(sample)
@@ -653,11 +653,11 @@ if __name__ == "__main__":
     # Decay lr if nothing happens after 4 epochs (try 3?)
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
                                                verbose=True)
-    train_routine(args.epochs, train_loader=hybrid_test_loader, test_loader=hybrid_test_loader, 
-                  optimizer=optimizer, scheduler=scheduler, reset=95)
+    train_routine(args.epochs, train_loader=hybrid_train_loader, test_loader=hybrid_test_loader, 
+                  optimizer=optimizer, scheduler=scheduler, reset=102)
 
     # Freeze early layers
-    model_access = model.modules if ngpu > 1 else model
+    model_access = model.module if ngpu > 1 else model
     for l in model.modules():
         if l in model_access.freeze_layers:
             for p in l.parameters():
@@ -679,4 +679,4 @@ if __name__ == "__main__":
 
     train_routine(args.tune_epochs, train_loader=SOS_train_loader, test_loader=SOS_test_loader, 
                   start_epoch=args.epochs, optimizer=optimizer, scheduler=scheduler, 
-                  reset=90)
+                  reset=100)

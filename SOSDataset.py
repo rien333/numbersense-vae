@@ -126,13 +126,7 @@ class SOSDataset(Dataset):
             self.transform_name = ''.join([t.__class__.__name__ for t in transform])
         else:
             self.transform = None
-<<<<<<< HEAD
         self.sorted_loc = sorted_loc + "sorted_classes_sos_" + str(self.train)+".pickle"
-        print(self.sorted_loc)
-=======
-        self.sorted_loc = sorted_loc + "/sorted_classes_sos_" + str(self.train)+".pickle"
-
->>>>>>> ea82c040216c3409dd55a6b6ae804cf48213d4fb
         # Read in the .mat file
         if extended:
             import scipy.io as sio
@@ -205,7 +199,7 @@ if __name__ == "__main__":
     transform = [Rescale((256, 256))]
     # transform = [Rescale((256, 256)), 
     #               ToTensor(), Normalize()]
-    dataset = SOSDataset(train=False, transform=transform, extended=True)
+    dataset = SOSDataset(train=True, transform=transform, extended=True)
     # print(torch.unique(dataset[1][0], sorted=True))
     classes = dataset.load_sorted_classes()
     for l in classes:

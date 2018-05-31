@@ -68,7 +68,7 @@ class SynDataset(Dataset):
 
 if __name__ == "__main__":
     transform = [SOSDataset.Rescale((232, 232))]
-    dataset = SynDataset(train=True, transform=transform, split=0.8)
+    dataset = SynDataset(train=True, transform=transform, split=1.0)
 
     from collections import Counter
     classes = Counter()
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     print("All", sorted(classes.items(), key=lambda pair: pair[0], reverse=False))
 
     # print(sorted(dataset.files, key=lambda k: k[-5])[:10])
-    # classes = dataset.load_sorted_classes()
+    classes = dataset.load_sorted_classes()
     # for l in classes:
     #     print(len(l))
     # cv2.imwrite("test.jpg", cv2.cvtColor(dataset[dataset.sorted()[3][8]][0], cv2.COLOR_BGR2RGB))
