@@ -200,7 +200,7 @@ if __name__ == "__main__":
     transform = [Rescale((256, 256))]
     # transform = [Rescale((256, 256)), 
     #               ToTensor(), Normalize()]
-    dataset = SOSDataset(train=False, transform=transform, extended=True)
+    dataset = SOSDataset(train=True, transform=transform, extended=True)
     # print(torch.unique(dataset[1][0], sorted=True))
     classes = dataset.load_sorted_classes()
     for l in classes:
