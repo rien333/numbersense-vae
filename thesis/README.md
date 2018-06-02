@@ -3,7 +3,7 @@
 Although various machine learning approaches to numerical determination and estimation of objects in images already exist, some research seems impartial to broader cognitive debate [see @Stoianov2012], resulting in models that are somewhat unhelpful for progressing the understanding of numerical cognition.
 <p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/baac3f1faea174b7f9a59fa8e83073cb.svg?invert_in_darkmode" align=middle width=143.26649039999998pt height=39.452455349999994pt/></p>
 
-(**Note:** the quality and the content of the text is yet reflective of whatever i have in mind for my thesis)
+(**Note:** the quality and the content of the text is not yet reflective of whatever I have in mind for my thesis)
 
 
 # Related Work #

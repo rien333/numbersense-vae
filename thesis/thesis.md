@@ -5,7 +5,7 @@ $$
 \frac{n!}{m!(n-m)!} = {n \choose m}
 $$
 
-(**Note:** the quality and the content of the text is yet reflective of whatever i have in mind for my thesis)
+(**Note:** the quality and the content of the text is not yet reflective of whatever I have in mind for my thesis)
 
 
 # Related Work #
