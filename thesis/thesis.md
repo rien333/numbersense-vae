@@ -18,9 +18,9 @@ Optimization objectives
 1. $\mathcal{KL}\lbrack\mathcal{N}(\mu(X), \Sigma(X)) \vert\vert \mathcal{N}(0, I)\rbrack$
 2. Visual reconstruction loss (e.g. BCE)
 
-## Deep Feature Consistent ##
+## Deep Feature Consistent Perceptual Loss ##
 
-To make the reconstructions made by the VAE percetually closer to whatever humans deem important characteristics of images, @hou2017deep propose optimizing the reconstructions with help of the hidden layers of a pretrained network. This can be done by predefining a set of layers $l_i$ from a pretrained network (in their case vgg-19), and for every $l_i$ matching the hidden representation of the input $x$ to the hidden representation of the reconstruction $\bar{x}$:
+To make the reconstructions made by the VAE percetually closer to whatever humans deem important characteristics of images, @hou2017deep propose optimizing the reconstructions with help of the hidden layers of a pretrained network. This can be done by predefining a set of layers $l_i$ from a pretrained network (in @hou2017deep's case vgg-19), and for every $l_i$ matching the hidden representation of the input $x$ to the hidden representation of the reconstruction $\bar{x}$:
 
 $$\[\mathcal{L}^l_{rec} = \textrm{MSE}(\Phi(x)^l, \Phi(\bar{x}̄)^l)\]$$
 
