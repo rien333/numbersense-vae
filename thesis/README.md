@@ -43,7 +43,7 @@ The more mathematical intuition behind this loss is that whatever some
 hidden layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> of the VGG-19 network encodes should be retained in
 the reconstructed output, as the VGG-19 has proven to model important
 visual characteristics of a large variety of image types (VGG-19 having
-been trained on imagenet).
+been trained on ImageNet).
 
 Experiments
 ===========
@@ -57,19 +57,13 @@ Qualitive Analysis
 Conclusion
 ==========
 
-References {#references .unnumbered}
+References
 ==========
 
-::: {#refs .references}
-::: {#ref-hou2017deep}
 Hou, Xianxu, Linlin Shen, Ke Sun, and Guoping Qiu. 2017. "Deep Feature
 Consistent Variational Autoencoder." In *Applications of Computer Vision
 (Wacv), 2017 Ieee Winter Conference on*, 1133--41. IEEE.
-:::
 
-::: {#ref-Stoianov2012}
 Stoianov, Ivilin, and Marco Zorzi. 2012. "Emergence of a'visual Number
 Sense'in Hierarchical Generative Models." *Nature Neuroscience* 15 (2).
 Nature Publishing Group: 194.
-:::
-:::
