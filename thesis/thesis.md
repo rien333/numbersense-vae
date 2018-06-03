@@ -11,6 +11,15 @@ $$
 
 # Related Work #
 
+## Visual Number Sense ##
+
+
+## Subitizing ##
+
+<!-- First also talk about how subitizing is a type of visual number sense, what it is, what the subitizing range is etc. -->
+
+As constructing a dataset fit for visual numerosity estimation is a difficult task given the lack of other datasets made out of natural images containing a variety of labeled, large object groups, we set out to model the phenomenon of _subitizing_,  a type of visual number sense which had a dataset catered to this phenomenon readily avialable. As seen in the figure below, the goal of the _Salient Object Subitizing_ (SOS) dataset as defined by @zhang2016salient is to clearly show a number of salient objects that lies within the subitizing range. ![sos_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/subitizing.png "Example images from the SOS dataset")
+
 # Methods #
 
 ## Variational Autoencoder ##
@@ -22,7 +31,7 @@ Optimization objectives
 
 ## Deep Feature Consistent Perceptual Loss ##
 
-To make the reconstructions made by the VAE perceptually closer to whatever humans deem important characteristics of images, @hou2017deep propose optimizing the reconstructions with help of the hidden layers of a pretrained network. This can be done by predefining a set of layers $l_i$ from a pretrained network (in @hou2017deep's case VGG-19), and for every $l_i$ matching the hidden representation of the input $x$ to the hidden representation of the reconstruction $\bar{x}$:
+To make the reconstructions made by the VAE perceptually closer to whatever humans deem important characteristics of images, @hou2017deep propose optimizing the reconstructions with help of the hidden layers of a pretrained network. This can be done by predefining a set of layers $l_i$ from a pretrained network (@hou2017deep and present research use VGG-19), and for every $l_i$ matching the hidden representation of the input $x$ to the hidden representation of the reconstruction $\bar{x}$ made by the VAE:
 
 $$\[\mathcal{L}^{l_{i}}_{rec} = \textrm{MSE}(\Phi(x)^{l_{i}}, \Phi(\bar{x}̄)^{l_{i}})\]$$
 

@@ -15,6 +15,23 @@ of whatever I have in mind for my thesis)
 Related Work
 ============
 
+Visual Number Sense
+-------------------
+
+Subitizing
+----------
+
+<!-- First also talk about how subitizing is a type of visual number sense, what it is, what the subitizing range is etc. -->
+As constructing a dataset fit for visual numerosity estimation is a
+difficult task given the lack of other datasets made out of natural
+images containing a variety of labeled, large object groups, we set out
+to model the phenomenon of *subitizing*, a type of visual number sense
+which had a dataset catered to this phenomenon readily avialable. As
+seen in the figure below, the goal of the *Salient Object Subitizing*
+(SOS) dataset as defined by Zhang et al. (2016) is to clearly show a
+number of salient objects that lies within the subitizing range.
+![sos\_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/subitizing.png "Example images from the SOS dataset")
+
 Methods
 =======
 
@@ -33,9 +50,10 @@ To make the reconstructions made by the VAE perceptually closer to
 whatever humans deem important characteristics of images, Hou et al.
 (2017) propose optimizing the reconstructions with help of the hidden
 layers of a pretrained network. This can be done by predefining a set of
-layers <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> from a pretrained network (in Hou et al. (2017)'s case
-VGG-19), and for every <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> matching the hidden representation of the
-input <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/332cc365a4987aacce0ead01b8bdcc0b.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=14.15524440000002pt/> to the hidden representation of the reconstruction <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/33717a96ef162d4ca3780ca7d161f7ad.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=18.666631500000015pt/>:
+layers <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> from a pretrained network (Hou et al. (2017) and present
+research use VGG-19), and for every <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> matching the hidden
+representation of the input <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/332cc365a4987aacce0ead01b8bdcc0b.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=14.15524440000002pt/> to the hidden representation of the
+reconstruction <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/33717a96ef162d4ca3780ca7d161f7ad.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=18.666631500000015pt/> made by the VAE:
 
 <p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/d600df0fc59f1e699575dac62e2b62d1.svg?invert_in_darkmode" align=middle width=196.6041231pt height=18.88772655pt/></p>
 
@@ -67,3 +85,7 @@ Consistent Variational Autoencoder." In *Applications of Computer Vision
 Stoianov, Ivilin, and Marco Zorzi. 2012. "Emergence of a'visual Number
 Sense'in Hierarchical Generative Models." *Nature Neuroscience* 15 (2).
 Nature Publishing Group: 194.
+
+Zhang, Jianming, Shuga Ma, Mehrnoosh Sameki, Stan Sclaroff, Margrit
+Betke, Zhe Lin, Xiaohui Shen, Brian Price, and Radomír Měch. 2016.
+"Salient Object Subitizing." *arXiv Preprint arXiv:1607.07525*.
