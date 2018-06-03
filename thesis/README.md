@@ -21,9 +21,10 @@ of whatever I have in mind for my thesis)
 
 ## Variational Autoencoder
 
-Optimization objectives 1.
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4a5d495a4a9a1140380700f4affe6e59.svg?invert_in_darkmode" align=middle width=208.26828659999998pt height=24.65753399999998pt/>
-2. Visual reconstruction loss (e.g. BCE)
+Optimization objectives
+
+1.  <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4a5d495a4a9a1140380700f4affe6e59.svg?invert_in_darkmode" align=middle width=208.26828659999998pt height=24.65753399999998pt/>
+2.  Visual reconstruction loss (e.g. BCE)
 
 ## Deep Feature Consistent Perceptual Loss
 
@@ -49,7 +50,9 @@ been trained on imagenet).
 
 ## Qualitive Analysis
 
-# Conclusion {#conclusion .unnumbered}
+# Conclusion
+
+# References {#references .unnumbered}
 
 ::: {#refs .references}
 ::: {#ref-hou2017deep}
