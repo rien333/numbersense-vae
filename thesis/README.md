@@ -30,6 +30,7 @@ which had a dataset catered to this phenomenon readily avialable. As
 seen in the figure below, the goal of the *Salient Object Subitizing*
 (SOS) dataset as defined by Zhang et al. (2016) is to clearly show a
 number of salient objects that lies within the subitizing range.
+
 ![sos\_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/subitizing.png "Example images from the SOS dataset")
 
 Methods
