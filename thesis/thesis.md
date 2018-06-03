@@ -1,3 +1,5 @@
+% Modeling Subitizing with Variational Autoencoders
+
 # Introduction #
 
 Although various machine learning approaches to numerical determination and estimation of objects in images already exist, some research seems impartial to broader cognitive debate [see @Stoianov2012], resulting in models that are somewhat unhelpful for progressing the understanding of numerical cognition.
@@ -18,7 +20,9 @@ $$
 
 <!-- First also talk about how subitizing is a type of visual number sense, what it is, what the subitizing range is etc. -->
 
-As constructing a dataset fit for visual numerosity estimation is a difficult task given the lack of other datasets made out of natural images containing a variety of labeled, large object groups, we set out to model the phenomenon of _subitizing_,  a type of visual number sense which had a dataset catered to this phenomenon readily avialable. As seen in the figure below, the goal of the _Salient Object Subitizing_ (SOS) dataset as defined by @zhang2016salient is to clearly show a number of salient objects that lies within the subitizing range. ![sos_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/subitizing.png "Example images from the SOS dataset")
+As constructing a dataset fit for visual numerosity estimation is a difficult task given the lack of other datasets made out of natural images containing a variety of labeled, large object groups, we set out to model the phenomenon of _subitizing_,  a type of visual number sense which had a dataset catered to this phenomenon readily avialable. As seen in the figure below, the goal of the _Salient Object Subitizing_ (SOS) dataset as defined by @zhang2016salient is to clearly show a number of salient objects that lies within the subitizing range.
+
+![sos_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/subitizing.png "Example images from the SOS dataset")
 
 # Methods #
 
