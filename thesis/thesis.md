@@ -11,7 +11,7 @@ $$
 
 # Related Work #
 
-# Method #
+# Methods #
 
 ## Variational Autoencoder ##
 
