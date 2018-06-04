@@ -51,7 +51,7 @@ class HybridEqualDataset(Dataset):
         self.t_incr = 1/(epochs+1)
         self.t = t # should equal zero ofc
         self.u1 = -0.01 # bezier steepness in the beginning (flat 0 at start if negative)
-        self.u2 = 0.1 # bezier steepness towards the end
+        self.u2 = 0.02 # bezier steepness towards the end
         self.syn_ratio = self.__bezier(self.t, self.u1, self.u2)
         self.datasets = [self.sos, self.syn]
         from collections import Counter
