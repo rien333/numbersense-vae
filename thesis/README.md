@@ -50,11 +50,12 @@ difficult task given the lack of other datasets made out of natural
 images containing a variety of labeled, large object groups, we set out
 to model the phenomenon of *subitizing*, a type of visual number sense
 which had a dataset catered to this phenomenon readily avialable. As
-seen in the figure below, the goal of the *Salient Object Subitizing*
-(SOS) dataset as defined by Zhang et al. (2016) is to clearly show a
-number of salient objects that lies within the subitizing range.
+seen in the [figure](#sub) below, the goal of the *Salient Object
+Subitizing* (SOS) dataset as defined by Zhang et al. (2016) is to
+clearly show a number of salient objects that lies within the subitizing
+range.
 
-![sos\_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/subitizing.png "Example images from the SOS dataset")
+![sos\_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/subitizing.png "Example images from the SOS dataset"
 
 Methods
 =======
