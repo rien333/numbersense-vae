@@ -6,19 +6,20 @@ numbersections: true
 
 # Introduction #
 
+(**Note:** the quality and the content of the text is not yet reflective of whatever I have in mind for my thesis)
+
 Although various machine learning approaches to numerical determination and estimation of objects in images already exist, some research seems impartial to broader cognitive debate [see @Stoianov2012], resulting in models that are somewhat unhelpful for progressing the understanding of numerical cognition.
 
 Visual numerical cognition functions differently to for example mathematical/arithmetical numerical cognition in regard to three closely related principles (properties). These properties consequently guide the general approach of this research (source? maybe note that I can discern three, lakoff might be an source)
 
 1. Firstly, ... 
-2. 
+2. Fusce commodo.
 3. Visual sense of number is an emergent property of neurons embedded in generative hierarchical learning processes/models. (biological/animal stuff) (Artificial networks) Modeling visual number therefore necessitates non-researcher depended(/i.e. handcrafted (you could I guess cite dreyfus that this is an unrealistic way of learning that AI suffers from)) features, restricting the choice of an algorithm to be unsupervised as such an algorithm will learn . Given their ability to construct the underlying (stochastic?) representation of the data distribution(they learn their own features?) (...in an unsupervised manner), _Varitional Autoencoders_ (VAEs) seem fit to tackle this problem. 
 
 $$
 \frac{n!}{m!(n-m)!} = {n \choose m}
 $$
 
-(**Note:** the quality and the content of the text is not yet reflective of whatever I have in mind for my thesis)
 
 # Related Work #
 
@@ -67,7 +68,7 @@ Class imbalance is a phenomenon sometimes encountered in datasets whereby the nu
 2. *Undersampling techniques*. 
 3. *Mauris mollis tincidunt felis.*
 
-An ensemble of techniques was used to tackle the class imbalance in the SOS dataset. First, slight  random undersampling of the two majority classes (0 and 1) is performed, reducing their size by ~10% [@ref-random-undersample, sckikit maybe]. Furthermore, as in practice many common sophisticated under- and oversampling techniques (e.g. data augmentation or outlier removal, for an overview see [@imbalance]) proved non-effective, another so called "" algorith was used, namely cost-sensitive class weighting. Cost-senstive ... consists of .... The uneffectiveness of quantive sampling techniques is likely to be caused by that in addition to the quantitative difference in class examples, there is also a slight difficulty factor whereby assesing the class of latent vector $z$ is significantly if belongs to class 2 or 3 versus any other, for these two classes require rather precise contours to discern the invidual objects, in case of them for example overlapping, which remains hard for VAEs given their tendency to produce blurred reconstructions. The classifier network therefore seems inclined to put all of its representational power towards the easier classes, as this will result in a lower total cost, whereby this inclination will become even stronger as the quantitative class imbalance grows. The class weights for cost sensitive learning are set according to the quantitative class imbalance ratio [@ref], but better accuracy was obtained by slightly altering the relative difference between the weight by raising all of them to some power $n$. In our experiments, $n=3$ resulted in a balance between high per class accuray scores and aforementioned scores roughly following the same shape as in other algorithms, which hopefully implies that the classifier is able to generalize in a manner comparable to previous approaches. For the SOS dataset with random majority class undersampling, if $n \gg 3$ the classifier accuracy for the majority classes shrinks towards chance, and, interestingly, accuracy for the minority classes is comparable to the state of the art.
+An ensemble of techniques was used to tackle the class imbalance in the SOS dataset. First, slight  random undersampling of the two majority classes (0 and 1) is performed, reducing their size by ~10% [@ref-random-undersample, sckikit maybe]. Furthermore, as in practice many common sophisticated under- and oversampling techniques (e.g. data augmentation or outlier removal, for an overview see [@imbalance]) proved non-effective, another so called "" algorith was used, namely cost-sensitive class weighting. Cost-senstive ... consists of .... The uneffectiveness of quantive sampling techniques is likely to be caused by that in addition to the quantitative difference in class examples, there is also a slight difficulty factor whereby assesing the class of latent vector $z$ is significantly if belongs to class 2 or 3 versus any other, for these two classes require rather precise contours to discern the invidual objects, in case of them for example overlapping, which remains hard for VAEs given their tendency to produce blurred reconstructions. The classifier network therefore seems inclined to put all of its representational power towards the easier classes, as this will result in a lower total cost, whereby this inclination will become even stronger as the quantitative class imbalance grows. The class weights for cost sensitive learning are set according to the quantitative class imbalance ratio [@ref], but better accuracy was obtained by slightly altering the relative difference between the weight by raising all of them to some power $n$. In our experiments, $n=3$ resulted in a balance between high per class accuray scores and aforementioned scores roughly following the same shape as in other algorithms, which hopefully implies that the classifier is able to generalize in a manner comparable to previous approaches. For the SOS dataset with random majority class undersampling, if $n \gg 3$ the classifier accuracy for the majority classes shrinks towards chance, and, interestingly, accuracy for the minority classes becomes comparable to the state of the art.
 
 # Results & Discussion #
 

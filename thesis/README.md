@@ -1,6 +1,9 @@
 Introduction
 ============
 
+(**Note:** the quality and the content of the text is not yet reflective
+of whatever I have in mind for my thesis)
+
 Although various machine learning approaches to numerical determination
 and estimation of objects in images already exist, some research seems
 impartial to broader cognitive debate (see Stoianov and Zorzi 2012),
@@ -14,8 +17,9 @@ general approach of this research (source? maybe note that I can discern
 three, lakoff might be an source)
 
 1.  Firstly, ...
-2.  3.  Visual sense of number is an emergent property of neurons
-    embedded in generative hierarchical learning processes/models.
+2.  Fusce commodo.
+3.  Visual sense of number is an emergent property of neurons embedded
+    in generative hierarchical learning processes/models.
     (biological/animal stuff) (Artificial networks) Modeling visual
     number therefore necessitates non-researcher
     depended(/i.e. handcrafted (you could I guess cite dreyfus that this
@@ -28,9 +32,6 @@ three, lakoff might be an source)
     problem.
 
 <p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/baac3f1faea174b7f9a59fa8e83073cb.svg?invert_in_darkmode" align=middle width=143.26649039999998pt height=39.452455349999994pt/></p>
-
-(**Note:** the quality and the content of the text is not yet reflective
-of whatever I have in mind for my thesis)
 
 Related Work
 ============
@@ -171,8 +172,8 @@ other algorithms, which hopefully implies that the classifier is able to
 generalize in a manner comparable to previous approaches. For the SOS
 dataset with random majority class undersampling, if <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4df892aafd70851e6daaeca903b9acf1.svg?invert_in_darkmode" align=middle width=43.65668669999999pt height=21.18721440000001pt/> the
 classifier accuracy for the majority classes shrinks towards chance,
-and, interestingly, accuracy for the minority classes is comparable to
-the state of the art.
+and, interestingly, accuracy for the minority classes becomes comparable
+to the state of the art.
 
 Results & Discussion
 ====================
