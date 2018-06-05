@@ -21,7 +21,7 @@ three, lakoff might be an source)
     depended(/i.e. handcrafted (you could I guess cite dreyfus that this
     is an unrealistic way of learning that AI suffers from)) features,
     restricting the choice of an algorithm to be unsupervised as such an
-    alogirhtm will learn . Given their ability to construct the
+    algorithm will learn . Given their ability to construct the
     underlying (stochastic?) representation of the data
     distribution(they learn their own features?) (...in an unsupervised
     manner), *Varitional Autoencoders* (VAEs) seem fit to tackle this
@@ -188,14 +188,14 @@ activation patterns to subitizing labels)) is reported over the witheld
 SOS test set. Accuracy scores of other algorithms were copied over from
 Zhang et al. (2016).
 
-               0      1      2      3      4+     mean
-  ------------ ------ ------ ------ ------ ------ ------
-        Chance 27.5   46.5   18.6   11.7   9.7    22.8
-        SalPry 46.1   65.4   32.6   15.0   10.7   34.0
-          GIST 67.4   65.0   32.3   17.5   24.7   41.4
-      SIFT+IVF 83.0   68.1   35.1   26.6   38.1   50.1
-    zclasifier 76     49     40     27     30     51
-       CNN\_FT 93.6   93.8   75.2   58.6   71.6   78.6
+|            | 0    | 1    | 2    | 3    | 4+   | mean |
+|-----------:|------|------|------|------|------|------|
+|      Chance| 27.5 | 46.5 | 18.6 | 11.7 | 9.7  | 22.8 |
+|      SalPry| 46.1 | 65.4 | 32.6 | 15.0 | 10.7 | 34.0 |
+|        GIST| 67.4 | 65.0 | 32.3 | 17.5 | 24.7 | 41.4 |
+|    SIFT+IVF| 83.0 | 68.1 | 35.1 | 26.6 | 38.1 | 50.1 |
+|  zclasifier| 76   | 49   | 40   | 27   | 30   | 51   |
+|     CNN\_FT| 93.6 | 93.8 | 75.2 | 58.6 | 71.6 | 78.6 |
 
 <!-- # | zclasifier | 73   | 49   | 37   | 31   | 26   | 49   | -->
 <!-- Epoch 67 -> Test Accuracy: 51 % -->

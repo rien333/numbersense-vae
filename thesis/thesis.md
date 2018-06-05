@@ -12,7 +12,7 @@ Visual numerical cognition functions differently to for example mathematical/ari
 
 1. Firstly, ... 
 2. 
-3. Visual sense of number is an emergent property of neurons embedded in generative hierarchical learning processes/models. (biological/animal stuff) (Artificial networks) Modeling visual number therefore necessitates non-researcher depended(/i.e. handcrafted (you could I guess cite dreyfus that this is an unrealistic way of learning that AI suffers from)) features, restricting the choice of an algorithm to be unsupervised as such an alogirhtm will learn . Given their ability to construct the underlying (stochastic?) representation of the data distribution(they learn their own features?) (...in an unsupervised manner), _Varitional Autoencoders_ (VAEs) seem fit to tackle this problem. 
+3. Visual sense of number is an emergent property of neurons embedded in generative hierarchical learning processes/models. (biological/animal stuff) (Artificial networks) Modeling visual number therefore necessitates non-researcher depended(/i.e. handcrafted (you could I guess cite dreyfus that this is an unrealistic way of learning that AI suffers from)) features, restricting the choice of an algorithm to be unsupervised as such an algorithm will learn . Given their ability to construct the underlying (stochastic?) representation of the data distribution(they learn their own features?) (...in an unsupervised manner), _Varitional Autoencoders_ (VAEs) seem fit to tackle this problem. 
 
 $$
 \frac{n!}{m!(n-m)!} = {n \choose m}
