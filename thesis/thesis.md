@@ -49,7 +49,7 @@ Optimization objectives
 
 To make the reconstructions made by the VAE perceptually closer to whatever humans deem important characteristics of images, @hou2017deep propose optimizing the reconstructions with help of the hidden layers of a pretrained network. This can be done by predefining a set of layers $l_i$ from a pretrained network (@hou2017deep and present research use VGG-19), and for every $l_i$ matching the hidden representation of the input $x$ to the hidden representation of the reconstruction $\bar{x}$ made by the VAE:
 
-$$\[\mathcal{L}^{l_{i}}_{rec} = \textrm{MSE}(\Phi(x)^{l_{i}}, \Phi(\bar{x}̄)^{l_{i}})\]$$
+$$\mathcal{L}^{l_{i}}_{rec} = \textrm{MSE}(\Phi(x)^{l_{i}}, \Phi(\bar{x}̄)^{l_{i}})$$
 
 The more mathematical intuition behind this loss is that whatever some hidden layer $l_i$ of the VGG-19 network encodes should be retained in the reconstructed output, as the VGG-19 has proven to model important visual characteristics of a large variety of image types (VGG-19 having been trained on ImageNet).
 
@@ -86,7 +86,7 @@ Accuray of the `zclassifier` (i.e. the classifier as described in [**section x.x
 |     SalPry | 46.1 | 65.4 | 32.6 | 15.0 | 10.7 | 34.0 |
 |       GIST | 67.4 | 65.0 | 32.3 | 17.5 | 24.7 | 41.4 |
 |   SIFT+IVF | 83.0 | 68.1 | 35.1 | 26.6 | 38.1 | 50.1 |
-| zclasifier | 76   | 49   | 40   | 27   | 30   | 51   |
+| zclasifier | 76   | 49   | 40   | 27   | 30   | 44.4 |
 |     CNN_FT | 93.6 | 93.8 | 75.2 | 58.6 | 71.6 | 78.6 |
 
 <!-- # | zclasifier | 73   | 49   | 37   | 31   | 26   | 49   | -->

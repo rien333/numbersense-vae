@@ -80,7 +80,7 @@ research use VGG-19), and for every <img src="https://rawgit.com/rien333/numbers
 representation of the input <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/332cc365a4987aacce0ead01b8bdcc0b.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=14.15524440000002pt/> to the hidden representation of the
 reconstruction <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/33717a96ef162d4ca3780ca7d161f7ad.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=18.666631500000015pt/> made by the VAE:
 
-<p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/d600df0fc59f1e699575dac62e2b62d1.svg?invert_in_darkmode" align=middle width=196.6041231pt height=18.88772655pt/></p>
+<p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ef0c0a57404ef77119b5924d13572cc5.svg?invert_in_darkmode" align=middle width=196.6041231pt height=18.88772655pt/></p>
 
 The more mathematical intuition behind this loss is that whatever some
 hidden layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> of the VGG-19 network encodes should be retained in
@@ -196,7 +196,7 @@ Zhang et al. (2016).
 |      SalPry| 46.1 | 65.4 | 32.6 | 15.0 | 10.7 | 34.0 |
 |        GIST| 67.4 | 65.0 | 32.3 | 17.5 | 24.7 | 41.4 |
 |    SIFT+IVF| 83.0 | 68.1 | 35.1 | 26.6 | 38.1 | 50.1 |
-|  zclasifier| 76   | 49   | 40   | 27   | 30   | 51   |
+|  zclasifier| 76   | 49   | 40   | 27   | 30   | 44.4 |
 |     CNN\_FT| 93.6 | 93.8 | 75.2 | 58.6 | 71.6 | 78.6 |
 
 <!-- # | zclasifier | 73   | 49   | 37   | 31   | 26   | 49   | -->
