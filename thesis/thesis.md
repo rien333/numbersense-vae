@@ -34,7 +34,7 @@ $$
 
 As constructing a dataset fit for visual numerosity estimation is a difficult task given the lack of other datasets made out of natural images containing a variety of labeled, large object groups, we set out to model the phenomenon of _subitizing_,  a type of visual number sense which had a dataset catered to this phenomenon readily avialable. As seen in the [figure](#sub) below, the goal of the _Salient Object Subitizing_ (SOS) dataset as defined by @zhang2016salient is to clearly show a number of salient objects that lies within the subitizing range.
 
-![sos_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/subitizing.png "Example images from the SOS dataset"){#fig:sub}
+![sos_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/subitizing.png){#fig:sub}
 
 # Methods #
 
