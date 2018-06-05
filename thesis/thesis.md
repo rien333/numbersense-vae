@@ -78,7 +78,7 @@ An ensemble of techniques was used to tackle the class imbalance in the SOS data
 <!-- TODO
     - [ ] Mention something about what other alogithms do -->
 
-Accuray of the `zclassifier` (i.e. the classifier as described in [**section x.x**](#classifierarch) that learns to classify latent activation patterns to subitizing labels)) is reported over the witheld SOS test set. Accuracy scores of other algorithms were copied over from @zhang2016salient.
+Accuray of the `zclassifier` (i.e. the classifier as described in [**section x.x**](#classifierarch) that learns to classify latent activation patterns to subitizing labels) is reported over the witheld SOS test set. Accuracy scores of other algorithms were copied over from @zhang2016salient.
 
 |            | 0    | 1    | 2    | 3    | 4+   | mean |
 |-----------:|------|------|------|------|------|------|
@@ -106,7 +106,7 @@ Accuray of the `zclassifier` (i.e. the classifier as described in [**section x.x
 <!-- Accuracy of     3 : 23 % -->
 <!-- Accuracy of     4 : 31 % -->
 
-The subitizing performance of the VAE is comparable to highest scoring non-machine learning algorithm, and performs worse overall than the CNNs trained by @zhang2016salient. This can be explained by a number of factors. First of all, the `CNN_ft` algorithm used by @zhang2016salien has been pretrained on the large, well tested databese of images it is trained on (i.e. ImageNet, which contains N images, while our procedure uses M syntethic and N2 natural images). Additionaly, their model is capable of more complex representations due its depth and  the amount of modules it contains (). Moreover, all their alogirhtms are trained in a supervised manner, which can sometimes be a lot easier than unsupervised training [@ref]
+The subitizing performance of the VAE is comparable to highest scoring non-machine learning algorithm, and performs worse overall than the CNNs trained by @zhang2016salient. This can be explained by a number of factors. First of all, the `CNN_ft` algorithm used by @zhang2016salient has been pretrained on the large, well tested databese of images it is trained on (i.e. ImageNet, which contains N images, while our procedure uses M syntethic and N2 natural images). Additionaly, their model is capable of more complex representations due its depth and  the amount of modules it contains (). Moreover, all their alogirhtms are trained in a supervised manner, which can sometimes be a lot easier than unsupervised training [@ref]
 
 ## Qualitive Analysis ##
 
