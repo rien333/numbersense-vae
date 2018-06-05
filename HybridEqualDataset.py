@@ -15,13 +15,9 @@ class HybridEqualDataset(Dataset):
     # Consider the dynamic between test and train (syn are totally random, and pseuod generated)
     # as syn examples are pseudo generated, consider importing way more
 
-<<<<<<< HEAD
+
     def __init__(self, epochs, transform=None, grow_f=0.38, t=0.0, datadir="../Datasets/", sorted_loc="/tmp",
                  syn_samples=None, real_samples=None, train=True,):
-=======
-    def __init__(self, epochs, transform=None, grow_f=0.38, t=0.0, datadir="../Datasets/", sorted_loc="/tmp/",
-                 syn_samples=[], real_samples=[], train=True,):
->>>>>>> f9b59aff8d3c5196ea35b34335fdb9431d531c87
         """
         grow_f is a factor [0,1] by how much we should grow the datasize with synthetic examples
         """
@@ -55,7 +51,7 @@ class HybridEqualDataset(Dataset):
         self.t_incr = 1/(epochs+1)
         self.t = t # should equal zero ofc
         self.u1 = -0.01 # bezier steepness in the beginning (flat 0 at start if negative)
-        self.u2 = 0.1 # bezier steepness towards the end
+        self.u2 = 0.02 # bezier steepness towards the end
         self.syn_ratio = self.__bezier(self.t, self.u1, self.u2)
         self.datasets = [self.sos, self.syn]
         from collections import Counter
@@ -119,7 +115,6 @@ if __name__ == "__main__":
     epochs=20
     # syn_samples = [4700, 5400, 8023, 8200, 8700]
     # real_samples = [1101, 1100, 1604, 1058, 853]
-    
     
     hd = HybridEqualDataset(epochs=epochs, transform=t, train=True, t=0.775, grow_f=6.2952)
 
