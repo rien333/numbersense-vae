@@ -628,7 +628,7 @@ def test(epoch, loader):
 
 def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset=120, start_epoch=0):
     # This could/should be a dictionary
-    best_models = [("", 100000000000)]*3
+    best_models = [("", 100000000000)]*5
 
     for epoch in range(start_epoch, epochs + 1):
         train(epoch, train_loader, optimizer)
