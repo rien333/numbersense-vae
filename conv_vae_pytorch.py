@@ -499,8 +499,23 @@ else:
 model.to(device)
 
 if args.load_model:
-    model.load_state_dict(
-        torch.load(args.load_model, map_location=lambda storage, loc: storage))
+    try:
+        model.load_state_dict(
+            torch.load(args.load_model, map_location=lambda storage, loc: storage))
+    except RuntimeError as e: # trying to load a multi gpu model to a single gpu
+        if "module" in str(e):
+            print("Oops, converting multi gpu model to single gpu...")
+            from collections import OrderedDict
+            state_dict = torch.load(args.load_model, map_location=lambda storage, loc: storage)
+            new_state_dict = OrderedDict()
+            for k, v in state_dict.items():
+                name = k[7:] # remove 'module.'
+                new_state_dict[name] = v
+            # load params'
+            model.load_state_dict(new_state_dict)
+        else:
+            print(e)
+            exit(1)
 
 def loss_function_van(recon_x, x, mu, logvar):
     # how well do input x and output recon_x agree?
@@ -544,8 +559,9 @@ def loss_function_dfc_split(recon_x, x, mu, logvar):
     # note the detach
     loss_list = [F.mse_loss(recon_features[layer], targets[layer], size_average=False) for layer in range(len(targets))]
     content = sum(loss_list)
-    return args.alpha*kld, args.beta*content,
-    # return content_loss(recon_features, targets, mu, logvar)
+    # return args.alpha*kld, args.beta*content,
+    return kld, content # don't multiply to keep the loss in the same range at all times
+
 
 # Check for dfc loss
 if args.dfc:
@@ -595,8 +611,8 @@ def test(epoch, loader):
 
         # ~50 sets of random ZDIMS-float vectors to images
         # Weird hack bc this is drawn from ~ N(0, 1), and our distribution looks different
-        sample = torch.randn(49, args.z_dims).to(device) * 4.2
-        
+        sample = torch.randn(49, args.z_dims).to(device) * 5.2
+
         if ngpu > 1:
             sample = model.module.decode(sample)
         else:
