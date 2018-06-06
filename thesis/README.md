@@ -126,7 +126,7 @@ constitutes a dataset with class imbalance, we follow Fernández et al.
 instances <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/a20a9547a59ab0b2b1981cdbae565bd3.svg?invert_in_darkmode" align=middle width=23.46794504999999pt height=22.465723500000017pt/> of class <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3bc6fc8b86b6c61889f4e572c7546b8e.svg?invert_in_darkmode" align=middle width=11.76470294999999pt height=14.15524440000002pt/> should satisfy
 <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4bc2a2d82a13d9f7cd3aceb96521c510.svg?invert_in_darkmode" align=middle width=112.73481449999998pt height=22.465723500000017pt/> for a dataset to be considered imbalanced. For
 the SOS dataset, <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/a0e9bd7d2885589d4e0581bb4179ac3e.svg?invert_in_darkmode" align=middle width=81.11441909999999pt height=22.465723500000017pt/>, <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ccf450d9f9b37675e9737077577750e4.svg?invert_in_darkmode" align=middle width=81.11441909999999pt height=22.465723500000017pt/>, <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/a5df93fc55d423f6f51cfbb403f3d6a7.svg?invert_in_darkmode" align=middle width=81.11441909999999pt height=22.465723500000017pt/>
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f39adc9940c0f9d49d251fce913d1a49.svg?invert_in_darkmode" align=middle width=81.11441909999999pt height=22.465723500000017pt/>, <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c815afb96a24431ab4cdb4f3d4e2dd6e.svg?invert_in_darkmode" align=middle width=72.89520974999999pt height=22.465723500000017pt/>, which implies that <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/09d819a43c6e2990856e40dbda09f893.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/988584bba6844388f07ea45b7132f61c.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/>
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f39adc9940c0f9d49d251fce913d1a49.svg?invert_in_darkmode" align=middle width=81.11441909999999pt height=22.465723500000017pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c815afb96a24431ab4cdb4f3d4e2dd6e.svg?invert_in_darkmode" align=middle width=72.89520974999999pt height=22.465723500000017pt/>, which implies that <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/09d819a43c6e2990856e40dbda09f893.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/988584bba6844388f07ea45b7132f61c.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/>
 are *majority classes*, while the others should be considered *minority
 classes*. Most literature makes a distinction between three general
 algorithm-agnostic aproaches that tackle class imbalance (for a
@@ -155,7 +155,7 @@ malignent examples as unmalignent could be weighted more strongly, see
 
 An ensemble of techniques was used to tackle the class imbalance in the
 SOS dataset. First, slight random undersampling of the two majority
-classes (0 and 1) is performed, reducing their size by \~10%
+classes (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/09d819a43c6e2990856e40dbda09f893.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/988584bba6844388f07ea45b7132f61c.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/>) is performed, reducing their size by \~10%
 ([**???**]{.citeproc-not-found
 data-reference-id="ref-random-undersample"}, sckikit maybe).
 Furthermore, as in practice many common sophisticated under- and
@@ -167,26 +167,26 @@ Cost-senstive ... consists of .... The uneffectiveness of quantive
 sampling techniques is likely to be caused by that in addition to the
 quantitative difference in class examples, there is also a slight
 difficulty factor whereby assesing the class of latent vector <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/> is
-significantly if belongs to class 2 or 3 versus any other, for these two
-classes require rather precise contours to discern the invidual objects,
-in case of them for example overlapping, which remains hard for VAEs
-given their tendency to produce blurred reconstructions. The classifier
-network therefore seems inclined to put all of its representational
-power towards the easier classes, as this will result in a lower total
-cost, whereby this inclination will become even stronger as the
-quantitative class imbalance grows. The class weights for cost sensitive
-learning are set according to the quantitative class imbalance ratio
-([**???**]{.citeproc-not-found data-reference-id="ref"}), but better
-accuracy was obtained by slightly altering the relative difference
-between the weight by raising all of them to some power <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/55a049b8f161ae7cfeb0197d75aff967.svg?invert_in_darkmode" align=middle width=9.86687624999999pt height=14.15524440000002pt/>. In our
-experiments, <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/aa6905d780872f0007f642420d7a2d9c.svg?invert_in_darkmode" align=middle width=40.00371704999999pt height=21.18721440000001pt/> resulted in a balance between high per class accuray
-scores and aforementioned scores roughly following the same shape as in
-other algorithms, which hopefully implies that the classifier is able to
-generalize in a manner comparable to previous approaches. For the SOS
-dataset with random majority class undersampling, if <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4df892aafd70851e6daaeca903b9acf1.svg?invert_in_darkmode" align=middle width=43.65668669999999pt height=21.18721440000001pt/> the
-classifier accuracy for the majority classes shrinks towards chance,
-and, interestingly, accuracy for the minority classes becomes comparable
-to the state of the art.
+significantly if belongs to <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e355414b8774603011922d600510b1df.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/> or <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c2411b9678590eb9d75c90bfebb7c5c1.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/> versus any other class, for
+these two classes require rather precise contours to discern the
+invidual objects, in case they for example overlapping, which remains
+hard for VAEs given their tendency to produce blurred reconstructions.
+The classifier network therefore seems inclined to put all of its
+representational power towards the easier classes, as this will result
+in a lower total cost, whereby this inclination will become even
+stronger as the quantitative class imbalance grows. The class weights
+for cost sensitive learning are set according to the quantitative class
+imbalance ratio ([**???**]{.citeproc-not-found
+data-reference-id="ref"}), but better accuracy was obtained by slightly
+altering the relative difference between the weight by raising all of
+them to some power <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/55a049b8f161ae7cfeb0197d75aff967.svg?invert_in_darkmode" align=middle width=9.86687624999999pt height=14.15524440000002pt/>. In our experiments, <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/aa6905d780872f0007f642420d7a2d9c.svg?invert_in_darkmode" align=middle width=40.00371704999999pt height=21.18721440000001pt/> resulted in a balance
+between high per class accuray scores and aforementioned scores roughly
+following the same shape as in other algorithms, which hopefully implies
+that the classifier is able to generalize in a manner comparable to
+previous approaches. For the SOS dataset with random majority class
+undersampling, if <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4df892aafd70851e6daaeca903b9acf1.svg?invert_in_darkmode" align=middle width=43.65668669999999pt height=21.18721440000001pt/> the classifier accuracy for the majority
+classes shrinks towards chance, and, interestingly, accuracy for the
+minority classes becomes comparable to the state of the art.
 
 Results & Discussion
 ====================
