@@ -21,21 +21,20 @@ Núñez 2000, chap. 2; Piazza and Izard 2009). Visual numerosity is the
 perceptual capability of many organisms to perceive a group of items as
 having either a distinct or approximate cardinality. Some specific
 characteristics of visual numerosity can be derived from it's neural
-basis. ([**???**]{.citeproc-not-found data-reference-id="nieder20"})
-16neuronal and Harvey et al. (2013) present research where topologically
-organized neural populations exhibiting particular response profiles to
-visual changes in quantity were discovered, whose response profiles
-furthermore remained invariant to changes of visual features other than
-quantity. In particular, their topological ordering was such that aside
-from populations responding to their own preferred numerosity, they also
-showed progressively diminishing activation to preferred numerosities of
-adjacent populations, in a somewhat bell-shaped fashion (Nieder 2016).
-This correspondence between visual quantity and topological network
-structure leads them to conclude that neural populations directly code
-(i.e. without interposition of higher cognitive processes) specific
-visual numerosities. This coding property of neurons participating in
-visual numoristy was found in humans and other animals alike (see Nieder
-2016; Harvey et al. 2013).
+basis. Nieder (2016) and Harvey et al. (2013) present research where
+topologically organized neural populations exhibiting particular
+response profiles to visual changes in quantity were discovered, whose
+response profiles furthermore remained invariant to changes of visual
+features other than quantity. In particular, their topological ordering
+was such that aside from populations responding to their own preferred
+numerosity, they also showed progressively diminishing activation to
+preferred numerosities of adjacent populations, in a somewhat
+bell-shaped fashion (Nieder 2016). This correspondence between visual
+quantity and topological network structure leads them to conclude that
+neural populations directly code (i.e. without interposition of higher
+cognitive processes) specific visual numerosities. This coding property
+of neurons participating in visual numoristy was found in humans and
+other animals alike (see Nieder 2016; Harvey et al. 2013).
 
 <!-- move to another section maybe? related work? -->
 Notwithstanding the success of previous biologically informed approaches
