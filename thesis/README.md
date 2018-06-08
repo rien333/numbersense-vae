@@ -20,26 +20,21 @@ other more rigorous concepts of number found in mathematics. Visual
 numerosity is the perceptual capability of many organisms to perceive a
 group of items as having either a distinct or approximate cardinality.
 Some specific characteristics of visual numerosity can be derived from
-it's neural basis. ([**???**]{.citeproc-not-found
-data-reference-id="nieder2016neuronal"}) and
-([**???**]{.citeproc-not-found
-data-reference-id="harvey2013topographic"}) present research where
-topologically organized neural populations exhibiting particular
-response profiles to visual changes in quantity were discovered, whose
-response profiles furthermore remained invariant to changes of visual
-features other than quantity. In particular, their topological ordering
-was such that aside from populations responding to their own preferred
-numerosity, they also showed progressively diminishing activation to
-preferred numerosities of adjacent populations, in a somewhat
-bell-shaped fashion ([**???**]{.citeproc-not-found
-data-reference-id="nieder2016neuronal"}). This correspondence between
-visual quantity and topological network structure leads them to conclude
-that neural populations directly code (i.e. without interposition of
-higher cognitive processes) specific visual numerosities. This coding
-property of neurons participating in visual numoristy was found in
-humans and other animals alike (see [**???**]{.citeproc-not-found
-data-reference-id="nieder2016neuronal"}; [**???**]{.citeproc-not-found
-data-reference-id="harvey2013topographic"}).
+it's neural basis. Nieder (2016) and Harvey et al. (2013) present
+research where topologically organized neural populations exhibiting
+particular response profiles to visual changes in quantity were
+discovered, whose response profiles furthermore remained invariant to
+changes of visual features other than quantity. In particular, their
+topological ordering was such that aside from populations responding to
+their own preferred numerosity, they also showed progressively
+diminishing activation to preferred numerosities of adjacent
+populations, in a somewhat bell-shaped fashion (Nieder 2016). This
+correspondence between visual quantity and topological network structure
+leads them to conclude that neural populations directly code
+(i.e. without interposition of higher cognitive processes) specific
+visual numerosities. This coding property of neurons participating in
+visual numoristy was found in humans and other animals alike (see Nieder
+2016; Harvey et al. 2013).
 
 <!-- move to another section maybe? related work? -->
 Notwithstanding the success of previous biologically informed approaches
@@ -52,10 +47,9 @@ Stoianov and Zorzi 2012; Wu, Zhang, and Du 2018), given that natural
 images are closer to everyday sensations than binary images.
 Furthermore, any dataset with uniform object categories does not capture
 how visual number sense in animals is abstract in regard to the
-perceived objects ([**???**]{.citeproc-not-found
-data-reference-id="nieder2016neuronal"}), meaning that a model should be
-able show that it performs equally well between object of different
-visual complexities. Another way in which we will improve biological
+perceived objects (Nieder 2016), meaning that a model should be able
+show that it performs equally well between object of different visual
+complexities. Another way in which we will improve biological
 plausibility is by looking at the discovery of the direct involvement of
 certain neural populations' with numerosity perception (as described
 previously), which will guide various algorithmic decisions. Moreover,
@@ -72,10 +66,10 @@ biological plausibility of the final model are:
     natural images (Mnih et al. 2015; Krizhevsky, Sutskever, and Hinton
     2012; for visual number sense and CNNs see Zhang et al. 2016), but
     are furthermore based on the neural functioning of the perceptual
-    system of animals (specifically cats, see LeCun, Bengio, and
-    others 1995). CNNs mimicking aspects of the animal visual cortex
-    thus make them an excellent candidate for modeling automatic neural
-    coding by means of specific numerosity percepts.
+    system of animals (specifically cats, see LeCun and Bengio 1995).
+    CNNs mimicking aspects of the animal visual cortex thus make them an
+    excellent candidate for modeling automatic neural coding by means of
+    specific numerosity percepts.
 2.  The directness of visual number sense leads us to conclude that no
     interposition of external process is required for numerosity
     perception, at least no other than the immediate appreciation of
@@ -84,8 +78,7 @@ biological plausibility of the final model are:
     explained by it omitting higher cognitive processes, such as
     conscious representations (Dehaene (2011) indeed points to types of
     visual number sense being preattentive) or symbolic processing
-    (visual numerosity is completely non-verbal,
-    ([**???**]{.citeproc-not-found data-reference-id="nieder2016"})).
+    (visual numerosity is completely non-verbal, Nieder (2016)).
     Moreover, the existence of visual sense of number in human newborns
     (Lakoff and Núñez 2000), animals (Davis and Pérusse 1988) and
     cultures without exact counting systems \[Dehaene (2011), p261;
@@ -114,15 +107,15 @@ biological plausibility of the final model are:
     non-researcher depended features (i.e. should avoid commonly used
     handcrafted features such as SIFT or HOG features), a generally
     unrealistic trope of artificial learning according to AI critics
-    (Dreyfus 2007) and research into the human learning process
-    ([**???**]{.citeproc-not-found data-reference-id="Zorzi2013"}),
-    restricting the choice of an algorithm to be unsupervised as such an
-    algorithm will learn its own distribution of the data. Given their
-    ability to construct the underlying stochastic representation of the
-    data, i.e. autonomous feature determination they learn their own
-    features, *Varitional Autoencoders* (VAEs) seem fit to tackle this
-    problem. Moreover, VAEs are an unsupervised algorithm, just as
-    learning visual number sense does not rely on supervision.
+    (Dreyfus 2007) and research into the human learning process (Zorzi,
+    Testolin, and Stoianov 2013a), restricting the choice of an
+    algorithm to be unsupervised, as such an algorithm will learn its
+    own distribution of the data. Given their ability to construct the
+    underlying stochastic representation of the data, i.e. autonomous
+    feature determination they learn their own features, *Varitional
+    Autoencoders* (VAEs) seem fit to tackle this problem. Moreover, VAEs
+    are trained in an unsupervised manner, just as learning visual
+    number sense does not rely on supervision.
 
 Most of the research above was conducted on approximate numerical
 cognition, but these characteristics hold equally well for number
@@ -220,11 +213,11 @@ Szegedy 2015), a ReLU activation function and a dropout layer,
 respectively. A fully-connected net was choosen because using another
 connectionist module for read-outs of the hidden representation
 heightens the biological plausibility of the final approach (Zorzi,
-Testolin, and Stoianov 2013). Zorzi, Testolin, and Stoianov (2013) note
-that the appended connectionist classifier module can for example be
-concieved of as cognitive response module (?), although the main reason
-behind training this classifier is to asses it's performance against
-other algorithmic and human data.
+Testolin, and Stoianov 2013b). Zorzi, Testolin, and Stoianov (2013b)
+note that the appended connectionist classifier module can for example
+be concieved of as cognitive response module (?), although the main
+reason behind training this classifier is to asses it's performance
+against other algorithmic and human data.
 
 ### Class imbalance
 
@@ -390,6 +383,11 @@ Data-Sets with Multiple Classes: Binarization Techniques and Ad-Hoc
 Approaches." *Knowledge-Based Systems* 42 (April). Elsevier BV: 97--110.
 <https://doi.org/10.1016/j.knosys.2013.01.018>.
 
+Harvey, Ben M, Barrie P Klein, Natalia Petridou, and Serge O Dumoulin.
+2013. "Topographic Representation of Numerosity in the Human Parietal
+Cortex." *Science* 341 (6150). American Association for the Advancement
+of Science: 1123--6.
+
 Hou, Xianxu, Linlin Shen, Ke Sun, and Guoping Qiu. 2017. "Deep Feature
 Consistent Variational Autoencoder." In *Applications of Computer Vision
 (Wacv), 2017 Ieee Winter Conference on*, 1133--41. IEEE.
@@ -411,14 +409,18 @@ Neural Information Processing Systems*, 1097--1105.
 Lakoff, George, and Rafael E Núñez. 2000. "Where Mathematics Comes from:
 How the Embodied Mind Brings Mathematics into Being." *AMC* 10: 12.
 
-LeCun, Yann, Yoshua Bengio, and others. 1995. "Convolutional Networks
-for Images, Speech, and Time Series." *The Handbook of Brain Theory and
+LeCun, Yann, and et al. Bengio Yoshua. 1995. "Convolutional Networks for
+Images, Speech, and Time Series." *The Handbook of Brain Theory and
 Neural Networks* 3361 (10): 1995.
 
 Mnih, Volodymyr, Koray Kavukcuoglu, David Silver, Andrei A Rusu, Joel
 Veness, Marc G Bellemare, Alex Graves, et al. 2015. "Human-Level Control
 Through Deep Reinforcement Learning." *Nature* 518 (7540). Nature
 Publishing Group: 529.
+
+Nieder, Andreas. 2016. "The Neuronal Code for Number." *Nature Reviews
+Neuroscience* 17 (6). Springer Nature: 366--82.
+<https://doi.org/10.1038/nrn.2016.40>.
 
 Piazza, Manuela, Andrea Mechelli, Brian Butterworth, and Cathy J Price.
 2002. "Are Subitizing and Counting Implemented as Separate or
@@ -440,6 +442,11 @@ Zhang, Jianming, Shuga Ma, Mehrnoosh Sameki, Stan Sclaroff, Margrit
 Betke, Zhe Lin, Xiaohui Shen, Brian Price, and Radomír Měch. 2016.
 "Salient Object Subitizing." *arXiv Preprint arXiv:1607.07525*.
 
-Zorzi, Marco, Alberto Testolin, and Ivilin Peev Stoianov. 2013.
+Zorzi, Marco, Alberto Testolin, and Ivilin P. Stoianov. 2013a. "Modeling
+Language and Cognition with Deep Unsupervised Learning: A Tutorial
+Overview." *Frontiers in Psychology* 4. Frontiers Media SA.
+<https://doi.org/10.3389/fpsyg.2013.00515>.
+
+Zorzi, Marco, Alberto Testolin, and Ivilin Peev Stoianov. 2013b.
 "Modeling Language and Cognition with Deep Unsupervised Learning: A
 Tutorial Overview." *Frontiers in Psychology* 4. Frontiers: 515.
