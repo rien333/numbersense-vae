@@ -15,8 +15,9 @@ class HybridEqualDataset(Dataset):
     # Consider the dynamic between test and train (syn are totally random, and pseuod generated)
     # as syn examples are pseudo generated, consider importing way more
 
+
     def __init__(self, epochs, transform=None, grow_f=0.38, t=0.0, datadir="../Datasets/", sorted_loc="/tmp",
-                 syn_samples=[], real_samples=[], train=True,):
+                 syn_samples=None, real_samples=None, train=True,):
         """
         grow_f is a factor [0,1] by how much we should grow the datasize with synthetic examples
         """
@@ -36,18 +37,13 @@ class HybridEqualDataset(Dataset):
         self.nsamples += self.classes - (self.nsamples % self.classes)
 
         # Specify absolute amounts
-        if syn_samples:
-            self.syn_samples = syn_samples
+        if not syn_samples is None:
             t = 1.1
-        else:
-            self.syn_samples = False
+        self.syn_samples = syn_samples
 
-        if real_samples:
-            self.real_samples = real_samples
+        if not real_samples is None:
             t = 1.1
-        else:
-            self.real_samples = False
-
+        self.real_samples = real_samples
 
         self.syn = SynDataset.SynDataset(train=True, transform=transform, split=1, datadir=datadir, sorted_loc=sorted_loc)
         # load the sorted list from a file for speed
@@ -55,17 +51,16 @@ class HybridEqualDataset(Dataset):
         self.t_incr = 1/(epochs+1)
         self.t = t # should equal zero ofc
         self.u1 = -0.01 # bezier steepness in the beginning (flat 0 at start if negative)
-        self.u2 = 0.1 # bezier steepness towards the end
+        self.u2 = 0.02 # bezier steepness towards the end
         self.syn_ratio = self.__bezier(self.t, self.u1, self.u2)
         self.datasets = [self.sos, self.syn]
         from collections import Counter
         self.syn_counter = 0
         self.generate_samples()
         self.nsamples = len(self.samples)
-        if self.syn_samples or self.real_samples:
-            if self.nsamples % self.classes != 0:
-                print("Number of samples", self.nsamples, "should be divisible by", self.classes)
-                exit(0)
+        if self.nsamples % self.classes != 0:
+            print("Number of samples", self.nsamples, "should be divisible by", self.classes)
+            exit(0)
         if train:
             print("Training with %s hybrid samples" % (len(self.samples)))
 
@@ -80,20 +75,16 @@ class HybridEqualDataset(Dataset):
         n_real_samples = np.clip(np.round_(self.syn_ratio * np.array(self.sos_n)), 0, self.class_n)
         # You can take the absolute value of this array i think
         missing_real_samples = n_real_samples - self.class_n
-        print(self.sos_n)
-        print("Missing 1", missing_real_samples)
-        if self.real_samples:
-            real_samples = [sample(self.sos_sort[idx], n) for idx, n in enumerate(self.real_samples)]
-        else:
+        if self.real_samples is None:
             real_samples = [sample(self.sos_sort[idx], int(n)) if n > 0 else [] for idx, n in enumerate(n_real_samples)]
-        if self.syn_samples:
-            syn_samples = [sample(self.syn_sort[idx], n) for idx, n in enumerate(self.syn_samples)]
         else:
+            real_samples = [sample(self.sos_sort[idx], n) for idx, n in enumerate(self.real_samples)]
+        if self.syn_samples is None:
             if self.real_samples:
-                missing_real_samples = np.array(self.real_samples) - self.class_n
-            print([len(l) for l in self.syn_sort])
-            print("Missing 2", missing_real_samples)
+                missing_real_samples = self.real_samples - self.class_n
             syn_samples = [sample(self.syn_sort[idx], abs(int(n))) if n < 0 else [] for idx, n in enumerate(missing_real_samples)]
+        else:
+            syn_samples = [sample(self.syn_sort[idx], n) for idx, n in enumerate(self.syn_samples)]
         syn_samples = list(itertools.chain.from_iterable(syn_samples)) # flatten
         real_samples = list(itertools.chain.from_iterable(real_samples)) # flatten
         self.samples = [(0,s) for s in real_samples] # idxs refer to the two datasets
@@ -125,7 +116,8 @@ if __name__ == "__main__":
     # syn_samples = [4700, 5400, 8023, 8200, 8700]
     # real_samples = [1101, 1100, 1604, 1058, 853]
     
-    hd = HybridEqualDataset(epochs=epochs, transform=t, train=True, t=1.1, grow_f=6.2952)
+    hd = HybridEqualDataset(epochs=epochs, transform=t, train=True, t=0.775, grow_f=6.2952)
+
     samples = len(hd)
     for epoch in range(epochs+2):
         classes = Counter()

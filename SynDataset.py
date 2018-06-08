@@ -14,7 +14,7 @@ DATA_C = SOSDataset.DATA_C
 
 class SynDataset(Dataset):
 
-    def __init__(self, train=True, transform=None, datadir="../Datasets/", sorted_loc="/tmp/", n=None, split=0.8):
+    def __init__(self, train=True, transform=None, datadir="../Datasets/", sorted_loc="/tmp", n=None, split=0.8):
         self.datadir = datadir
         self.train = train
         self.transform = transforms.Compose(transform)
@@ -28,7 +28,7 @@ class SynDataset(Dataset):
         nfiles = len(self.files)
         self.train_range = int(split * nfiles) # convert to idx
         self.nsamples = self.train_range if train else nfiles - self.train_range
-        self.sorted_loc = sorted_loc + "sorted_classes_syn.pickle"
+        self.sorted_loc = sorted_loc + "/sorted_classes_syn.pickle"
         if os.path.isfile(self.sorted_loc):
             with open (self.sorted_loc, 'rb') as f:
                 sorted_classes = pickle.load(f)
@@ -41,7 +41,11 @@ class SynDataset(Dataset):
     def __getitem__(self, index):
         start = 0 if self.train else self.train_range
         im_name = self.datadir + self.files[start+index]
-        im = cv2.cvtColor(cv2.imread(im_name), cv2.COLOR_BGR2RGB)
+        try:
+            im = cv2.cvtColor(cv2.imread(im_name), cv2.COLOR_BGR2RGB)
+        except:
+            print(im_name)
+            exit(0)
         label = int(im_name[-5])
         return self.transform((im, label))
 
@@ -68,7 +72,7 @@ class SynDataset(Dataset):
 
 if __name__ == "__main__":
     transform = [SOSDataset.Rescale((232, 232))]
-    dataset = SynDataset(train=True, transform=transform, split=0.8)
+    dataset = SynDataset(train=True, transform=transform, split=1.0)
 
     from collections import Counter
     classes = Counter()
@@ -84,7 +88,7 @@ if __name__ == "__main__":
     print("All", sorted(classes.items(), key=lambda pair: pair[0], reverse=False))
 
     # print(sorted(dataset.files, key=lambda k: k[-5])[:10])
-    # classes = dataset.load_sorted_classes()
+    classes = dataset.load_sorted_classes()
     # for l in classes:
     #     print(len(l))
     # cv2.imwrite("test.jpg", cv2.cvtColor(dataset[dataset.sorted()[3][8]][0], cv2.COLOR_BGR2RGB))

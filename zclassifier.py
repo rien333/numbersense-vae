@@ -77,7 +77,7 @@ def train(epoch, loader, optimizer, criterion):
         running_loss += loss.item()
 
     print('[Epoch %d]  Train set loss: %.17f' %
-          (epoch, running_loss / len(loader))) # average by datasize?
+          (epoch + 1, running_loss / len(loader))) # average by datasize?
 
 def test(epoch, loader, criterion):
     classifier.eval()
@@ -108,7 +108,6 @@ def test(epoch, loader, criterion):
                 class_total[label] += 1
 
     print('Epoch %d -> Test set loss: %.17f ' % (epoch, running_loss/len(loader)))
-
     # accuracy = 100 * correct / total    
     class_scores = np.array(class_correct) / np.array(class_total)
     mean_accuracy = 100.0 * np.mean(class_scores)
@@ -229,7 +228,6 @@ if __name__ == "__main__":
         batch_size=vae_pytorch.args.tune_batch_size, shuffle=True, **kwargs)
 
     criterion = nn.CrossEntropyLoss(weight=class_weights)
-
     train_routine(vae_pytorch.args.tune_epochs, start_epoch=vae_pytorch.args.epochs, train_loader=SOS_train_loader, 
                   test_loader=SOS_test_loader, optimizer=optimizer, criterion=criterion, scheduler=scheduler)
 

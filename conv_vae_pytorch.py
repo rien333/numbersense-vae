@@ -30,6 +30,10 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='enables CUDA training')
 parser.add_argument('--z-dims', type=int, default=20, metavar='N',
                     help='dimenstionality of the latent z variable')
+parser.add_argument('--alpha', type=float, default=1.0, metavar='N', 
+                    help='Weight of KDL loss')
+parser.add_argument('--beta', type=float, default=0.25, metavar='N', 
+                    help='Weight of content loss')
 parser.add_argument('--dfc', action='store_true', default=False, help="Train with deep feature consistency loss")
 parser.add_argument('--full-con-size', type=int, default=400, metavar='N',
                     help='size of the fully connected layer')
@@ -39,8 +43,7 @@ parser.add_argument('--start-epoch', type=int, default=1, metavar='N',
                     help='epoch to start at (only affects logging)')
 parser.add_argument('--test-interval', type=int, default=10, metavar='N',
                     help='when to run a test epoch')
-parser.add_argument('--seed', type=int, default=1, metavar='S',
-                    help='random seed (default: 1)')
+parser.add_argument('--seed', type=int, default=1, metavar='S', help='random seed (default: 1)')
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='how many batches to wait before logging training status')
 
@@ -160,7 +163,7 @@ class CONV_VAE(nn.Module):
                 stride=1,
                 padding=1
             ),				# out (64, DATA_H, DATA_W) should be same HxW as in
-            nn.LeakyReLU(0.2),          # inplace=True saves memory but discouraged (worth the try)
+            nn.LeakyReLU(0.01),          # inplace=True saves memory but discouraged (worth the try)
             nn.BatchNorm2d(64),         # C channel input, 4d input (NxCxHxW)
             nn.Conv2d(
                 in_channels=64,		# RGB
@@ -169,35 +172,35 @@ class CONV_VAE(nn.Module):
                 stride=2,
                 padding=1
             ),				# out (64, DATA_H, DATA_W) should be same HxW as in
-            nn.LeakyReLU(0.2),          # inplace=True saves memory but discouraged (worth the try)
+            nn.LeakyReLU(0.01),          # inplace=True saves memory but discouraged (worth the try)
             nn.BatchNorm2d(64),         # C channel input, 4d input (NxCxHxW)
         )
 
         # These two in the middle can maybe downsample with a conv
         self.conv2 = nn.Sequential(
             nn.Conv2d(64, 128, 4, 2, 1),
-            nn.LeakyReLU(0.2),		# Slight negative slope
+            nn.LeakyReLU(0.01),		# Slight negative slope
             nn.BatchNorm2d(128),
         )
         
         self.conv3 = nn.Sequential(
             nn.Conv2d(128, 256, 4, 2, 1),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.01),
             nn.BatchNorm2d(256),
         )
 
         self.conv4 = nn.Sequential(	# DATA_W/H is ~= 28
-            nn.Conv2d(256, 512, 4, 2, 1),
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm2d(512),
+            nn.Conv2d(256, 768, 4, 2, 1),
+            nn.LeakyReLU(0.01),
+            nn.BatchNorm2d(768),
         )
         end_elems = floor(DATA_H / 16) # 16 = 2**4 downsample,
-        end_shape = (end_elems**2) * 512 # eg 256*13*13 conv shape
+        end_shape = (end_elems**2) * 768 # eg 256*13*13 conv shape
         # conv4/conv-out should be flattened
         # fc1 conv depth * (DATA_W*DATA_H / (number of pools * 2)) (with some rounding)
         # self.fc1 = nn.Sequential(
         #     nn.Linear(end_shape, args.full_con_size),
-        #     nn.LeakyReLU(0.2),
+        #     nn.LeakyReLU(0.01),
         #     nn.BatchNorm1d(args.full_con_size)
         # )
 
@@ -221,11 +224,11 @@ class CONV_VAE(nn.Module):
         
         # self.fc3 = nn.Sequential(
         #     nn.Linear(args.z_dims, args.full_con_size),
-        #     nn.LeakyReLU(0.2),
+        #     nn.LeakyReLU(0.01),
         #     nn.BatchNorm1d(args.full_con_size)
         # )
 
-        self.deconv_shape = (512, end_elems+1, end_elems+1)
+        self.deconv_shape = (768, end_elems+1, end_elems+1)
         # form the decoder output to a conv shape
         # should be the size of a convolution/the last conv size
         # 128*14*14 * a few (4) upsampling = the original input size
@@ -233,8 +236,9 @@ class CONV_VAE(nn.Module):
         self.fc4 = nn.Sequential(
             # nn.Linear(args.full_con_size, int(np.prod(self.deconv_shape))),
             nn.Linear(args.z_dims, int(np.prod(self.deconv_shape))),
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm1d(int(np.prod(self.deconv_shape)))
+            # nn.LeakyReLU(0.01), # Some people use normal relu here
+            nn.ReLU(), # Some people use normal relu here
+            nn.BatchNorm1d(int(np.prod(self.deconv_shape))) # unneeded? 
         )
 
         # stride in 1st covn. = 1 bc we don't wanna miss anything (interdependence) from the z layer
@@ -253,23 +257,23 @@ class CONV_VAE(nn.Module):
         # z is pretty important, so set stride=1 to not miss anything first
         # so consider uncommenting the first deconv as well
         self.t_conv1 = nn.Sequential(
-            nn.ConvTranspose2d(512, 512, 3, 1, 1),
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm2d(512),
-            nn.ConvTranspose2d(512, 256, 3, 2, 1),
-            nn.LeakyReLU(0.2),
+            nn.ConvTranspose2d(768, 768, 3, 1, 1),
+            nn.LeakyReLU(0.01),
+            nn.BatchNorm2d(768),
+            nn.ConvTranspose2d(768, 256, 3, 2, 1),
+            nn.LeakyReLU(0.01),
             nn.BatchNorm2d(256),
         )
 
         self.t_conv2 = nn.Sequential( # this used to be p different (or the one below idk)
             nn.ConvTranspose2d(256, 128, 3, 2, 1),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.01),
             nn.BatchNorm2d(128),
         )
 
         self.t_conv3 = nn.Sequential(
             nn.ConvTranspose2d(128, 64, 3, 2, 1),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.01),
             nn.BatchNorm2d(64),
         )
 
@@ -399,7 +403,8 @@ class _VGG(nn.Module):
         self.norm_layer = ImageNet_Norm_Layer_2() # norm done in net to net screw the input
 
         # ngpu = torch.cuda.device_count()
-        self.ngpu = ngpu if not lisa_check else 1  # too much mem # assign to ngpu
+        # self.ngpu = ngpu if not lisa_check else 1  # too much mem # assign to ngpu
+        self.ngpu = ngpu
         if self.ngpu > 1:
             # Functional equivalent of below (idkkk if this is problematic? maybe it's good)
             self.gpu_func = lambda module, output: nn.parallel.data_parallel(module, output, range(self.ngpu))
@@ -413,12 +418,18 @@ class _VGG(nn.Module):
                'conv4_1', 'relu4_1', 'conv4_2', 'relu4_2', 'conv4_3', 'relu4_3', 'conv4_4', 'relu4_4', 'pool4',
                'conv5_1', 'relu5_1', 'conv5_2', 'relu5_2', 'conv5_3', 'relu5_3', 'conv5_4', 'relu5_4', 'pool5']
         # Add one?
-        self.content_layers = ['relu1_1', 'relu2_1', 'relu3_1',]
+        content_layers = ['relu1_1', 'relu2_1', 'relu3_1',]
+        self.content_layers = list(content_layers)
 
         self.features = nn.Sequential()
         for i, module in enumerate(features):
             name = self.layer_names[i]
-            self.features.add_module(name, module)
+            self.features.add_module(name, module)            
+            if name in content_layers:
+                content_layers.remove(name)
+            if not content_layers:
+                # Stop adding stuff
+                break
 
     def forward(self, x):
         batch_size = x.size(0) # needed because sometimes the batch size is not exactly args.batch_size
@@ -430,9 +441,6 @@ class _VGG(nn.Module):
             output = self.gpu_func(module, output)
             if name in self.content_layers:
                 all_outputs.append(output.view(batch_size, -1))
-                # visited += 1
-                # if visited >= visits:
-                    # break
         return all_outputs
 
 # this has to be a trainable module for some reason
@@ -446,9 +454,11 @@ class Content_Loss(nn.Module):
         self.criterion = nn.MSELoss(size_average=False)
 
     def forward(self, output, target, mean, logvar):
+        # people use sum here instead of mean (dfc authors/versus standard pytorch sum implementation) 🌸
+        # sum seems to have weird graphical glitches?
         kld = -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp()) 
-        # Note detach
-        loss_list = [self.criterion(output[layer], target[layer].detach()) for layer in range(len(output))]
+        # Note  detach for target
+        loss_list = [self.criterion(output[layer], target[layer]) for layer in range(len(output))]
         content = sum(loss_list)
         return self.alpha * kld + self.beta * content
 
@@ -478,7 +488,7 @@ if args.dfc:
     for param in descriptor.parameters():
         param.requires_grad = False
 
-    content_loss = Content_Loss(alpha=1.0, beta=0.85)
+    content_loss = Content_Loss(alpha=args.alpha, beta=args.beta)
     content_loss.to(device)
 
 if  ngpu > 1:
@@ -489,8 +499,23 @@ else:
 model.to(device)
 
 if args.load_model:
-    model.load_state_dict(
-        torch.load(args.load_model, map_location=lambda storage, loc: storage))
+    try:
+        model.load_state_dict(
+            torch.load(args.load_model, map_location=lambda storage, loc: storage))
+    except RuntimeError as e: # trying to load a multi gpu model to a single gpu
+        if "module" in str(e):
+            print("Oops, converting multi gpu model to single gpu...")
+            from collections import OrderedDict
+            state_dict = torch.load(args.load_model, map_location=lambda storage, loc: storage)
+            new_state_dict = OrderedDict()
+            for k, v in state_dict.items():
+                name = k[7:] # remove 'module.'
+                new_state_dict[name] = v
+            # load params'
+            model.load_state_dict(new_state_dict)
+        else:
+            print(e)
+            exit(1)
 
 def loss_function_van(recon_x, x, mu, logvar):
     # how well do input x and output recon_x agree?
@@ -529,12 +554,14 @@ def loss_function_dfc_split(recon_x, x, mu, logvar):
     targets = descriptor(x) # vgg
     recon_features = descriptor(recon_x)
     # BCE = F.binary_cross_entropy(recon_x, x)
+    # Note the mean versus sum thing also mentioned above 🌸
     kld = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-    loss_list = [F.mse_loss(recon_features[layer], targets[layer].detach(), size_average=False) for layer in range(len(recon_features))]
+    # note the detach
+    loss_list = [F.mse_loss(recon_features[layer], targets[layer], size_average=False) for layer in range(len(targets))]
     content = sum(loss_list)
-    
-    return 0.5*kld, 1.0*content,
-    # return content_loss(recon_features, targets, mu, logvar)
+    # return args.alpha*kld, args.beta*content,
+    return kld, content # don't multiply to keep the loss in the same range at all times
+
 
 # Check for dfc loss
 if args.dfc:
@@ -584,8 +611,8 @@ def test(epoch, loader):
 
         # ~50 sets of random ZDIMS-float vectors to images
         # Weird hack bc this is drawn from ~ N(0, 1), and our distribution looks different
-        sample = torch.randn(49, args.z_dims).to(device)
-        
+        sample = torch.randn(49, args.z_dims).to(device) * 5.2
+
         if ngpu > 1:
             sample = model.module.decode(sample)
         else:
@@ -601,7 +628,7 @@ def test(epoch, loader):
 
 def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset=120, start_epoch=0):
     # This could/should be a dictionary
-    best_models = [("", 100000000000)]*3
+    best_models = [("", 100000000000)]*5
 
     for epoch in range(start_epoch, epochs + 1):
         train(epoch, train_loader, optimizer)
@@ -637,15 +664,16 @@ def train_routine(epochs, train_loader, test_loader, optimizer, scheduler, reset
 if __name__ == "__main__":
 
     grow_f=6.2952 # Lisa size
+    # grow_f=6.2952/4 # Lisa size
     # grow_f=3.5032
     hybrid_train_loader = torch.utils.data.DataLoader(
         HybridEqualDataset.HybridEqualDataset(epochs=args.epochs-6, train=True, transform=data_transform, 
-                                              t=0.775,grow_f=grow_f, datadir=DATA_DIR, sorted_loc=SORT_DIR),
+                                              t=0.605,grow_f=grow_f, datadir=DATA_DIR, sorted_loc=SORT_DIR),
         batch_size=args.batch_size, shuffle=True, **kwargs)
 
     hybrid_test_loader = torch.utils.data.DataLoader(
         HybridEqualDataset.HybridEqualDataset(epochs=args.epochs-6, train=False, transform=data_transform, 
-                                              t=0.775,grow_f=2.0, datadir=DATA_DIR, sorted_loc=SORT_DIR),
+                                              t=0.605,grow_f=2.0, datadir=DATA_DIR, sorted_loc=SORT_DIR),
         batch_size=args.batch_size, shuffle=True, **kwargs)
 
     # # optimizer = optim.Adam(model.parameters(), lr=1e-3) # = 0.001
@@ -653,11 +681,12 @@ if __name__ == "__main__":
     # Decay lr if nothing happens after 4 epochs (try 3?)
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
                                                verbose=True)
-    train_routine(args.epochs, train_loader=hybrid_test_loader, test_loader=hybrid_test_loader, 
-                  optimizer=optimizer, scheduler=scheduler, reset=95)
+
+    train_routine(args.epochs, train_loader=hybrid_train_loader, test_loader=hybrid_test_loader, 
+                  optimizer=optimizer, scheduler=scheduler, reset=102)
 
     # Freeze early layers
-    model_access = model.modules if ngpu > 1 else model
+    model_access = model.module if ngpu > 1 else model
     for l in model.modules():
         if l in model_access.freeze_layers:
             for p in l.parameters():
@@ -679,4 +708,4 @@ if __name__ == "__main__":
 
     train_routine(args.tune_epochs, train_loader=SOS_train_loader, test_loader=SOS_test_loader, 
                   start_epoch=args.epochs, optimizer=optimizer, scheduler=scheduler, 
-                  reset=90)
+                  reset=100)
