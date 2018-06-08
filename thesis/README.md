@@ -131,8 +131,8 @@ simple geometric configuration of objects in parallel, whereby an
 increase in complexity deprives perceiving a group with 4+ items of it's
 sudden distinct numerical perpetual character for this would strain our
 parallelization capabilities too much. This strain would then lead us to
-resort to counting, which has a perceptual character from suddenness
-(enumeration is a very strict and patterned activity).
+resort to counting, which has a perceptual character different from
+suddenness (enumeration is a very strict and patterned activity).
 
 Present research therefore asks: How can we apply artificial neural
 networks to learning the emergent cognitive/neural skill of subitizing
@@ -296,9 +296,9 @@ Synthetic images
 
 Subitizing has been noted to become harder when objects are
 superimposed, thus resorting to external process as counting by object
-enumeration (Dehaene 2011, p57.). We therefore increase the overlap
-threshold for subitizing classes with more objects compared to Zhang et
-al. (2016).
+enumeration (Dehaene 2011, p57.). Compared to Zhang et al. (2016), we
+therefore increase the overlap threshold for subitizing classes with
+more objects
 
 Results & Discussion
 ====================
