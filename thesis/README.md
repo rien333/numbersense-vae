@@ -124,15 +124,15 @@ below). Likewise, subitizing is suggested to be implemented as parallel
 preattentive process in the visual system (Dehaene 2011, p57), whereby
 the visual system might rely on it's ability to recognize holistic
 patterns to arrive at a final subitizing count (Jansen et al. 2014;
-dehaene2011number, p57; Piazza et al. 2002). This means that the
-"sudden" character of subitizing (unsurprisingly, sudden is it's
-etymological stem) is arrived our visual systems ability to process
-simple geometric configuration of objects in parallel, whereby an
-increase in complexity deprives perceiving a group with 4+ items of it's
-sudden distinct numerical perpetual character for this would strain our
-parallelization capabilities too much. This strain would then lead us to
-resort to counting, which has a perceptual character different from
-suddenness (enumeration is a very strict and patterned activity).
+Dehaene 2011, p57; Piazza et al. 2002). This means that the "sudden"
+character of subitizing (unsurprisingly, sudden is it's etymological
+stem) is arrived our visual systems ability to process simple geometric
+configuration of objects in parallel, whereby an increase in complexity
+deprives perceiving a group with 4+ items of it's sudden distinct
+numerical perpetual character for this would strain our parallelization
+capabilities too much. This strain would then lead us to resort to
+counting, which has a perceptual character different from suddenness
+(enumeration is a very strict and patterned activity).
 
 Present research therefore asks: How can we apply artificial neural
 networks to learning the emergent cognitive/neural skill of subitizing
