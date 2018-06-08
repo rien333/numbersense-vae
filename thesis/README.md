@@ -16,21 +16,22 @@ tasks. Essential to understanding the cognitive processes behind number
 sense are their perceptual origins, for so called *visual numerosity*
 has been posed as the fundamental basis for developmentally later kinds
 of number sense, such as that required for arithmetical thinking and
-other more rigorous concepts of number found in mathematics. Visual
-numerosity is the perceptual capability of many organisms to perceive a
-group of items as having either a distinct or approximate cardinality.
-Some specific characteristics of visual numerosity can be derived from
-it's neural basis. Nieder (2016) and Harvey et al. (2013) present
-research where topologically organized neural populations exhibiting
-particular response profiles to visual changes in quantity were
-discovered, whose response profiles furthermore remained invariant to
-changes of visual features other than quantity. In particular, their
-topological ordering was such that aside from populations responding to
-their own preferred numerosity, they also showed progressively
-diminishing activation to preferred numerosities of adjacent
-populations, in a somewhat bell-shaped fashion (Nieder 2016). This
-correspondence between visual quantity and topological network structure
-leads them to conclude that neural populations directly code
+other more rigorous concepts of number found in mathematics (Lakoff and
+Núñez 2000, chap. 2; Piazza and Izard 2009). Visual numerosity is the
+perceptual capability of many organisms to perceive a group of items as
+having either a distinct or approximate cardinality. Some specific
+characteristics of visual numerosity can be derived from it's neural
+basis. ([**???**]{.citeproc-not-found data-reference-id="nieder20"})
+16neuronal and Harvey et al. (2013) present research where topologically
+organized neural populations exhibiting particular response profiles to
+visual changes in quantity were discovered, whose response profiles
+furthermore remained invariant to changes of visual features other than
+quantity. In particular, their topological ordering was such that aside
+from populations responding to their own preferred numerosity, they also
+showed progressively diminishing activation to preferred numerosities of
+adjacent populations, in a somewhat bell-shaped fashion (Nieder 2016).
+This correspondence between visual quantity and topological network
+structure leads them to conclude that neural populations directly code
 (i.e. without interposition of higher cognitive processes) specific
 visual numerosities. This coding property of neurons participating in
 visual numoristy was found in humans and other animals alike (see Nieder
@@ -65,11 +66,12 @@ biological plausibility of the final model are:
     excellent performance in extracting visual features from complicated
     natural images (Mnih et al. 2015; Krizhevsky, Sutskever, and Hinton
     2012; for visual number sense and CNNs see Zhang et al. 2016), but
-    are furthermore based on the neural functioning of the perceptual
-    system of animals (specifically cats, see LeCun and Bengio 1995).
-    CNNs mimicking aspects of the animal visual cortex thus make them an
+    are furthermore inspired by the functioning of the visual cortex of
+    animals (specifically cats, see LeCun and Bengio 1995). CNNs
+    mimicking aspects of the animal visual cortex thus make them an
     excellent candidate for modeling automatic neural coding by means of
     specific numerosity percepts.
+
 2.  The directness of visual number sense leads us to conclude that no
     interposition of external process is required for numerosity
     perception, at least no other than the immediate appreciation of
@@ -83,56 +85,61 @@ biological plausibility of the final model are:
     and Núñez 2000), animals (Davis and Pérusse 1988) and cultures
     without exact counting systems \[Dehaene (2011), p261; everett?\]
     further strengthen the idea that specific kinds of sense of number
-    do not require much mediation and functions as an interplay between
-    perceptual capabilities and their neural encodings, given the
-    aforementioned groups lack of requirements for reasoning about
-    number. In line with cognitive research, earlier mentioned neural
-    populations indeed did not display their characteristic response
-    profile when confronted with Arabic numerals (i.e. symbolic
-    representations of number), and thus is able to function without for
-    example linguistic facilities. Visual number sense being a purely
+    do not require much mediation and function purely as an interplay
+    between perceptual capabilities and their neural encodings, given
+    the aforementioned groups lack of facilities for abstract reasoning
+    about number. In line with cognitive research, earlier mentioned
+    neural populations indeed did not display their characteristic
+    response profile when confronted with Arabic numerals (i.e. symbolic
+    representations of number) (Harvey et al. 2013), and thus show an
+    ability to function without for example linguistic or other
+    representational facilities. Visual number sense being a purely
     perceptual process, implies that our model should not use external
     computational processes often used in computer vision research on
     numerical determination task such as counting-by-detection (which
     requires both arithmetic and iterative attention to all objects in
     the group) or segmenting techniques (e.g. Chattopadhyay et
     al. 2016).
+
 3.  Visual sense of number is an emergent property of neurons embedded
-    in generative hierarchical learning processes, which even holds for
-    artificial models (Zhang et al. 2016). The fact that it also exist
-    in animals suggests that it is an implicitly learned skill learned
-    at a neural level, for animals do not exhibit a lot of vertical
-    learning, let alone human newborns having received much numerical
-    training. Modeling visual number therefore necessitates
+    in generative hierarchical learning models, either artificial or
+    biological (Stoianov and Zorzi 2012). The fact that it also exist in
+    animals and human newborns suggests that it is an implicitly learned
+    skill learned at a neural level, for animals do not exhibit a lot of
+    vertical learning, let alone human newborns having received much
+    numerical training. Modeling visual number therefore necessitates
     non-researcher depended features (i.e. should avoid commonly used
-    handcrafted features such as SIFT or HOG features), a generally
-    unrealistic trope of artificial learning according to AI critics
-    (Dreyfus 2007) and research into the human learning process (Zorzi,
-    Testolin, and Stoianov 2013a), restricting the choice of an
-    algorithm to be unsupervised, as such an algorithm will learn its
-    own distribution of the data. Given their ability to construct the
-    underlying stochastic representation of the data, i.e. autonomous
-    feature determination they learn their own features, *Varitional
-    Autoencoders* (VAEs) seem fit to tackle this problem. Moreover, VAEs
-    are trained in an unsupervised manner, just as learning visual
-    number sense does not rely on supervision.
+    handcrafted features such as SIFT or HOG features), deemed as a
+    generally unrealistic trope of artificial learning according to AI
+    critics (Dreyfus 2007) and research into the human learning process
+    (Zorzi, Testolin, and Stoianov 2013a). This will restrict the choice
+    of algorithm to so called *unsupervised* learning algorithms, as
+    such an algorithm will learn its own particular representation of
+    the data distribution. Given their ability to construct the
+    underlying stochastic representation of the data, i.e. they perform
+    autonomous feature determination, *Varitional Autoencoders* (VAEs)
+    seem fit to tackle this problem. Moreover, VAEs are trained in an
+    unsupervised manner, just as learning visual number sense does not
+    rely on supervision. Another intersesting aspect of VAEs is their
+    relatively interpretable data encoding scheme, which might tell us
+    something about how it deals with visual numerosity.
 
 Most of the research above was conducted on approximate numerical
-cognition, but these characteristics hold equally well for number
-systems that offer a more distinct sense of number (e.g. subitizing, see
-below). Likewise, subitizing is suggested to be implemented as parallel
-preattentive process in the visual system (Dehaene 2011, p57), whereby
-the visual system might rely on it's ability to recognize holistic
-patterns to arrive at a final subitizing count (Jansen et al. 2014;
-Dehaene 2011, p57; Piazza et al. 2002). This means that the "sudden"
-character of subitizing (unsurprisingly, sudden is it's etymological
-stem) is arrived our visual systems ability to process simple geometric
-configuration of objects in parallel, whereby an increase in complexity
-deprives perceiving a group with 4+ items of it's sudden distinct
-numerical perpetual character for this would strain our parallelization
-capabilities too much. This strain would then lead us to resort to
-counting, which has a perceptual character different from suddenness
-(enumeration is a very strict and patterned activity).
+cognition, but these of visual sense of number hold equally well for
+number systems that offer a more distinct sense of number
+(e.g. subitizing, see below). Likewise, subitizing is suggested to be
+implemented as parallel preattentive process in the visual system
+(Dehaene 2011, p57), whereby the visual system might rely on it's
+ability to recognize holistic patterns to arrive at a final subitizing
+count (Jansen et al. 2014; Dehaene 2011, p57; Piazza et al. 2002). This
+means that the "sudden" character of subitizing (unsurprisingly, sudden
+is it's etymological stem) is arrived our visual systems ability to
+process simple geometric configuration of objects in parallel, whereby
+an increase in complexity deprives perceiving a group with 4+ items of
+it's sudden distinct numerical perpetual character for this would strain
+our parallelization capabilities too much. This strain would then lead
+us to resort to counting, which has a perceptual character different
+from suddenness (enumeration is a very strict and patterned activity).
 
 Present research therefore asks: How can we apply artificial neural
 networks to learning the emergent cognitive/neural skill of subitizing
@@ -421,6 +428,10 @@ Publishing Group: 529.
 Nieder, Andreas. 2016. "The Neuronal Code for Number." *Nature Reviews
 Neuroscience* 17 (6). Springer Nature: 366--82.
 <https://doi.org/10.1038/nrn.2016.40>.
+
+Piazza, Manuela, and Véronique Izard. 2009. "How Humans Count:
+Numerosity and the Parietal Cortex." *The Neuroscientist* 15 (3). Sage
+Publications Sage CA: Los Angeles, CA: 261--73.
 
 Piazza, Manuela, Andrea Mechelli, Brian Butterworth, and Cathy J Price.
 2002. "Are Subitizing and Counting Implemented as Separate or
