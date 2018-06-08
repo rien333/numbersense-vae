@@ -76,27 +76,27 @@ biological plausibility of the final model are:
     sensory data by means of low-level neural processes. More
     appropriately, the sudden character of visual number sense could be
     explained by it omitting higher cognitive processes, such as
-    conscious representations (Dehaene (2011) indeed points to types of
+    conscious representations (Dehaene 2011 indeed points to types of
     visual number sense being preattentive) or symbolic processing
-    (visual numerosity is completely non-verbal, Nieder (2016)).
-    Moreover, the existence of visual sense of number in human newborns
-    (Lakoff and Núñez 2000), animals (Davis and Pérusse 1988) and
-    cultures without exact counting systems \[Dehaene (2011), p261;
-    everett?\] further strengthen the idea that specific kinds of sense
-    of number do not require much mediation and functions as an
-    interplay between perceptual capabilities and their neural
-    encodings, given the aforementioned groups lack of requirements for
-    reasoning about number. In line with cognitive research, earlier
-    mentioned neural populations indeed did not display their
-    characteristic response profile when confronted with Arabic numerals
-    (i.e. symbolic representations of number), and thus is able to
-    function without for example linguistic facilities. Visual number
-    sense being a purely perceptual process, implies that our model
-    should not use external computational processes often used in
-    computer vision research on numerical determination task such as
-    counting-by-detection (which requires both arithmetic and iterative
-    attention to all objects in the group) or segmenting techniques
-    (e.g. Chattopadhyay et al. 2016).
+    (visual numerosity is completely non-verbal, Nieder 2016). Moreover,
+    the existence of visual sense of number in human newborns (Lakoff
+    and Núñez 2000), animals (Davis and Pérusse 1988) and cultures
+    without exact counting systems \[Dehaene (2011), p261; everett?\]
+    further strengthen the idea that specific kinds of sense of number
+    do not require much mediation and functions as an interplay between
+    perceptual capabilities and their neural encodings, given the
+    aforementioned groups lack of requirements for reasoning about
+    number. In line with cognitive research, earlier mentioned neural
+    populations indeed did not display their characteristic response
+    profile when confronted with Arabic numerals (i.e. symbolic
+    representations of number), and thus is able to function without for
+    example linguistic facilities. Visual number sense being a purely
+    perceptual process, implies that our model should not use external
+    computational processes often used in computer vision research on
+    numerical determination task such as counting-by-detection (which
+    requires both arithmetic and iterative attention to all objects in
+    the group) or segmenting techniques (e.g. Chattopadhyay et
+    al. 2016).
 3.  Visual sense of number is an emergent property of neurons embedded
     in generative hierarchical learning processes, which even holds for
     artificial models (Zhang et al. 2016). The fact that it also exist
