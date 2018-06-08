@@ -63,12 +63,14 @@ def train(epoch, loader, optimizer, criterion):
     classifier.train()
     running_loss = 0
     for ims, labels in loader: # unseen data
+        # seems to work better?
+        with torch.no_grad():
+            mu, logvar = model.encode(ims.cuda())
+            zs = model.reparameterize(mu, logvar)
         optimizer.zero_grad()
-        mu, logvar = model.encode(ims.cuda())
-        zs = model.reparameterize(mu, logvar)
-        outputs = classifier(zs)
+        outputs = classifier(zs.cuda())
         # target ("labels") should be 1D
-        labels = labels.long().cuda().view(-1)  # Might need .cuda
+        labels = labels.cuda().long().view(-1)  # Might need .cuda
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
@@ -91,10 +93,10 @@ def test(epoch, loader, criterion):
         for i, (ims, labels) in enumerate(loader): # unseen data
             mu, logvar = model.encode(ims.cuda())
             zs = model.reparameterize(mu, logvar)
-            outputs = classifier(zs)
+            outputs = classifier(zs.cuda())
             _, predicted = torch.max(outputs, 1)
             total += labels.size(0)
-            labels = labels.long().cuda().view(-1)
+            labels = labels.cuda().long().view(-1)
             loss = criterion(outputs, labels)
             correct += (predicted == labels).sum().item() # calculate mean accuracy
             running_loss += loss.item()
@@ -106,13 +108,14 @@ def test(epoch, loader, criterion):
                 class_total[label] += 1
 
     print('Epoch %d -> Test set loss: %.17f ' % (epoch, running_loss/len(loader)))
-    
-    accuracy = 100 * correct / total
-    print('Mean Accuracy %3s : %2d %%' % ("", accuracy))
-    for i in range(5):
-        print('Accuracy of %5s : %2d %%' % (
-        classes[i], 100 * class_correct[i] / class_total[i]))
+
+    # accuracy = 100 * correct / total    
     class_scores = np.array(class_correct) / np.array(class_total)
+    mean_accuracy = 100.0 * np.mean(class_scores)
+    print('Mean Accuracy %3s : %4.1f %%' % ("", mean_accuracy))
+    for i in range(5):
+        print('Accuracy of %5s : %4.1f %%' % (
+        classes[i], 100 * class_correct[i] / class_total[i]))
     return running_loss, class_scores
 
 def train_routine(epochs, train_loader, test_loader, optimizer, criterion, scheduler, start_epoch=0,):
@@ -176,16 +179,19 @@ if __name__ == "__main__":
     # class_weights = torch.cuda.FloatTensor([0.19, 0.495, 0.951, 1.0, 0.94])
     # real_samples = [2597, 4854, 1604, 1058, 853]
     # syn_samples = [2596, 4853, 1604, 1058, 853] # should equal 5
-    real_samples = np.array([2596, 4854, 1604, 1058, 853]) # undersample ❗
+    # real_samples = np.array([2596, 4854, 1604, 1058, 853]) # undersample ❗
+    real_samples = np.array([1900, 4000, 1604, 1058, 853]) # undersample ❗
+    # real_samples = np.array([0] * 5)
     # real_samples = np.array([853] * 5)
     # syn_samples = np.array([500] * 5)
     # syn_samples = np.array([2000, 4000, 1604, 1058, 853]) * 1
-    syn_samples = np.array([0, 0, 0, 220, 220]) * 1
+    syn_samples = np.array([0, 0, 0, 0, 520]) * 1
+    # syn_samples = np.array([0, 0, 0, 20, 20]) * 1
     total_samples = real_samples + syn_samples
     n_samples = np.sum(total_samples)
-    # class_weights = torch.cuda.FloatTensor(1-(total_samples/n_samples))**3.5
+    class_weights = torch.cuda.FloatTensor(1-(total_samples/n_samples))**2.0
     # class_weights = torche.cuda.FloatTensor([1]*5)
-    class_weights = torch.cuda.FloatTensor([0.1, 0.2, 0.4, 0.5, 0.45])
+    # class_weights = torch.FloatTensor([0.1, 0.2, 0.4, 0.5, 0.45])
     print("Weights", class_weights)
     criterion = nn.CrossEntropyLoss(weight=class_weights, size_average=False)
     optimizer = optim.SGD(classifier.parameters(), lr=0.0005, momentum=0.9)
