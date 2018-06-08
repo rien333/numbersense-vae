@@ -48,7 +48,7 @@ images are closer to everyday sensations than binary images.
 Furthermore, any dataset with uniform object categories does not capture
 how visual number sense in animals is abstract in regard to the
 perceived objects (Nieder 2016), meaning that a model should be able
-show that it performs equally well between object of different visual
+show that it performs equally well between objects of different visual
 complexities. Another way in which we will improve biological
 plausibility is by looking at the discovery of the direct involvement of
 certain neural populations' with numerosity perception (as described
@@ -124,10 +124,10 @@ biological plausibility of the final model are:
     something about how it deals with visual numerosity.
 
 Most of the research above was conducted on approximate numerical
-cognition, but these of visual sense of number hold equally well for
-number systems that offer a more distinct sense of number
-(e.g. subitizing, see below). Likewise, subitizing is suggested to be
-implemented as parallel preattentive process in the visual system
+cognition, but these characterisics of visual sense of number hold
+equally well for number systems that offer a more distinct sense of
+number (e.g. subitizing, see below). Likewise, subitizing is suggested
+to be implemented as parallel preattentive process in the visual system
 (Dehaene 2011, p57), whereby the visual system might rely on it's
 ability to recognize holistic patterns to arrive at a final subitizing
 count (Jansen et al. 2014; Dehaene 2011, p57; Piazza et al. 2002). This
@@ -254,9 +254,8 @@ malignant examples as nonmalignant could be weighted more strongly, see
     solutions to class imbalance are . Oversampling alters the class
     distribution by producing more examples of the minority class, for
     example generating synthetic data that resembles minority examples
-    (e.g. [**???**]{.citeproc-not-found data-reference-id="ADAsyn"};
-    [**???**]{.citeproc-not-found data-reference-id="SMOTE"}), resulting
-    in a more balanced class distribution.
+    (e.g. He et al. 2008; Chawla et al. 2002), resulting in a more
+    balanced class distribution.
 2.  *Undersampling techniques*. Undersampling balances the class
     distribution by discarding examples from the majority class.
     Elimination of majority class instances can for example ensue by
@@ -264,14 +263,12 @@ malignant examples as nonmalignant could be weighted more strongly, see
 3.  *Cost sensitive techniques.*
 
 An ensemble of techniques was used to tackle the class imbalance in the
-SOS dataset. First, slight random undersampling of the two majority
-classes (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/09d819a43c6e2990856e40dbda09f893.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/988584bba6844388f07ea45b7132f61c.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/>) is performed, reducing their size by \~10%
-([**???**]{.citeproc-not-found
-data-reference-id="ref-random-undersample"}, sckikit maybe).
-Furthermore, as in practice many common sophisticated under- and
-oversampling techniques (e.g. data augmentation or outlier removal, for
-an overview see ([**???**]{.citeproc-not-found
-data-reference-id="imbalance"})) proved largelt non-effective, a
+SOS dataset. First, slight random under-sampling with replacement of the
+two majority classes (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/09d819a43c6e2990856e40dbda09f893.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/988584bba6844388f07ea45b7132f61c.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/>) is performed \[see (Lemaître,
+Nogueira, and Aridas 2017), reducing their size by \~10%. Furthermore,
+as in practice many common sophisticated under- and oversampling
+techniques (e.g. data augmentation or outlier removal, for an overview
+see Fernández et al. (2013)) proved largely non-effective, a
 cost-sensitive class weighting was applied. Cost-senstive ... consists
 of .... The uneffectiveness of quantive sampling techniques is likely to
 be caused by that in addition to the quantitative difference in class
@@ -371,6 +368,10 @@ Chattopadhyay, Prithvijit, Ramakrishna Vedantam, Ramprasaath R
 Selvaraju, Dhruv Batra, and Devi Parikh. 2016. "Counting Everyday
 Objects in Everyday Scenes." *arXiv Preprint arXiv:1604.03505*.
 
+Chawla, Nitesh V, Kevin W Bowyer, Lawrence O Hall, and W Philip
+Kegelmeyer. 2002. "SMOTE: Synthetic Minority over-Sampling Technique."
+*Journal of Artificial Intelligence Research* 16: 321--57.
+
 Davis, Hank, and Rachelle Pérusse. 1988. "Numerical Competence in
 Animals: Definitional Issues, Current Evidence, and a New Research
 Agenda." *Behavioral and Brain Sciences* 11 (4). Cambridge University
@@ -393,6 +394,11 @@ Harvey, Ben M, Barrie P Klein, Natalia Petridou, and Serge O Dumoulin.
 2013. "Topographic Representation of Numerosity in the Human Parietal
 Cortex." *Science* 341 (6150). American Association for the Advancement
 of Science: 1123--6.
+
+He, Haibo, Yang Bai, Edwardo A Garcia, and Shutao Li. 2008. "ADASYN:
+Adaptive Synthetic Sampling Approach for Imbalanced Learning." In
+*Neural Networks, 2008. IJCNN 2008.(IEEE World Congress on Computational
+Intelligence). IEEE International Joint Conference on*, 1322--8. IEEE.
 
 Hou, Xianxu, Linlin Shen, Ke Sun, and Guoping Qiu. 2017. "Deep Feature
 Consistent Variational Autoencoder." In *Applications of Computer Vision
@@ -418,6 +424,11 @@ How the Embodied Mind Brings Mathematics into Being." *AMC* 10: 12.
 LeCun, Yann, and et al. Bengio Yoshua. 1995. "Convolutional Networks for
 Images, Speech, and Time Series." *The Handbook of Brain Theory and
 Neural Networks* 3361 (10): 1995.
+
+Lemaître, Guillaume, Fernando Nogueira, and Christos K. Aridas. 2017.
+"Imbalanced-Learn: A Python Toolbox to Tackle the Curse of Imbalanced
+Datasets in Machine Learning." *Journal of Machine Learning Research* 18
+(17): 1--5. <http://jmlr.org/papers/v18/16-365>.
 
 Mnih, Volodymyr, Koray Kavukcuoglu, David Silver, Andrei A Rusu, Joel
 Veness, Marc G Bellemare, Alex Graves, et al. 2015. "Human-Level Control
