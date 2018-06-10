@@ -6,35 +6,35 @@ of whatever I have in mind for my thesis)
 
 Although various machine learning approaches dealing with the numerical
 determination of the amount of objects in images already exist, some
-research seems impartial to broader cognitive debate (for a discussion🔹,
-see Stoianov and Zorzi 2012), resulting in models that are somewhat
-unhelpful for progressing the understanding of numerical cognition. Any
-approach to computational modeling of numerical cognition that aims to
-maintain biological plausibility should adhere to neurological findings
-about the general characteristics of cognitive processes related to
-numerical tasks. Essential to understanding the cognitive processes
-behind number sense is their perceptual origin, for so called *visual
-numerosity* has been posed as the fundamental basis for developmentally
-later kinds of number sense, such as that required for arithmetical
-thinking and other more rigorous concepts of number found in mathematics
-(Lakoff and Núñez 2000, chap. 2; Piazza and Izard 2009). Visual
-numerosity is the perceptual capability of many organisms to perceive a
-group of items as having either a distinct or approximate cardinality.
-Some specific characteristics of visual numerosity can be derived from
-it's neural basis. Nieder (2016) and Harvey et al. (2013) present
-research where topologically organized neural populations exhibiting
-response profiles that remained largely invariant to all changes in
-visual features except quantity were discovered. Specifically, the found
-topological ordering was such that aside from populations responding to
-their own preferred numerosity, they also showed progressively
-diminishing activation to preferred numerosities of adjacent
-populations, in a somewhat bell-shaped fashion (Nieder 2016). This
-correspondence between visual quantity and topological network structure
-leads them to conclude that neural populations can directly
-(i.e. without interposition of higher cognitive processes) encode
-specific visual numerosities. This coding property of neurons
-participating in visual numoristy was found in humans and other animals
-alike (see Nieder 2016; Harvey et al. 2013).
+research seems impartial to broader cognitive debate (for a
+discussion(not realy a discussion preseent)🔹, see Stoianov and Zorzi
+2012), resulting in models that are somewhat unhelpful for progressing
+the understanding of numerical cognition. Any approach to computational
+modeling of numerical cognition that aims to maintain biological
+plausibility should adhere to neurological findings about the general
+characteristics of cognitive processes related to numerical tasks.
+Essential to understanding the cognitive processes behind number sense
+is their perceptual origin, for so called *visual numerosity* has been
+posed as the fundamental basis for developmentally later kinds of number
+sense, such as that required for arithmetical thinking and other more
+rigorous concepts of number found in mathematics (Lakoff and Núñez 2000,
+chap. 2; Piazza and Izard 2009). Visual numerosity is the perceptual
+capability of many organisms to perceive a group of items as having
+either a distinct or approximate cardinality. Some specific
+characteristics of visual numerosity can be derived from it's neural
+basis. Nieder (2016) and Harvey et al. (2013) present research where
+topologically organized neural populations exhibiting response profiles
+that remained largely invariant to all changes in visual features except
+quantity were discovered. Specifically, the found topological ordering
+was such that aside from populations responding to their own preferred
+numerosity, they also showed progressively diminishing activation to
+preferred numerosities of adjacent populations, in a somewhat
+bell-shaped fashion (Nieder 2016). This correspondence between visual
+quantity and topological network structure leads them to conclude that
+neural populations can directly (i.e. without interposition of higher
+cognitive processes) encode specific visual numerosities. This coding
+property of neurons participating in visual numoristy was found in
+humans and other animals alike (see Nieder 2016; Harvey et al. 2013).
 
 <!-- move to another section maybe? related work? -->
 Notwithstanding the success of previous biologically informed approaches
@@ -93,17 +93,17 @@ plausibility of the final model are:
     existence of discrete number in humans). Indeed, Harvey et
     al. (2013) show that earlier mentioned neural populations did not
     display their characteristic response profile when confronted with
-    Arabic numerals (i.e. symbolic representations of number), thus
-    showing the ability to function seperately from example linguistic
-    or other higer-order representational facilities. Visual number
-    sense being a immediate and purely perceptual process, implies that
-    our model should not use external computational techniques often
-    used in computer vision research on numerical determination task
-    such as counting-by-detection (which requires both arithmetic and
-    iterative attention to all objects in the group) or segmenting
-    techniques (e.g. Chattopadhyay et al. 2016). Instead, it should
-    purely be implemented as model of something like the cognitive
-    perceptual system recieving sensory input.
+    Arabic numerals (i.e. symbolic representations of number), these
+    populations thus showing the ability to function seperately from
+    higer-order representational facilities. Visual number sense being a
+    immediate and purely perceptual process, implies that our model
+    should not apply external computational techniques often used in
+    computer vision research on numerical determination task such as
+    counting-by-detection (which requires both arithmetic and iterative
+    attention to all objects in the group) or segmenting techniques
+    (e.g. Chattopadhyay et al. 2016). Instead, it should purely be
+    implemented as model of something like the cognitive perceptual
+    system recieving sensory input.
 
 3.  Relatedly, visual sense of number is an emergent property of neurons
     embedded in generative hierarchical learning models, either
@@ -120,36 +120,55 @@ plausibility of the final model are:
     algorithms, as such an algorithm will learn its own particular
     representation of the data distribution. Given their ability to
     construct the underlying stochastic representation of the data,
-    i.e. performingxs autonomous feature determination, *Varitional
+    i.e. performing autonomous feature determination, *Varitional
     Autoencoders* (VAEs) seem fit to tackle this problem (see [**section
     x.x**](#vae) for more detail). Moreover, VAEs are trained in an
     unsupervised manner, similair to how learning visual number sense
     does not required labeled data due it being emergent. Another
     intersesting aspect of VAEs is their relatively interpretable data
     encoding scheme, which might tell us something about how it deals
-    with visual numerosity, and thus allow us to asses it's performance
-    against biological data.
+    with visual numerosity, and thus allow us to evaluate the properties
+    of it's encoding against biological data.
 
-Present research therefore asks: How can we apply artificial neural
-networks to learning the emergent neural skill of subitizing(visual
-number sense?) in a manner comparable to their biological equivalents?
+Unfortunately, no dataset fit for visual numerisoty estimation satisfied
+above requirements (sizable collections of natural image with large and
+varied, precisely labeled objects groups are had to construct), forcing
+present research towards *subitizing*, a type of visual number sense
+which had a catered dataset readily available. Subitizing is the ability
+of many animals to immediately perceive the number of items in a scene
+without resorting to counting or enumeration, given that the number of
+items falls within the subitizing range of 1-4
+([**???**]{.citeproc-not-found data-reference-id="kaufman1949"}; Davis
+and Pérusse 1988) Most of the research above was conducted on
+approximate numerical cognition, but the aforementioned characterisics
+of visual sense of number hold equally well for a more distinct sense of
+number such as subitizing. Similairily, subitizing is suggested to be a
+parallel preattentive process in the visual system (Dehaene 2011, p57),
+whereby the visual system might rely on it's ability to recognize
+holistic patterns to arrive at a final subitizing count (Jansen et al.
+2014; Dehaene 2011, p57; Piazza et al. 2002). This means that the
+"sudden" character of subitizing is arrived at from the visual systems
+ability to process simple geometric configuration of objects in
+parallel, whereby an increase in the number of items behind the
+subitizing range deprives perceiving a group of it's sudden distinct
+numerical perpetual character for this would strain our parallelization
+capabilities too much. This strain would then lead us to resort to
+enumeration techniques, which have a perceptual character that differs
+from suddenness due enumeration being an attentive, patterned activity.
+Present research therefore asks: how can artificial neural networks be
+applied to learning the emergent neural skill of subitizing in a manner
+comparable to their biological equivalents?
 
-Most of the research above was conducted on approximate numerical
-cognition, but these characterisics of visual sense of number hold
-equally well for number systems that offer a more distinct sense of
-number (e.g. subitizing, see below). Likewise, subitizing is suggested
-to be implemented as parallel preattentive process in the visual system
-(Dehaene 2011, p57), whereby the visual system might rely on it's
-ability to recognize holistic patterns to arrive at a final subitizing
-count (Jansen et al. 2014; Dehaene 2011, p57; Piazza et al. 2002). This
-means that the "sudden" character of subitizing (unsurprisingly, sudden
-is it's etymological stem) is arrived our visual systems ability to
-process simple geometric configuration of objects in parallel, whereby
-an increase in complexity deprives perceiving a group with 4+ items of
-it's sudden distinct numerical perpetual character for this would strain
-our parallelization capabilities too much. This strain would then lead
-us to resort to counting, which has a perceptual character different
-from suddenness (enumeration is a very strict and patterned activity).
+To answer this, we will first highlight the details of our training
+procedure by describing a dataset constructed for modeling subitizing
+and the implementation of our learning algorithm, variational
+autoencoders. Next, as the SOS problem is essentialy an image
+classification, a methodology for evaluating the unsupervised VAE model
+on subitizing classification is described. We demonstrate that the
+performance of our unsupervised approach is comparable with supervised
+approaches using handcrafted features, although performance is still
+behind state of the art supervised machine learning due to problems
+inherent to our particulair VAE algorithm.
 
 Related Work
 ============
@@ -157,18 +176,13 @@ Related Work
 Visual Number Sense
 -------------------
 
-Subitizing
-----------
+Salient Object Subitizing Dataset
+---------------------------------
 
 <!-- First also talk about how subitizing is a type of visual number sense, what it is, what the subitizing range is etc. -->
 <!-- Also mention something about how this dataset is concustructed -->
 <!-- Do you also explain synthetic data here? (see original ordering) -->
-As constructing a dataset fit for visual numerosity estimation is a
-difficult task given the lack of other datasets made out of natural
-images containing a variety of labeled, large object groups, we set out
-to model the phenomenon of *subitizing*, a type of visual number sense
-which had a dataset catered to this phenomenon readily available. As
-seen in the [figure](#sub) below, the goal of the *Salient Object
+. As seen in the [figure](#sub) below, the goal of the *Salient Object
 Subitizing* (SOS) dataset as defined by Zhang et al. (2016) is to
 clearly show a number of salient objects that lies within the subitizing
 range.
