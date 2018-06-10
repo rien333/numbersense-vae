@@ -6,122 +6,133 @@ of whatever I have in mind for my thesis)
 
 Although various machine learning approaches dealing with the numerical
 determination of the amount of objects in images already exist, some
-research seems impartial to broader cognitive debate (see Stoianov and
-Zorzi 2012), resulting in models that are somewhat unhelpful for
-progressing the understanding of numerical cognition. Any approach to
-computational modeling of numerical cognition that aims to maintain
-biological plausibility should adhere to neurological findings about the
-general characteristics of cognitive processes related to numerical
-tasks. Essential to understanding the cognitive processes behind number
-sense are their perceptual origins, for so called *visual numerosity*
-has been posed as the fundamental basis for developmentally later kinds
-of number sense, such as that required for arithmetical thinking and
-other more rigorous concepts of number found in mathematics (Lakoff and
-Núñez 2000, chap. 2; Piazza and Izard 2009). Visual numerosity is the
-perceptual capability of many organisms to perceive a group of items as
-having either a distinct or approximate cardinality. Some specific
-characteristics of visual numerosity can be derived from it's neural
-basis. Nieder (2016) and Harvey et al. (2013) present research where
-topologically organized neural populations exhibiting particular
-response profiles to visual changes in quantity were discovered, whose
-response profiles furthermore remained invariant to changes of visual
-features other than quantity. In particular, their topological ordering
-was such that aside from populations responding to their own preferred
-numerosity, they also showed progressively diminishing activation to
-preferred numerosities of adjacent populations, in a somewhat
-bell-shaped fashion (Nieder 2016). This correspondence between visual
-quantity and topological network structure leads them to conclude that
-neural populations directly code (i.e. without interposition of higher
-cognitive processes) specific visual numerosities. This coding property
-of neurons participating in visual numoristy was found in humans and
-other animals alike (see Nieder 2016; Harvey et al. 2013).
+research seems impartial to broader cognitive debate (for a discussion🔹,
+see Stoianov and Zorzi 2012), resulting in models that are somewhat
+unhelpful for progressing the understanding of numerical cognition. Any
+approach to computational modeling of numerical cognition that aims to
+maintain biological plausibility should adhere to neurological findings
+about the general characteristics of cognitive processes related to
+numerical tasks. Essential to understanding the cognitive processes
+behind number sense is their perceptual origin, for so called *visual
+numerosity* has been posed as the fundamental basis for developmentally
+later kinds of number sense, such as that required for arithmetical
+thinking and other more rigorous concepts of number found in mathematics
+(Lakoff and Núñez 2000, chap. 2; Piazza and Izard 2009). Visual
+numerosity is the perceptual capability of many organisms to perceive a
+group of items as having either a distinct or approximate cardinality.
+Some specific characteristics of visual numerosity can be derived from
+it's neural basis. Nieder (2016) and Harvey et al. (2013) present
+research where topologically organized neural populations exhibiting
+response profiles that remained largely invariant to all changes in
+visual features except quantity were discovered. Specifically, the found
+topological ordering was such that aside from populations responding to
+their own preferred numerosity, they also showed progressively
+diminishing activation to preferred numerosities of adjacent
+populations, in a somewhat bell-shaped fashion (Nieder 2016). This
+correspondence between visual quantity and topological network structure
+leads them to conclude that neural populations can directly
+(i.e. without interposition of higher cognitive processes) encode
+specific visual numerosities. This coding property of neurons
+participating in visual numoristy was found in humans and other animals
+alike (see Nieder 2016; Harvey et al. 2013).
 
 <!-- move to another section maybe? related work? -->
 Notwithstanding the success of previous biologically informed approaches
 to modeling numerical cognition with artificial neural networks
 (Stoianov and Zorzi 2012), more work is to be done in applying such
 models to natural images. The main reason behind pursuing natural images
-is improving the biological plausibility over previous approaches using
-binary images containing only simple geometric shapes (for examples, see
-Stoianov and Zorzi 2012; Wu, Zhang, and Du 2018), given that natural
-images are closer to everyday sensations than binary images.
-Furthermore, any dataset with uniform object categories does not capture
-how visual number sense in animals is abstract in regard to the
-perceived objects (Nieder 2016), meaning that a model should be able
+is improving the biological plausibility over previous approaches
+relying on binary images containing only simple geometric shapes (for
+examples, see Stoianov and Zorzi 2012; Wu, Zhang, and Du 2018), given
+that natural images are closer to everyday sensations than binary
+images. Furthermore, any dataset with uniform object categories does not
+capture how visual number sense in animals is abstract in regard to the
+perceived objects (Nieder 2016), implying that a model should be able
 show that it performs equally well between objects of different visual
-complexities. Another way in which we will improve biological
-plausibility is by looking at the discovery of the direct involvement of
-certain neural populations' with numerosity perception (as described
-previously), which will guide various algorithmic decisions. Moreover,
-the properties of these neurons' encoding scheme provide interesting
-comparison data to the visual numerosity encoding scheme used by our
-final model. Some important and closely related characteristics of
-visual numerosity that constrain our approach, but hopefully improve the
-biological plausibility of the final model are:
+complexities. Another way in which biological plausibility will be
+improved is by guiding some algorithmic desicsions on the previously
+described discovery of the direct involvement of certain neural
+populations' with numerosity perception. Moreover, the properties of
+these neurons' encoding scheme provide interesting evaluation data to
+the visual numerosity encoding scheme used by our final model. Some
+important and closely related characteristics of visual numerosity that
+constrain our approach, but hopefully improve the biological
+plausibility of the final model are:
 
-1.  Visual number sense is a purely automatic appreciation of the
+1.  Visual number sense is a purely *automatic* appreciation of the
     sensory world. It can be characterized as "sudden", or as visible at
-    a glance. *Convolutional neural networks* (CNNs) not only showcase
-    excellent performance in extracting visual features from complicated
-    natural images (Mnih et al. 2015; Krizhevsky, Sutskever, and Hinton
-    2012; for visual number sense and CNNs see Zhang et al. 2016), but
-    are furthermore inspired by the functioning of the visual cortex of
-    animals (specifically cats, see LeCun and Bengio 1995). CNNs
-    mimicking aspects of the animal visual cortex thus make them an
-    excellent candidate for modeling automatic neural coding by means of
-    specific numerosity percepts.
+    a glance (Dehaene 2011, p57; Zhang et al. 2016). *Convolutional
+    neural networks* (CNNs) not only showcase excellent performance in
+    extracting visual features from complicated natural images (Mnih et
+    al. 2015; Krizhevsky, Sutskever, and Hinton 2012; for visual number
+    sense and CNNs see Zhang et al. 2016), but are furthermore
+    functionally inspired by the visual cortex of animals (specifically
+    cats, see LeCun and Bengio 1995). CNNs mimicking aspects of the
+    animal visual cortex thus make them an excellent candidate for
+    modeling automatic neural coding by means of specific numerosity
+    percepts.
 
 2.  The directness of visual number sense leads us to conclude that no
     interposition of external process is required for numerosity
-    perception, at least no other than the immediate appreciation of
-    sensory data by means of low-level neural processes. More
-    appropriately, the sudden character of visual number sense could be
-    explained by it omitting higher cognitive processes, such as
-    conscious representations (Dehaene 2011 indeed points to types of
+    perception, at least no other low-level sensory neural processes.
+    More appropriately, the sudden character of visual number sense
+    could be explained by it omitting higher cognitive processes, such
+    as conscious representations (Dehaene 2011 indeed points to types of
     visual number sense being preattentive) or symbolic processing
     (visual numerosity is completely non-verbal, Nieder 2016). Moreover,
     the existence of visual sense of number in human newborns (Lakoff
     and Núñez 2000), animals (Davis and Pérusse 1988) and cultures
-    without exact counting systems \[Dehaene (2011), p261; everett?\]
-    further strengthen the idea that specific kinds of sense of number
-    do not require much mediation and function purely as an interplay
-    between perceptual capabilities and their neural encodings, given
-    the aforementioned groups lack of facilities for abstract reasoning
-    about number. In line with cognitive research, earlier mentioned
-    neural populations indeed did not display their characteristic
-    response profile when confronted with Arabic numerals (i.e. symbolic
-    representations of number) (Harvey et al. 2013), and thus show an
-    ability to function without for example linguistic or other
-    representational facilities. Visual number sense being a purely
-    perceptual process, implies that our model should not use external
-    computational processes often used in computer vision research on
-    numerical determination task such as counting-by-detection (which
-    requires both arithmetic and iterative attention to all objects in
-    the group) or segmenting techniques (e.g. Chattopadhyay et
-    al. 2016).
+    without exact counting systems (Dehaene 2011, p261; Franka et
+    al. 2008) further strengthens the idea that specific kinds of sense
+    of number do not require much mediation and can purely function as
+    an interplay between perceptual capabilities and their neural
+    encodings, given the aforementioned groups lack of facilities for
+    abstract reasoning about number (see Everett 2005, 626; Lakoff and
+    Núñez 2000, chap. 3, for a discussion on how cultural facilitaties
+    such as precise symbols and linguistic practices can facilitate the
+    existence of discrete number in humans). Indeed, Harvey et
+    al. (2013) show that earlier mentioned neural populations did not
+    display their characteristic response profile when confronted with
+    Arabic numerals (i.e. symbolic representations of number), thus
+    showing the ability to function seperately from example linguistic
+    or other higer-order representational facilities. Visual number
+    sense being a immediate and purely perceptual process, implies that
+    our model should not use external computational techniques often
+    used in computer vision research on numerical determination task
+    such as counting-by-detection (which requires both arithmetic and
+    iterative attention to all objects in the group) or segmenting
+    techniques (e.g. Chattopadhyay et al. 2016). Instead, it should
+    purely be implemented as model of something like the cognitive
+    perceptual system recieving sensory input.
 
-3.  Visual sense of number is an emergent property of neurons embedded
-    in generative hierarchical learning models, either artificial or
-    biological (Stoianov and Zorzi 2012). The fact that it also exist in
-    animals and human newborns suggests that it is an implicitly learned
-    skill learned at a neural level, for animals do not exhibit a lot of
-    vertical learning, let alone human newborns having received much
-    numerical training. Modeling visual number therefore necessitates
-    non-researcher depended features (i.e. should avoid commonly used
-    handcrafted features such as SIFT or HOG features), deemed as a
-    generally unrealistic trope of artificial learning according to AI
-    critics (Dreyfus 2007) and research into the human learning process
-    (Zorzi, Testolin, and Stoianov 2013a). This will restrict the choice
-    of algorithm to so called *unsupervised* learning algorithms, as
-    such an algorithm will learn its own particular representation of
-    the data distribution. Given their ability to construct the
-    underlying stochastic representation of the data, i.e. they perform
-    autonomous feature determination, *Varitional Autoencoders* (VAEs)
-    seem fit to tackle this problem. Moreover, VAEs are trained in an
-    unsupervised manner, just as learning visual number sense does not
-    rely on supervision. Another intersesting aspect of VAEs is their
-    relatively interpretable data encoding scheme, which might tell us
-    something about how it deals with visual numerosity.
+3.  Relatedly, visual sense of number is an emergent property of neurons
+    embedded in generative hierarchical learning models, either
+    artificial or biological (Stoianov and Zorzi 2012). The fact that
+    visual number sense exist in animals and human newborns suggests
+    that it is an implicitly learned skill learned at the neural level,
+    for animals do not exhibit a lot of vertical learning, let alone
+    human newborns having received much numerical training. Deemed as a
+    generally unrealistic trope of artificial learning by AI critics
+    (Dreyfus 2007) and research into the human learning process (Zorzi,
+    Testolin, and Stoianov 2013a), modeling visual number therefore
+    necessitates non-researcher depended features. This will restrict
+    the choice of algorithm to so called *unsupervised* learning
+    algorithms, as such an algorithm will learn its own particular
+    representation of the data distribution. Given their ability to
+    construct the underlying stochastic representation of the data,
+    i.e. performingxs autonomous feature determination, *Varitional
+    Autoencoders* (VAEs) seem fit to tackle this problem (see [**section
+    x.x**](#vae) for more detail). Moreover, VAEs are trained in an
+    unsupervised manner, similair to how learning visual number sense
+    does not required labeled data due it being emergent. Another
+    intersesting aspect of VAEs is their relatively interpretable data
+    encoding scheme, which might tell us something about how it deals
+    with visual numerosity, and thus allow us to asses it's performance
+    against biological data.
+
+Present research therefore asks: How can we apply artificial neural
+networks to learning the emergent neural skill of subitizing(visual
+number sense?) in a manner comparable to their biological equivalents?
 
 Most of the research above was conducted on approximate numerical
 cognition, but these characterisics of visual sense of number hold
@@ -139,10 +150,6 @@ it's sudden distinct numerical perpetual character for this would strain
 our parallelization capabilities too much. This strain would then lead
 us to resort to counting, which has a perceptual character different
 from suddenness (enumeration is a very strict and patterned activity).
-
-Present research therefore asks: How can we apply artificial neural
-networks to learning the emergent cognitive/neural skill of subitizing
-in a manner comparable to their biological equivalents?
 
 Related Work
 ============
@@ -171,8 +178,8 @@ range.
 Methods
 =======
 
-Variational Autoencoder
------------------------
+Variational Autoencoders
+------------------------
 
 Optimization objectives
 
@@ -214,8 +221,8 @@ activation vectors <img src="https://rawgit.com/rien333/numbersense-vae/master/s
 from an image <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1338d1e5163ba5bc872f1411dd30b36a.svg?invert_in_darkmode" align=middle width=18.269651399999987pt height=22.465723500000017pt/>, and a corresponding subitizing class label <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c503cd3cc90b9dc8646daa73c42365ae.svg?invert_in_darkmode" align=middle width=14.19429989999999pt height=22.465723500000017pt/>,
 where <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1338d1e5163ba5bc872f1411dd30b36a.svg?invert_in_darkmode" align=middle width=18.269651399999987pt height=22.465723500000017pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c503cd3cc90b9dc8646daa73c42365ae.svg?invert_in_darkmode" align=middle width=14.19429989999999pt height=22.465723500000017pt/> are respectively an image and class label from the
 SOS training set. Both fully-connected layers contain 160 neurons. Each
-of the linear layers is followed by batch normalization layer (Ioffe and
-Szegedy 2015), a ReLU activation function and a dropout layer,
+of the linear layers is followed by a batch normalization layer (Ioffe
+and Szegedy 2015), a ReLU activation function and a dropout layer,
 respectively. A fully-connected net was choosen because using another
 connectionist module for read-outs of the hidden representation
 heightens the biological plausibility of the final approach (Zorzi,
@@ -384,11 +391,19 @@ Dreyfus, Hubert L. 2007. "Why Heideggerian Ai Failed and How Fixing It
 Would Require Making It More Heideggerian." *Philosophical Psychology*
 20 (2). Taylor & Francis: 247--68.
 
+Everett, Daniel L. 2005. "Cultural Constraints on Grammar and Cognition
+in Pirahã." *Current Anthropology* 46 (4). University of Chicago Press:
+621--46. <https://doi.org/10.1086/431525>.
+
 Fernández, Alberto, Victoria López, Mikel Galar, María José del Jesus,
 and Francisco Herrera. 2013. "Analysing the Classification of Imbalanced
 Data-Sets with Multiple Classes: Binarization Techniques and Ad-Hoc
 Approaches." *Knowledge-Based Systems* 42 (April). Elsevier BV: 97--110.
 <https://doi.org/10.1016/j.knosys.2013.01.018>.
+
+Franka, Michael C, Daniel L Everettb, Evelina Fedorenkoa, and Edward
+Gibsona. 2008. "Number as a Cognitive Technology: Evidence from Pirahã
+Language and Cognitionq." *Cognition* 108: 819--24.
 
 Harvey, Ben M, Barrie P Klein, Natalia Petridou, and Serge O Dumoulin.
 2013. "Topographic Representation of Numerosity in the Human Parietal
