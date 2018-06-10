@@ -8,10 +8,11 @@ import conv_vae_pytorch as vae_pytorch
 from torch.nn import functional as F
 import numpy as np
 from torch.optim import lr_scheduler
+import random
 
 Z_DIMS = vae_pytorch.args.z_dims # input size
-FC1_SIZE = 320 # try some different values as well
-FC2_SIZE = 300 # To small to support all outputs?
+FC1_SIZE = 150 # try some different values as well
+FC2_SIZE = 140 # To small to support all outputs?
 
 class Classifier(nn.Module):
     
@@ -60,24 +61,16 @@ if vae_pytorch.args.cuda:
 
 def train(epoch, loader, optimizer, criterion):
     classifier.train()
-    # Test set is fairly small, also consider training on a larger set
     running_loss = 0
-    for i, (ims, labels) in enumerate(loader, 1): # unseen data
-        # convert ims to z vector
-        # You should reparameterize these z's, and make sure to set the model in testing/evalution mode when
-        # sampling with model.reparameterize(zs), as that will draw zs with the highest means
-        # I guess the output will be a batch of z vectors with Z_DIM
-
+    for ims, labels in loader: # unseen data
+        # seems to work better?
+        with torch.no_grad():
+            mu, logvar = model.encode(ims.cuda())
+            zs = model.reparameterize(mu, logvar)
         optimizer.zero_grad()
-        # Assume more than one gpu!!!
-        mu, logvar = model.module.encode(ims.cuda()) # Might need .cuda
-        zs = model.module.reparameterize(mu, logvar)
-        
-        # zero the parameter gradients
-        # forward + backward + optimize
-        outputs = classifier(zs)
+        outputs = classifier(zs.cuda())
         # target ("labels") should be 1D
-        labels = labels.long().cuda().view(-1)  # Might need .cuda
+        labels = labels.cuda().long().view(-1)  # Might need .cuda
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
@@ -93,17 +86,17 @@ def test(epoch, loader, criterion):
     correct = 0
     total = 0
     classes = list(range(5))
-    class_correct = list(0. for i in range(10))
-    class_total = list(0.0000000001 for i in range(10))
+    class_correct = list(0. for i in range(5))
+    class_total = list(0.0000000001 for i in range(5))
     running_loss = 0
     with torch.no_grad():
         for i, (ims, labels) in enumerate(loader): # unseen data
-            mu, logvar = model.module.encode(ims.cuda())
-            zs = model.module.reparameterize(mu, logvar)
-            outputs = classifier(zs)
+            mu, logvar = model.encode(ims.cuda())
+            zs = model.reparameterize(mu, logvar)
+            outputs = classifier(zs.cuda())
             _, predicted = torch.max(outputs, 1)
             total += labels.size(0)
-            labels = labels.long().cuda().view(-1)
+            labels = labels.cuda().long().view(-1)
             loss = criterion(outputs, labels)
             correct += (predicted == labels).sum().item() # calculate mean accuracy
             running_loss += loss.item()
@@ -114,35 +107,38 @@ def test(epoch, loader, criterion):
                 class_correct[label] += c[i].item()
                 class_total[label] += 1
 
-    print('Epoch %d -> Test set loss: %.17f ' % (epoch+1, running_loss/len(loader)))
-    
-    accuracy = 100 * correct / total
-    print('Mean Accuracy %3s : %2d %%' % ("", accuracy))
+    print('Epoch %d -> Test set loss: %.17f ' % (epoch, running_loss/len(loader)))
+    # accuracy = 100 * correct / total    
+    class_scores = np.array(class_correct) / np.array(class_total)
+    mean_accuracy = 100.0 * np.mean(class_scores)
+    print('Mean Accuracy %3s : %4.1f %%' % ("", mean_accuracy))
     for i in range(5):
-        print('Accuracy of %5s : %2d %%' % (
+        print('Accuracy of %5s : %4.1f %%' % (
         classes[i], 100 * class_correct[i] / class_total[i]))
-
-    return running_loss
+    return running_loss, class_scores
 
 def train_routine(epochs, train_loader, test_loader, optimizer, criterion, scheduler, start_epoch=0,):
     best_models = [("", -100000000000)]*4
     test_interval = vae_pytorch.args.test_interval
+    chance_scores = np.array([0.275, 0.465, 0.186, 0.117, 0.097]) * 1.65
     # Save models according to loss instead of acc?
-    for epoch in range(start_epoch, start_epoch+epochs):
+    for epoch in range(start_epoch+1, start_epoch+epochs):
         train(epoch, train_loader, optimizer, criterion)
 
         if epoch % test_interval == 0:
-            test_loss = test(epoch, test_loader, criterion)
+            test_loss, class_scores = test(epoch, test_loader, criterion)
+            # Calculate the loss per class weight by their relative importance?
+            # so use the class scores I guess
             scheduler.step(test_loss)
             # Save best performing models
             new_file = 'classifier-models/vae-%s.pt' % (epoch)
-            min_idx, min_loss = min(enumerate(best_models), key = lambda x : x[1][1])
-            min_loss = min_loss[1]
-            if test_loss > min_loss:
-                worse_model = best_models[min_idx][0]
+            max_idx, max_loss = max(enumerate(best_models), key = lambda x : x[1][1])
+            max_loss = max_loss[1]
+            if test_loss < max_loss:
+                worse_model = best_models[max_idx][0]
                 if not '' in [m[0] for m in best_models]: 
                     os.remove(worse_model)
-                best_models[min_idx] = (new_file, test_loss)
+                best_models[max_idx] = (new_file, test_loss)
 
             # Save model and delete older versions
             old_file = "classifier-models/vae-%s.pt" % (epoch - 2 *  test_interval)
@@ -150,8 +146,19 @@ def train_routine(epochs, train_loader, test_loader, optimizer, criterion, sched
             if os.path.isfile(old_file) and not found_best:
                 os.remove(old_file)
             torch.save(classifier.state_dict(), new_file)
+   
+            # shift_alpha = random.uniform(0.009, 0.016)
+            shift_alpha = 0
+            updt_idxs = (class_scores < chance_scores) * shift_alpha
+            print(updt_idxs)
+            weights = criterion.weight.cpu().numpy() + updt_idxs
+            print("new weights", weights)
+            # normalize
+            # criterion.weight = torch.cuda.FloatTensor(weights / np.sum(weights))
+            
 
 if __name__ == "__main__":
+    
     scale = vae_pytorch.scale
     DATA_W = SOSDataset.DATA_W
     DATA_H = SOSDataset.DATA_H
@@ -159,8 +166,8 @@ if __name__ == "__main__":
     DATA_DIR = vae_pytorch.DATA_DIR
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if vae_pytorch.args.cuda else {}
-    data_transform = [SOSDataset.Rescale((scale, scale)), SOSDataset.RandomCrop((DATA_W, DATA_H)),
-                      SOSDataset.RandomColorShift(), SOSDataset.RandHorizontalFlip(), 
+    # 🐝🐝🐝 Readd old transforms
+    data_transform = [SOSDataset.Rescale((DATA_W, DATA_H)),
                       SOSDataset.ToTensor(),]
 
     # class weights with imbalance ratio
@@ -171,51 +178,46 @@ if __name__ == "__main__":
     # class_weights = torch.cuda.FloatTensor([0.19, 0.495, 0.951, 1.0, 0.94])
     # real_samples = [2597, 4854, 1604, 1058, 853]
     # syn_samples = [2596, 4853, 1604, 1058, 853] # should equal 5
-    real_samples = np.array([2000, 4000, 1604, 1058, 853])
+    # real_samples = np.array([2596, 4854, 1604, 1058, 853]) # undersample ❗
+    real_samples = np.array([1900, 4000, 1604, 1058, 853]) # undersample ❗
+    # real_samples = np.array([0] * 5)
+    # real_samples = np.array([853] * 5)
+    # syn_samples = np.array([500] * 5)
     # syn_samples = np.array([2000, 4000, 1604, 1058, 853]) * 1
-    syn_samples = np.array([0, 0, 0, 600, 100]) * 1
+    syn_samples = np.array([0, 0, 0, 0, 520]) * 1
+    # syn_samples = np.array([0, 0, 0, 20, 20]) * 1
     total_samples = real_samples + syn_samples
     n_samples = np.sum(total_samples)
-    # syn_samples = np.array([2000, 4000, 1604, 1058, 853]) * 1
-    class_weights = torch.cuda.FloatTensor(1-(total_samples/n_samples))**3
+    class_weights = torch.cuda.FloatTensor(1-(total_samples/n_samples))**2.0
+    # class_weights = torche.cuda.FloatTensor([1]*5)
+    # class_weights = torch.FloatTensor([0.1, 0.2, 0.4, 0.5, 0.45])
     print("Weights", class_weights)
     criterion = nn.CrossEntropyLoss(weight=class_weights, size_average=False)
-    optimizer = optim.SGD(classifier.parameters(), lr=0.001, momentum=0.9)
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.23, patience=4, cooldown=1, 
+    optimizer = optim.SGD(classifier.parameters(), lr=0.0005, momentum=0.9)
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.42, patience=4, cooldown=1, 
                                                verbose=True)
     grow_f=4.5006
     hybrid_train_loader = torch.utils.data.DataLoader(
-        HybridEqualDataset.HybridEqualDataset(epochs=30-5, train=True, t=1.1, transform=data_transform, 
-                                              grow_f=grow_f, datadir=DATA_DIR, real_samples=real_samples, syn_samples=syn_samples),
+        HybridEqualDataset.HybridEqualDataset(epochs=30-5, train=True, t=1.1, transform=data_transform,
+                                              grow_f=grow_f, datadir=DATA_DIR, real_samples=real_samples,
+                                              syn_samples=syn_samples),
         batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
-
-    # syn_train_loader = torch.utils.data.DataLoader(
-    #     SynDataset.SynDataset(train=True, transform=data_transform,)
-    #     batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
-
-    # syn_test_loader = torch.utils.data.DataLoader(
-    #     SynDataset.SynDataset(train=False, transform=data_transform, ),
-    #     batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
 
     SOS_test_loader = torch.utils.data.DataLoader(
         SOSDataset.SOSDataset(train=False, transform=data_transform, extended=True, datadir=DATA_DIR),
         batch_size=vae_pytorch.args.batch_size, shuffle=True, **kwargs)
 
     # Evalaute on synthetic data first when fine tuning
-    # train_routine(30, train_loader=syn_train_loader, test_loader=syn_test_loader, optimizer=optimizer)
-    train_routine(vae_pytorch.args.tune_epochs, train_loader=hybrid_train_loader, test_loader=SOS_test_loader, 
+    train_routine(vae_pytorch.args.epochs, train_loader=hybrid_train_loader, test_loader=SOS_test_loader, 
                   optimizer=optimizer, criterion=criterion, scheduler=scheduler)
 
     # classifier.load_state_dict(
     #     torch.load("classifier-models/vae-60.pt", map_location=lambda storage, loc: storage))
     # classifier.eval()
 
-    # class_weights = torch.cuda.FloatTensor([0.36, 0.95, 0.965, 0.98, 1.0]) # 1 and 0.8 are reversed
-    class_weights = torch.cuda.FloatTensor([0.789, 0.579, 0.831, 0.888, 0.909])**3
-    # Fine tune later (load in all synthetic data at first step, and then mostly sos)
     for p in classifier.fc1.parameters():
         p.requires_grad = False
-    optimizer = optim.SGD(filter(lambda p: p.requires_grad, classifier.parameters()),  lr=0.0001, momentum=0.85)
+    optimizer = optim.SGD(filter(lambda p: p.requires_grad, classifier.parameters()),  lr=0.001, momentum=0.85)
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.33, patience=4, cooldown=2, 
                                                verbose=True)
     # grow_f=0.22 # How small can you make this?
@@ -226,44 +228,9 @@ if __name__ == "__main__":
         batch_size=vae_pytorch.args.tune_batch_size, shuffle=True, **kwargs)
 
     criterion = nn.CrossEntropyLoss(weight=class_weights)
-    train_routine(vae_pytorch.args.tune_epochs, start_epoch=vae_pytorch.args.epochs, train_loader=SOS_train_loader, test_loader=SOS_test_loader, optimizer=optimizer, criterion=criterion, scheduler=scheduler)
+    train_routine(vae_pytorch.args.tune_epochs, start_epoch=vae_pytorch.args.epochs, train_loader=SOS_train_loader, 
+                  test_loader=SOS_test_loader, optimizer=optimizer, criterion=criterion, scheduler=scheduler)
 
-
-# classifier.load_state_dict(
-#         torch.load("classifier-models/vae-180.pt", map_location=lambda storage, loc: storage)
-# classifier.eval()
-
-# Test on which classes the model performs well
-
-# classes = list(range(5))
-# class_correct = list(0. for i in range(10))
-# class_total = list(0.0000000001 for i in range(10))
-# with torch.no_grad():
-#     for im, labels in train_loader:
-#         mu, logvar = model.encode(im) # Might need .cuda
-#         zs = model.reparameterize(mu, logvar)
-#         outputs = classifier(zs)
-#         labels = labels.long().view(-1) # Might need .cuda
-#         _, predicted = torch.max(outputs, 1)
-#         c = (predicted == labels).squeeze()
-#         for i in range(labels.shape[0]):
-#             label = labels[i]
-#             class_correct[label] += c[i].item()
-#             class_total[label] += 1
-
-# for i in range(5):
-#     print('Accuracy of %5s : %2d %%' % (
-#         classes[i], 100 * class_correct[i] / class_total[i]))
-
-# from torchvision import transforms
-# from torchvision.utils import save_image
-# import cv2
-# import os
-# from random import choice
-
-# icat = lambda x: os.system("/home/rwever/local/bin/imgcat " + x)
-
-# data_t = transforms.Compose(vae_pytorch.data_transform)
 
 # b_dir = "../Datasets/SUN397"
 # b_classes_txt = b_dir + "/ClassName.txt"
