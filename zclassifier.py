@@ -11,8 +11,8 @@ from torch.optim import lr_scheduler
 import random
 
 Z_DIMS = vae_pytorch.args.z_dims # input size
-FC1_SIZE = 150 # try some different values as well
-FC2_SIZE = 140 # To small to support all outputs?
+FC1_SIZE = 180 # try some different values as well
+FC2_SIZE = 180 # To small to support all outputs?
 
 class Classifier(nn.Module):
     
@@ -21,19 +21,17 @@ class Classifier(nn.Module):
         super(Classifier, self).__init__()
         self.fc1 = nn.Sequential(
             nn.Linear(Z_DIMS, FC1_SIZE),
+            nn.Dropout(0.5), # probability of a zeroing out an element of the input to prevent co-adaptation
             nn.ReLU(), # The original code had functional relu's
             nn.BatchNorm1d(FC1_SIZE),
-            nn.Dropout(0.5), # probability of a zeroing out an element of the input to prevent co-adaptation
         )
         self.fc2 = nn.Sequential(
             nn.Linear(FC1_SIZE, FC2_SIZE),
+            nn.Dropout(0.5),
             nn.ReLU(),
             nn.BatchNorm1d(FC2_SIZE),
-            nn.Dropout(0.6),
         )
         self.fc3 = nn.Linear(FC2_SIZE, 5) # output 5 labels
-        # self.sigmoid = nn.Sigmoid()
-        # I think dim=1 is the default for 2d tensor, but explictly don't 
         # self.softmax = nn.Softmax(dim=1) # Generalized sigmoid over n dimensions
 
     # Input: z activation of an image
@@ -65,8 +63,8 @@ def train(epoch, loader, optimizer, criterion):
     for ims, labels in loader: # unseen data
         # seems to work better?
         with torch.no_grad():
-            mu, logvar = model.encode(ims.cuda())
-            zs = model.reparameterize(mu, logvar)
+            mu, logvar = model.module.encode(ims.cuda())
+            zs = model.module.reparameterize(mu, logvar)
         optimizer.zero_grad()
         outputs = classifier(zs.cuda())
         # target ("labels") should be 1D
@@ -77,10 +75,11 @@ def train(epoch, loader, optimizer, criterion):
         running_loss += loss.item()
 
     print('[Epoch %d]  Train set loss: %.17f' %
-          (epoch + 1, running_loss / len(loader))) # average by datasize?
+          (epoch, running_loss / len(loader))) # average by datasize?
 
 def test(epoch, loader, criterion):
     classifier.eval()
+    classifier.training = False
     # How well does the classifier (that now has seen the test data) perform on unseen data?
     # i.e. the train data?
     correct = 0
@@ -91,8 +90,8 @@ def test(epoch, loader, criterion):
     running_loss = 0
     with torch.no_grad():
         for i, (ims, labels) in enumerate(loader): # unseen data
-            mu, logvar = model.encode(ims.cuda())
-            zs = model.reparameterize(mu, logvar)
+            mu, logvar = model.module.encode(ims.cuda())
+            zs = model.module.reparameterize(mu, logvar)
             outputs = classifier(zs.cuda())
             _, predicted = torch.max(outputs, 1)
             total += labels.size(0)
@@ -179,22 +178,24 @@ if __name__ == "__main__":
     # real_samples = [2597, 4854, 1604, 1058, 853]
     # syn_samples = [2596, 4853, 1604, 1058, 853] # should equal 5
     # real_samples = np.array([2596, 4854, 1604, 1058, 853]) # undersample ❗
-    real_samples = np.array([1900, 4000, 1604, 1058, 853]) # undersample ❗
-    # real_samples = np.array([0] * 5)
+    # real_samples = np.array([2000, 4000 , 1604, 1058, 853])
+    real_samples = np.array([2000, 3000, 2000, 2000, 1000])
+    # See if replacing 4 real data with synthetic data works 🐝
+    syn_samples = np.array([0, 0, 0, 0, 1000])
     # real_samples = np.array([853] * 5)
     # syn_samples = np.array([500] * 5)
     # syn_samples = np.array([2000, 4000, 1604, 1058, 853]) * 1
-    syn_samples = np.array([0, 0, 0, 0, 520]) * 1
+    # syn_samples = np.array([0, 1000, 0, 600, 550]) * 1
     # syn_samples = np.array([0, 0, 0, 20, 20]) * 1
     total_samples = real_samples + syn_samples
     n_samples = np.sum(total_samples)
-    class_weights = torch.cuda.FloatTensor(1-(total_samples/n_samples))**2.0
-    # class_weights = torche.cuda.FloatTensor([1]*5)
+    # class_weights = torch.cuda.FloatTensor(1-(total_samples/n_samples))**2.5
+    class_weights = torch.cuda.FloatTensor([1]*5)
     # class_weights = torch.FloatTensor([0.1, 0.2, 0.4, 0.5, 0.45])
     print("Weights", class_weights)
     criterion = nn.CrossEntropyLoss(weight=class_weights, size_average=False)
     optimizer = optim.SGD(classifier.parameters(), lr=0.0005, momentum=0.9)
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.42, patience=4, cooldown=1, 
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.32, patience=3, cooldown=1, 
                                                verbose=True)
     grow_f=4.5006
     hybrid_train_loader = torch.utils.data.DataLoader(
