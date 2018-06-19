@@ -285,9 +285,9 @@ there exists a mapping <img src="https://rawgit.com/rien333/numbersense-vae/mast
 distribution <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e01ded0de4f3052fc9ca35ce5f37c2e4.svg?invert_in_darkmode" align=middle width=40.53087224999999pt height=24.65753399999998pt/> in <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3afa189299419b087ab3ae25810cd215.svg?invert_in_darkmode" align=middle width=19.998202949999992pt height=22.648391699999998pt/> (Doersch 2016).
 
 Therefore, the optimization objectives of a VAE become (see figure 4 of
-Doersch 2016): 1.
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4a5d495a4a9a1140380700f4affe6e59.svg?invert_in_darkmode" align=middle width=208.26828659999998pt height=24.65753399999998pt/>
+Doersch 2016):
 
+1.  <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4a5d495a4a9a1140380700f4affe6e59.svg?invert_in_darkmode" align=middle width=208.26828659999998pt height=24.65753399999998pt/>
 2.  Some reconstruction loss. Within visual problems, plain VAEs can for
     example minimize the binary cross entropy between $X$ and $\hat{X}$.
 
