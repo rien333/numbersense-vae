@@ -44,7 +44,7 @@ Some simplicity of the dataset used by @stoianov2012 is due their use of the rel
 <!-- Do you also explain synthetic data here? (yes seems alright) -->
 <!-- Mention the results of their approach in some section -->
 
-As seen in the [figure](#sub) below, the goal of the _Salient Object Subitizing_ (SOS) dataset as defined by @zhang2016salient is to clearly show a number of salient objects that lies within the subitizing range. As other approaches (mention something about 0 and 4)  The dataset was constructed from an ensemble of other datasets to avoid potential dataset bias, and contains approximately 14K natural images [@zhang2016salient]. 
+As seen in the [figure](#sub) below, the goal of the _Salient Object Subitizing_ (SOS) dataset as defined by @zhang2016salient is to clearly show a number of salient objects that lies within the subitizing range. As other approaches, @zhang2016salient also introduce images with no salient objects   The dataset was constructed from an ensemble of other datasets to avoid potential dataset bias, and contains approximately 14K natural images [@zhang2016salient]. 
 
 ![sos_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/subitizing.png "Example images from the SOS dataset")
 
@@ -79,7 +79,7 @@ The task of the encoder network in a VAE is to infer the mean and variance param
 1. $\mathcal{KL}\lbrack\mathcal{N}(\mu(X), \Sigma(X)) \vert\vert \mathcal{N}(0, I)\rbrack$
 2. Some reconstruction loss. Within visual problems, plain VAEs can for example minimize the binary cross entropy between $X$ and $\hat{X}$.
 
-The first objective of generating an appropate distribution (research into optimizing distribitions differently exists) function of the latent spance makes VAEs generative, partly satisfying the third constraint outlined in the introduction. To fully satisfy this constraint, the final architecture uses deep neural networks for both the encoder and decoder module (see Experiments VAE architecture), making the implementation an hierarchical model. For a full overview on the implementation of a VAE, refer to @kingma2013auto and @doersch2016tutorial.
+The first objective of generating an appropate distribution (research into optimizing distribitions differently exists) function of the latent spance makes VAEs generative, partly satisfying the third constraint outlined in the introduction. To fully satisfy this constraint, the final architecture uses deep neural networks for both the encoder and decoder module (see Experiments VAE architecture), making the implementation an hierarchical model. For a complete overview of implementing a VAE, refer to @kingma2013auto and @doersch2016tutorial.
 
 ## Deep Feature Consistent Perceptual Loss ##
 
@@ -112,6 +112,10 @@ Class imbalance is a phenomenon encountered in datasets whereby the number of in
 An ensemble of techniques was used to tackle the class imbalance in the SOS dataset. First, slight  random under-sampling with replacement of the two majority classes ($c_0$ and $c_1$) is performed [see @JMLR:v18:16-365], reducing their size by ~10%. Furthermore, as in practice many common sophisticated under- and oversampling techniques (e.g. data augmentation or outlier removal, for an overview see @fernandez2013) proved largely non-effective, a cost-sensitive class weighting was applied. Cost-senstive ... consists of .... The uneffectiveness of quantive sampling techniques is likely to be caused by that in addition to the quantitative difference in class examples, there is also a slight difficulty factor whereby assesing the class of latent vector $z$ is significantly if belongs to $c_2$ or $c_3$ versus any other class, for these two classes require rather precise contours to discern the invidual objects, in case they for example overlapping, which remains hard for VAEs given their tendency to produce blurred reconstructions. The classifier network therefore seems inclined to put all of its representational power towards the easier classes, as this will result in a lower total cost, whereby this inclination will become even stronger as the quantitative class imbalance grows. The class weights for cost sensitive learning are set according to the quantitative class imbalance ratio [@ref], but better accuracy was obtained by slightly altering the relative difference between the weight by raising all of them to some power $n$. In our experiments, $n=3$ resulted in a balance between high per class accuray scores and aforementioned scores roughly following the same shape as in other algorithms, which hopefully implies that the classifier is able to generalize in a manner comparable to previous approaches. For the SOS dataset with random majority class undersampling, if $n \gg 3$ the classifier accuracy for the majority classes shrinks towards chance, and, interestingly, accuracy for the minority classes becomes comparable to the state of the art.
 
 ## Hybrid Dataset ##
+
+<!-- TODO
+    - [ ] 
+-->
 
 Subitizing has been noted to become harder when objects are superimposed, forcing recource to external processes as counting by object enumeration [@dehaene2011number, p57.]. Therefore, the object overlap threshold is increased by $0.1$ starting from $0.5$ for every object added to an image, compared to @zhang2016salient's the static value of $0.5$, as VAEs have been noted to produce blurry reconstructions, indicating a poor ability to code object edges, so distorting class labels. 
 

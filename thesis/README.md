@@ -194,11 +194,11 @@ visual features.
 
 Some simplicity of the dataset used by Stoianov and Zorzi (2012) is due
 their use of the relatively computationally expensive restricted
-boltzmann machine ([**???**]{.citeproc-not-found
-data-reference-id="goodfellow2016deep"}). Given developments in
-generative algorithms and the availablity of more computational power,
-we will therefore opt for a different algorithmic approach (as discussed
-in the introduction) that will hopefully scale better to natural images.
+boltzmann machine (Goodfellow et al. 2016, vol. 1, chap. 20). Given
+developments in generative algorithms and the availablity of more
+computational power, we will therefore opt for a different algorithmic
+approach (as discussed in the introduction) that will hopefully scale
+better to natural images.
 
 Salient Object Subitizing Dataset
 ---------------------------------
@@ -209,10 +209,10 @@ Salient Object Subitizing Dataset
 As seen in the [figure](#sub) below, the goal of the *Salient Object
 Subitizing* (SOS) dataset as defined by Zhang et al. (2016) is to
 clearly show a number of salient objects that lies within the subitizing
-range. As other approaches (mention something about 0 and 4) The dataset
-was constructed from an ensemble of other datasets to avoid potential
-dataset bias, and contains approximately 14K natural images (Zhang et
-al. 2016).
+range. As other approaches, Zhang et al. (2016) also introduce images
+with no salient objects The dataset was constructed from an ensemble of
+other datasets to avoid potential dataset bias, and contains
+approximately 14K natural images (Zhang et al. 2016).
 
 ![sos\_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/subitizing.png "Example images from the SOS dataset")
 
@@ -296,8 +296,8 @@ spance makes VAEs generative, partly satisfying the third constraint
 outlined in the introduction. To fully satisfy this constraint, the
 final architecture uses deep neural networks for both the encoder and
 decoder module (see Experiments VAE architecture), making the
-implementation an hierarchical model. For a full overview on the
-implementation of a VAE, refer to Kingma and Welling (2013) and Doersch
+implementation an hierarchical model. For a complete overview of
+implementing a VAE, refer to Kingma and Welling (2013) and Doersch
 (2016).
 
 Deep Feature Consistent Perceptual Loss
@@ -432,6 +432,9 @@ minority classes becomes comparable to the state of the art.
 Hybrid Dataset
 --------------
 
+<!-- TODO
+    - [ ] 
+-->
 Subitizing has been noted to become harder when objects are
 superimposed, forcing recource to external processes as counting by
 object enumeration (Dehaene 2011, p57.). Therefore, the object overlap
@@ -538,6 +541,9 @@ Approaches." *Knowledge-Based Systems* 42 (April). Elsevier BV: 97--110.
 Franka, Michael C, Daniel L Everettb, Evelina Fedorenkoa, and Edward
 Gibsona. 2008. "Number as a Cognitive Technology: Evidence from Pirahã
 Language and Cognitionq." *Cognition* 108: 819--24.
+
+Goodfellow, Ian, Yoshua Bengio, Aaron Courville, and Yoshua Bengio.
+2016. *Deep Learning*. Vol. 1. MIT press Cambridge.
 
 Harvey, Ben M, Barrie P Klein, Natalia Petridou, and Serge O Dumoulin.
 2013. "Topographic Representation of Numerosity in the Human Parietal
