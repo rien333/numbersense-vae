@@ -118,14 +118,13 @@ plausibility of the final model are:
     stochastic representation of the data, thus performing autonomous
     feature determination, *Varitional Autoencoders* (VAEs) seem fit to
     tackle this problem (see [**section x.x**](#vae) for more detail).
-    Moreover, VAEs are trained in an unsupervised manner, similair to
-    how learning visual number sense, given appropriate circumstances,
-    does not require labeled data due it being emergent. Another
-    intersesting aspect of VAEs is their relatively interpretable and
-    overseeable learned feature space, which might tell us something
-    about how it deals with visual numerosity, and thus allow us to
-    evaluate the properties of the VAE's encoding against biological
-    data.
+    Moreover, VAEs are trained in an unsupervised manner, similar to how
+    learning visual number sense, given appropriate circumstances, does
+    not require labeled data due it being emergent. Another interesting
+    aspect of VAEs is their relatively interpretable and overseeable
+    learned feature space, which might tell us something about how it
+    deals with visual numerosity, and thus allow us to evaluate the
+    properties of the VAE's encoding against biological data.
 
 Unfortunately, no dataset fit for visual numerosity estimation satisfied
 above requirements (sizable collections of natural image with large and
@@ -138,7 +137,7 @@ items falls within the subitizing range of 1-4 (Kaufman et al. 1949;
 Davis and Pérusse 1988) Most of the research above was conducted on
 approximate numerical cognition, but the aforementioned characterisics
 of visual sense of number hold equally well for a more distinct sense of
-number such as subitizing. Similairily, subitizing is suggested to be a
+number such as subitizing. Similarly, subitizing is suggested to be a
 parallel preattentive process in the visual system (Dehaene 2011, p57),
 the visual system likely relying on it's ability to recognize holistic
 patterns for a final subitizing count (Jansen et al. 2014; Dehaene 2011,
@@ -167,7 +166,7 @@ handcrafted features, although performance is still behind state of the
 art supervised machine learning due to problems inherent to the
 particulair VAE implementation. Finally, testing the final models
 robustness to changes in visual features shows the emergence of a
-property similair to biological neuron, that is to say, the encoding
+property similar to biological neuron, that is to say, the encoding
 scheme specifically supports particulair numerosity percepts invariant
 to visual features other than quantity.
 
@@ -183,14 +182,13 @@ As previously described Stoianov and Zorzi (2012) applied artificial
 neural netwoks to visual numerosity estimation, although without using
 natural images. They discoverd that some resultant neural populations
 concerned with numerosity estimation shared multiple properties with
-biological populations participating in similair tasks, most prominently
+biological populations participating in similar tasks, most prominently
 an encoding scheme that was invariant to the cumaltative surface area of
 the objects present in the provided images. Present research hopes to
-discover a similair kind of invarience to surface area. Likewise, we
-will employ the same scale invarience test, although a succesfull
-application to natural images already shows a fairly abstract
-representation of number, as the objects therein already contain varied
-visual features.
+discover a similar kind of invarience to surface area. Likewise, we will
+employ the same scale invarience test, although a succesfull application
+to natural images already shows a fairly abstract representation of
+number, as the objects therein already contain varied visual features.
 
 Some simplicity of the dataset used by Stoianov and Zorzi (2012) is due
 their use of the relatively computationally expensive restricted
@@ -260,9 +258,9 @@ distribution of the input data, instead of only creating some efficient
 mappping to a lower dimenstionality that simultaneously facilitates
 accurate reconstruction. Provided with statistical knowledge of the
 characteristics of the input, VAEs can not only reconstruct exisiting
-examples, but also generate novel examples that are similair to the
-input data based on the inferred statistics. The ability to generate
-novel examples makes VAEs a *generative* algorithm.
+examples, but also generate novel examples that are similar to the input
+data based on the inferred statistics. The ability to generate novel
+examples makes VAEs a *generative* algorithm.
 
 The task of the encoder network in a VAE is to infer the mean and
 variance parameters of a probability distribution of the latent space
@@ -276,13 +274,15 @@ follow a unit gaussian by minizing the Kullback-Leibler divergence
 measures the distance between probability distribitions. Normally
 distributed latent variables capture the intuition behind generative
 algorithms that they should support sampling latent variables that
-produce reconstructions that are merely similair to the input, and not
+produce reconstructions that are merely *similair* to the input, and not
 necessarily accurate copies. Furthermore, optimizing an abritary
 distribution would be intractable, thus we need to rely on the fact that
-given a set <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6d077ae1da4ac3e30b6a20e4d3060395.svg?invert_in_darkmode" align=middle width=83.85645179999999pt height=22.465723500000017pt/> with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6de080c8975058ab5987439c89562c2e.svg?invert_in_darkmode" align=middle width=51.11672279999999pt height=22.648391699999998pt/> and any
-sufficiently complicated function <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/fb5a9656c65930c54541391b5aa251d4.svg?invert_in_darkmode" align=middle width=35.78112284999999pt height=24.65753399999998pt/> (such as a neural network),
-there exists a mapping <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/7a1825b059f9c0700cce0667107cc8ff.svg?invert_in_darkmode" align=middle width=71.14121849999998pt height=31.141535699999984pt/> such we can generate any
-distribution <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e01ded0de4f3052fc9ca35ce5f37c2e4.svg?invert_in_darkmode" align=middle width=40.53087224999999pt height=24.65753399999998pt/> in <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3afa189299419b087ab3ae25810cd215.svg?invert_in_darkmode" align=middle width=19.998202949999992pt height=22.648391699999998pt/> (Doersch 2016).
+given a set <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/31e2b8e57714a1b646edeb57c65e2e5a.svg?invert_in_darkmode" align=middle width=83.99525969999999pt height=22.465723500000017pt/> with
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb80d7867cd70ef2ba19bcdc87929a24.svg?invert_in_darkmode" align=middle width=51.25553069999999pt height=22.648391699999998pt/> and any sufficiently complicated
+function <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/68ea884fbd70c05c5339170fabc350c8.svg?invert_in_darkmode" align=middle width=30.308325299999993pt height=24.65753399999998pt/> (such as a neural network), there exists a mapping
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1b707e4b12153520e912f0d6cc187b0c.svg?invert_in_darkmode" align=middle width=71.14121849999998pt height=31.141535699999984pt/> from which we can generate any abritary
+distribution <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/abe1a76a61e3c50260d1f31f45077af1.svg?invert_in_darkmode" align=middle width=80.62021274999998pt height=24.65753399999998pt/> with
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f621812d9fc866398da46b6fe06ec815.svg?invert_in_darkmode" align=middle width=101.27248395pt height=31.141535699999984pt/> (Doersch 2016).
 
 Therefore, the optimization objectives of a VAE become (see figure 4 of
 Doersch 2016):
