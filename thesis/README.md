@@ -134,9 +134,8 @@ present research towards *subitizing*, a type of visual number sense
 which had a catered dataset readily available. Subitizing is the ability
 of many animals to immediately perceive the number of items in a group
 without resorting to counting or enumeration, given that the number of
-items falls within the subitizing range of 1-4
-([**???**]{.citeproc-not-found data-reference-id="kaufman1949"}; Davis
-and Pérusse 1988) Most of the research above was conducted on
+items falls within the subitizing range of 1-4 (Kaufman et al. 1949;
+Davis and Pérusse 1988) Most of the research above was conducted on
 approximate numerical cognition, but the aforementioned characterisics
 of visual sense of number hold equally well for a more distinct sense of
 number such as subitizing. Similairily, subitizing is suggested to be a
@@ -254,8 +253,8 @@ error. The latent space can thus be seen as an inferred hidden feature
 representation of the data.
 
 Where VAEs primarily differ from regular autoencoders is that rather
-than directly coding data samples into a feature space, they learn the
-parameters of a distribution that represents that feature space.
+than directly coding data samples into some feature space, they learn
+the parameters of a distribution that represents that feature space.
 Therefore, VAEs perform stochastic inference of the underlying
 distribution of the input data, instead of only creating some efficient
 mappping to a lower dimenstionality that simultaneously facilitates
@@ -267,7 +266,7 @@ novel examples makes VAEs a *generative* algorithm.
 
 The task of the encoder network in a VAE is to infer the mean and
 variance parameters of a probability distribution of the latent space
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1e47ffddebff565cbf3bd72a1bcec5eb.svg?invert_in_darkmode" align=middle width=106.92196514999998pt height=24.65753399999998pt/> such that samples <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/>
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/594f2089f42b33713578c10ddb0f8d36.svg?invert_in_darkmode" align=middle width=133.40607719999997pt height=24.65753399999998pt/> such that samples <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/>
 drawn from this distribution facilitate reconstruction of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/cbfb1b2a33b28eab8a3e59464768e810.svg?invert_in_darkmode" align=middle width=14.908688849999992pt height=22.465723500000017pt/> (Doersch
 2016). Novel sampled <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/> vectors can then be fed into the decoder
 network as usual. <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c5c66b75f27ea3a5e8a20dfc22ab0394.svg?invert_in_darkmode" align=middle width=37.599025199999986pt height=24.65753399999998pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/588e8c2c9441c1142fd70e76d1d5b7f1.svg?invert_in_darkmode" align=middle width=39.56627894999999pt height=24.65753399999998pt/> are constrained to roughly
@@ -280,11 +279,12 @@ algorithms that they should support sampling latent variables that
 produce reconstructions that are merely similair to the input, and not
 necessarily accurate copies. Furthermore, optimizing an abritary
 distribution would be intractable, thus we need to rely on the fact that
-given a set <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e257acd1ccbe7fcb654708f1a866bfe9.svg?invert_in_darkmode" align=middle width=11.027402099999989pt height=22.465723500000017pt/> of normaly distributed variales in <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3afa189299419b087ab3ae25810cd215.svg?invert_in_darkmode" align=middle width=19.998202949999992pt height=22.648391699999998pt/> and
-any sufficiently complicated function <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/b8bc815b5e9d5177af01fd4d3d3c2f10.svg?invert_in_darkmode" align=middle width=12.85392569999999pt height=22.465723500000017pt/> (such as a neural network),
-there exist an (mappping) <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f494d2f459c4cc8da33204d5001d65c6.svg?invert_in_darkmode" align=middle width=36.66673889999999pt height=24.65753399999998pt/> that can generate any distribution in
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3afa189299419b087ab3ae25810cd215.svg?invert_in_darkmode" align=middle width=19.998202949999992pt height=22.648391699999998pt/>(Doersch 2016). Therefore, the two optimization
-objectives of an VAE become (see figure 4 of Doersch 2016):
+given a set <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6d077ae1da4ac3e30b6a20e4d3060395.svg?invert_in_darkmode" align=middle width=83.85645179999999pt height=22.465723500000017pt/> with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6de080c8975058ab5987439c89562c2e.svg?invert_in_darkmode" align=middle width=51.11672279999999pt height=22.648391699999998pt/> and any
+sufficiently complicated function <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/fb5a9656c65930c54541391b5aa251d4.svg?invert_in_darkmode" align=middle width=35.78112284999999pt height=24.65753399999998pt/> (such as a neural network),
+there exists a mapping <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/7a1825b059f9c0700cce0667107cc8ff.svg?invert_in_darkmode" align=middle width=71.14121849999998pt height=31.141535699999984pt/> such that <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c7c418f987bbea84b07d3145d96ff790.svg?invert_in_darkmode" align=middle width=57.037680149999986pt height=31.141535699999984pt/>
+and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e01ded0de4f3052fc9ca35ce5f37c2e4.svg?invert_in_darkmode" align=middle width=40.53087224999999pt height=24.65753399999998pt/> any distribution in <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3afa189299419b087ab3ae25810cd215.svg?invert_in_darkmode" align=middle width=19.998202949999992pt height=22.648391699999998pt/>(Doersch 2016).
+Therefore, the two optimization objectives of a VAE become (see figure 4
+of Doersch 2016):
 
 1.  <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4a5d495a4a9a1140380700f4affe6e59.svg?invert_in_darkmode" align=middle width=208.26828659999998pt height=24.65753399999998pt/>
 2.  Some reconstruction loss. Within visual problems, plain VAEs can for
@@ -562,6 +562,10 @@ Maartje EJ Raijmakers, and Han LJ Maas. 2014. "The Role of Pattern
 Recognition in Children's Exact Enumeration of Small Numbers." *British
 Journal of Developmental Psychology* 32 (2). Wiley Online Library:
 178--94.
+
+Kaufman, E. L., M. W. Lord, T. W. Reese, and J. Volkmann. 1949. "The
+Discrimination of Visual Number." *The American Journal of Psychology*
+62 (4). JSTOR: 498. <https://doi.org/10.2307/1418556>.
 
 Kingma, Diederik P, and Max Welling. 2013. "Auto-Encoding Variational
 Bayes." *arXiv Preprint arXiv:1312.6114*.
