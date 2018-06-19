@@ -273,7 +273,7 @@ drawn from this distribution facilitate reconstruction of <img src="https://rawg
 network as usual. <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c5c66b75f27ea3a5e8a20dfc22ab0394.svg?invert_in_darkmode" align=middle width=37.599025199999986pt height=24.65753399999998pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/588e8c2c9441c1142fd70e76d1d5b7f1.svg?invert_in_darkmode" align=middle width=39.56627894999999pt height=24.65753399999998pt/> are constrained to roughly
 follow a unit gaussian by minizing the Kullback-Leibler divergence
 (denoted as <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/92a3cfa10cc205f69999b396a8a3be8c.svg?invert_in_darkmode" align=middle width=24.100592999999986pt height=22.465723500000017pt/>) between <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6ba9ca2293d01d450671128ce5062746.svg?invert_in_darkmode" align=middle width=52.73634794999999pt height=24.65753399999998pt/> and
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1e47ffddebff565cbf3bd72a1bcec5eb.svg?invert_in_darkmode" align=middle width=106.92196514999998pt height=24.65753399999998pt/>, where <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/92a3cfa10cc205f69999b396a8a3be8c.svg?invert_in_darkmode" align=middle width=24.100592999999986pt height=22.465723500000017pt/>
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/594f2089f42b33713578c10ddb0f8d36.svg?invert_in_darkmode" align=middle width=133.40607719999997pt height=24.65753399999998pt/>, where <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/92a3cfa10cc205f69999b396a8a3be8c.svg?invert_in_darkmode" align=middle width=24.100592999999986pt height=22.465723500000017pt/>
 measures the distance between probability distribitions. Normally
 distributed latent variables capture the intuition behind generative
 algorithms that they should support sampling latent variables that
@@ -297,8 +297,8 @@ outlined in the introduction. To fully satisfy this constraint, the
 final architecture uses deep neural networks for both the encoder and
 decoder module (see Experiments VAE architecture), making the
 implementation an hierarchical model. For a full overview on the
-implementation of a VAE, refer to ([**???**]{.citeproc-not-found
-data-reference-id="kingma2013auto"}) and Doersch (2016).
+implementation of a VAE, refer to Kingma and Welling (2013) and Doersch
+(2016).
 
 Deep Feature Consistent Perceptual Loss
 ---------------------------------------
@@ -399,7 +399,7 @@ malignant examples as nonmalignant could be weighted more strongly, see
 
 An ensemble of techniques was used to tackle the class imbalance in the
 SOS dataset. First, slight random under-sampling with replacement of the
-two majority classes (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/09d819a43c6e2990856e40dbda09f893.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/988584bba6844388f07ea45b7132f61c.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/>) is performed \[see (Lemaître,
+two majority classes (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/09d819a43c6e2990856e40dbda09f893.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/988584bba6844388f07ea45b7132f61c.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/>) is performed (see Lemaître,
 Nogueira, and Aridas 2017), reducing their size by \~10%. Furthermore,
 as in practice many common sophisticated under- and oversampling
 techniques (e.g. data augmentation or outlier removal, for an overview
@@ -562,6 +562,9 @@ Maartje EJ Raijmakers, and Han LJ Maas. 2014. "The Role of Pattern
 Recognition in Children's Exact Enumeration of Small Numbers." *British
 Journal of Developmental Psychology* 32 (2). Wiley Online Library:
 178--94.
+
+Kingma, Diederik P, and Max Welling. 2013. "Auto-Encoding Variational
+Bayes." *arXiv Preprint arXiv:1312.6114*.
 
 Krizhevsky, Alex, Ilya Sutskever, and Geoffrey E Hinton. 2012. "Imagenet
 Classification with Deep Convolutional Neural Networks." In *Advances in
