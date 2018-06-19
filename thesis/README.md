@@ -281,12 +281,13 @@ necessarily accurate copies. Furthermore, optimizing an abritary
 distribution would be intractable, thus we need to rely on the fact that
 given a set <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6d077ae1da4ac3e30b6a20e4d3060395.svg?invert_in_darkmode" align=middle width=83.85645179999999pt height=22.465723500000017pt/> with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6de080c8975058ab5987439c89562c2e.svg?invert_in_darkmode" align=middle width=51.11672279999999pt height=22.648391699999998pt/> and any
 sufficiently complicated function <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/fb5a9656c65930c54541391b5aa251d4.svg?invert_in_darkmode" align=middle width=35.78112284999999pt height=24.65753399999998pt/> (such as a neural network),
-there exists a mapping <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/7a1825b059f9c0700cce0667107cc8ff.svg?invert_in_darkmode" align=middle width=71.14121849999998pt height=31.141535699999984pt/> such that
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1b3435a81db0f065545ff3cbb10b3174.svg?invert_in_darkmode" align=middle width=78.95530994999999pt height=31.141535699999984pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e01ded0de4f3052fc9ca35ce5f37c2e4.svg?invert_in_darkmode" align=middle width=40.53087224999999pt height=24.65753399999998pt/> any distribution in \$\mathbb{R}\^{n}
-\$(Doersch 2016). Therefore, the two optimization objectives of a VAE
-become (see figure 4 of Doersch 2016):
+there exists a mapping <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/7a1825b059f9c0700cce0667107cc8ff.svg?invert_in_darkmode" align=middle width=71.14121849999998pt height=31.141535699999984pt/> such we can generate any
+distribution <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e01ded0de4f3052fc9ca35ce5f37c2e4.svg?invert_in_darkmode" align=middle width=40.53087224999999pt height=24.65753399999998pt/> in <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3afa189299419b087ab3ae25810cd215.svg?invert_in_darkmode" align=middle width=19.998202949999992pt height=22.648391699999998pt/> (Doersch 2016).
 
-1.  <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4a5d495a4a9a1140380700f4affe6e59.svg?invert_in_darkmode" align=middle width=208.26828659999998pt height=24.65753399999998pt/>
+Therefore, the optimization objectives of a VAE become (see figure 4 of
+Doersch 2016): 1.
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4a5d495a4a9a1140380700f4affe6e59.svg?invert_in_darkmode" align=middle width=208.26828659999998pt height=24.65753399999998pt/>
+
 2.  Some reconstruction loss. Within visual problems, plain VAEs can for
     example minimize the binary cross entropy between $X$ and $\hat{X}$.
 
