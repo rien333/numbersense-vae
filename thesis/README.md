@@ -6,37 +6,35 @@ of whatever I have in mind for my thesis)
 
 Although various machine learning approaches dealing with the numerical
 determination of the amount of objects in images already exist, some
-research seems impartial to broader cognitive debate (for a
-discussion(not realy a discussion preseent)🔹, see Stoianov and Zorzi
-2012), resulting in models that are somewhat unhelpful for progressing
-the understanding of numerical cognition. Any approach to computational
-modeling of numerical cognition that aims to maintain biological
-plausibility should adhere to neurological findings about the general
-characteristics of cognitive processes related to numerical tasks.
-Essential to understanding the cognitive processes behind number sense
-is their perceptual origin, for so called *visual numerosity* has been
-posed as the fundamental basis for developmentally later kinds of number
-sense, such as that required for arithmetical thinking and other more
-rigorous concepts of number found in mathematics (Lakoff and Núñez 2000,
-chap. 2; Piazza and Izard 2009). Visual numerosity is the perceptual
-capability of many organisms to perceive a group of items as having
-either a distinct or approximate cardinality. Some specific
-characteristics of visual numerosity can be derived from it's neural
-basis. Nieder (2016) and Harvey et al. (2013) present research where
-topologically organized neural populations exhibiting response profiles
-that remained largely invariant to all changes in visual features except
-quantity were discovered. Specifically, the found topological ordering
-was such that aside from populations responding to their own preferred
-numerosity, they also showed progressively diminishing activation to
-preferred numerosities of adjacent populations, in a somewhat
-bell-shaped fashion (Nieder 2016). This correspondence between visual
-quantity and topological network structure leads them to conclude that
-neural populations can directly (i.e. without interposition of higher
-cognitive processes) encode specific visual numerosities. This coding
-property of neurons participating in visual numoristy was found in
-humans and other animals alike (see Nieder 2016; Harvey et al. 2013).
+research can be impartial to broader cognitive debate, resulting in
+models that are somewhat unhelpful for progressing the understanding of
+numerical cognition. Any approach to computational modeling of numerical
+cognition that aims to maintain biological plausibility should adhere to
+neurological findings about the general characteristics of cognitive
+processes related to numerical tasks. Essential to understanding the
+cognitive processes behind number sense is their perceptual origin, for
+so called *visual numerosity* has been posed as the fundamental basis
+for developmentally later kinds of number sense, such as that required
+for arithmetical thinking and other more rigorous concepts of number
+found in mathematics (Lakoff and Núñez 2000, chap. 2; Piazza and Izard
+2009). Visual numerosity is the perceptual capability of many organisms
+to perceive a group of items as having either a distinct or approximate
+cardinality. Some specific characteristics of visual numerosity can be
+derived from it's neural basis. Nieder (2016) and Harvey et al. (2013)
+present research where topologically organized neural populations
+exhibiting response profiles that remained largely invariant to all
+sensory modalities except quantity were discovered. Specifically, the
+found topological ordering was such that aside from populations
+responding to their own preferred numerosity, they also showed
+progressively diminishing activation to preferred numerosities of
+adjacent populations, in a somewhat bell-shaped fashion (Nieder 2016).
+This correspondence between visual quantity and topological network
+structure leads them to conclude that neural populations can directly
+(i.e. without interposition of higher cognitive processes) encode
+specific visual numerosities. This coding property of neurons
+participating in visual numoristy was found in humans and other animals
+alike (see Nieder 2016; Harvey et al. 2013).
 
-<!-- move to another section maybe? related work? -->
 Notwithstanding the success of previous biologically informed approaches
 to modeling numerical cognition with artificial neural networks
 (Stoianov and Zorzi 2012), more work is to be done in applying such
@@ -50,9 +48,9 @@ capture how visual number sense in animals is abstract in regard to the
 perceived objects (Nieder 2016), implying that a model should be able
 show that it performs equally well between objects of different visual
 complexities. Another way in which biological plausibility will be
-improved is by guiding some algorithmic desicsions on the previously
+improved is by guiding some algorithmic decisions on the previously
 described discovery of the direct involvement of certain neural
-populations' with numerosity perception. Moreover, the properties of
+populations with numerosity perception. Moreover, the properties of
 these neurons' encoding scheme provide interesting evaluation data to
 the visual numerosity encoding scheme used by our final model. Some
 important and closely related characteristics of visual numerosity that
@@ -69,41 +67,39 @@ plausibility of the final model are:
     functionally inspired by the visual cortex of animals (specifically
     cats, see LeCun and Bengio 1995). CNNs mimicking aspects of the
     animal visual cortex thus make them an excellent candidate for
-    modeling automatic neural coding by means of specific numerosity
-    percepts.
+    modeling automatic neural coding by means of numerosity percepts.
 
-2.  The directness of visual number sense leads us to conclude that no
-    interposition of external process is required for numerosity
-    perception, at least no other low-level sensory neural processes.
-    More appropriately, the sudden character of visual number sense
-    could be explained by it omitting higher cognitive processes, such
-    as conscious representations (Dehaene 2011 indeed points to types of
+2.  The directness of visual number entails that no interposition of
+    external processes is required for numerosity perception, at least
+    no other than lower-level sensory neural processes. More
+    appropriately, the sudden character of visual number sense could be
+    explained by it omitting higher cognitive processes, such as
+    conscious representations (Dehaene 2011 indeed points to types of
     visual number sense being preattentive) or symbolic processing
-    (visual numerosity is completely non-verbal, Nieder 2016). Moreover,
-    the existence of visual sense of number in human newborns (Lakoff
-    and Núñez 2000), animals (Davis and Pérusse 1988) and cultures
-    without exact counting systems (Dehaene 2011, p261; Franka et
-    al. 2008) further strengthens the idea that specific kinds of sense
-    of number do not require much mediation and can purely function as
-    an interplay between perceptual capabilities and their neural
-    encodings, given the aforementioned groups lack of facilities for
-    abstract reasoning about number (see Everett 2005, 626; Lakoff and
-    Núñez 2000, chap. 3, for a discussion on how cultural facilitaties
-    such as precise symbols and linguistic practices can facilitate the
-    existence of discrete number in humans). Indeed, Harvey et
-    al. (2013) show that earlier mentioned neural populations did not
-    display their characteristic response profile when confronted with
-    Arabic numerals (i.e. symbolic representations of number), these
-    populations thus showing the ability to function seperately from
-    higer-order representational facilities. Visual number sense being a
-    immediate and purely perceptual process, implies that our model
-    should not apply external computational techniques often used in
-    computer vision research on numerical determination task such as
-    counting-by-detection (which requires both arithmetic and iterative
-    attention to all objects in the group) or segmenting techniques
-    (e.g. Chattopadhyay et al. 2016). Instead, it should purely be
-    implemented as model of something like the cognitive perceptual
-    system recieving sensory input.
+    (visual numerosity is completely non-verbal, Nieder 2016).
+    Furthermore, the existence of visual sense of number in human
+    newborns (Lakoff and Núñez 2000), animals (Davis and Pérusse 1988)
+    and cultures without exact counting systems (Dehaene 2011, p261;
+    Franka et al. 2008) further strengthens the idea that specific kinds
+    of sense of number do not require much mediation and can purely
+    function as an interplay between perceptual capabilities and neural
+    encoding schemes, given the aforementioned groups lack of facilities
+    for abstract reasoning about number (see Everett 2005, 626; Lakoff
+    and Núñez 2000, chap. 3, for a discussion on how cultural
+    facilitaties such as fixed symbols and linguistic practices can
+    facilitate the existence of discrete number in humans). Indeed,
+    Harvey et al. (2013) show that earlier mentioned neural populations
+    did not display their characteristic response profile when
+    confronted with Arabic numerals, that is, symbolic representations
+    of number. These populations thus show the ability to function
+    seperately from higer-order representational facilities. Visual
+    number sense being a immediate and purely perceptual process implies
+    that our model should not apply external computational techniques
+    often used in computer vision research on numerical determination
+    task such as counting-by-detection (which requires both arithmetic
+    and iterative attention to all objects in the group) or segmenting
+    techniques (e.g. Chattopadhyay et al. 2016). Instead, we want to our
+    model to operate in an autonomous and purely sensory fashion.
 
 3.  Relatedly, visual sense of number is an emergent property of neurons
     embedded in generative hierarchical learning models, either
@@ -114,28 +110,29 @@ plausibility of the final model are:
     human newborns having received much numerical training. Deemed as a
     generally unrealistic trope of artificial learning by AI critics
     (Dreyfus 2007) and research into the human learning process (Zorzi,
-    Testolin, and Stoianov 2013a), modeling visual number therefore
-    necessitates non-researcher depended features. This will restrict
-    the choice of algorithm to so called *unsupervised* learning
-    algorithms, as such an algorithm will learn its own particular
-    representation of the data distribution. Given their ability to
-    construct the underlying stochastic representation of the data,
-    i.e. performing autonomous feature determination, *Varitional
-    Autoencoders* (VAEs) seem fit to tackle this problem (see [**section
-    x.x**](#vae) for more detail). Moreover, VAEs are trained in an
-    unsupervised manner, similair to how learning visual number sense
-    does not required labeled data due it being emergent. Another
-    intersesting aspect of VAEs is their relatively interpretable data
-    encoding scheme, which might tell us something about how it deals
-    with visual numerosity, and thus allow us to evaluate the properties
-    of it's encoding against biological data.
+    Testolin, and Stoianov 2013a), modeling visual number necessitates
+    non-researcher depended features. This will restrict the choice of
+    algorithm to so called *unsupervised* learning algorithms, as such
+    an algorithm will learn its own particular representation of the
+    data distribution. Given their ability to infer the underlying
+    stochastic representation of the data, thus performing autonomous
+    feature determination, *Varitional Autoencoders* (VAEs) seem fit to
+    tackle this problem (see [**section x.x**](#vae) for more detail).
+    Moreover, VAEs are trained in an unsupervised manner, similair to
+    how learning visual number sense, given appropriate circumstances,
+    does not require labeled data due it being emergent. Another
+    intersesting aspect of VAEs is their relatively interpretable and
+    overseeable learned feature space, which might tell us something
+    about how it deals with visual numerosity, and thus allow us to
+    evaluate the properties of the VAE's encoding against biological
+    data.
 
-Unfortunately, no dataset fit for visual numerisoty estimation satisfied
+Unfortunately, no dataset fit for visual numerosity estimation satisfied
 above requirements (sizable collections of natural image with large and
-varied, precisely labeled objects groups are had to construct), forcing
+varied, precisely labeled objects groups are hard to construct), forcing
 present research towards *subitizing*, a type of visual number sense
 which had a catered dataset readily available. Subitizing is the ability
-of many animals to immediately perceive the number of items in a scene
+of many animals to immediately perceive the number of items in a group
 without resorting to counting or enumeration, given that the number of
 items falls within the subitizing range of 1-4
 ([**???**]{.citeproc-not-found data-reference-id="kaufman1949"}; Davis
@@ -144,31 +141,36 @@ approximate numerical cognition, but the aforementioned characterisics
 of visual sense of number hold equally well for a more distinct sense of
 number such as subitizing. Similairily, subitizing is suggested to be a
 parallel preattentive process in the visual system (Dehaene 2011, p57),
-whereby the visual system might rely on it's ability to recognize
-holistic patterns to arrive at a final subitizing count (Jansen et al.
-2014; Dehaene 2011, p57; Piazza et al. 2002). This means that the
-"sudden" character of subitizing is arrived at from the visual systems
-ability to process simple geometric configuration of objects in
-parallel, whereby an increase in the number of items behind the
-subitizing range deprives perceiving a group of it's sudden distinct
-numerical perpetual character for this would strain our parallelization
-capabilities too much. This strain would then lead us to resort to
-enumeration techniques, which have a perceptual character that differs
-from suddenness due enumeration being an attentive, patterned activity.
+the visual system likely relying on it's ability to recognize holistic
+patterns for a final subitizing count (Jansen et al. 2014; Dehaene 2011,
+p57; Piazza et al. 2002). This means that the "sudden" character of
+subitizing is caused by the visual system's ability to process simple
+geometric configurations of objects in parallel, whereby increasing the
+size of a group behind the subitizing range deprives perceiving this
+group of it's sudden and distinct numerical perceptual character for
+this would strain our parallelization capabilities too much. The
+difference in perceptual character is due to a recourse to enumeration
+techniques (and possibly others) whenever the subizting parallelization
+threshold is exceeded, which differ from suddenness in being a
+consciously guided (i.e. attentive) patterned type of activity.
+
 Present research therefore asks: how can artificial neural networks be
 applied to learning the emergent neural skill of subitizing in a manner
-comparable to their biological equivalents?
-
-To answer this, we will first highlight the details of our training
-procedure by describing a dataset constructed for modeling subitizing
-and the implementation of our learning algorithm, variational
-autoencoders. Next, as the SOS problem is essentialy an image
-classification, a methodology for evaluating the unsupervised VAE model
-on subitizing classification is described. We demonstrate that the
-performance of our unsupervised approach is comparable with supervised
-approaches using handcrafted features, although performance is still
-behind state of the art supervised machine learning due to problems
-inherent to our particulair VAE algorithm.
+comparable to their biological equivalents? To answer this, we will
+first highlight the details of our training procedure by describing a
+dataset constructed for modeling subitizing and how we implementented
+our VAE algorithm to learn a representation of this dataset. Next, as
+the subitizing task is essentialy an image classification task, a
+methodology for evaluating the unsupervised VAE model on subitizing
+classification is described. We demonstrate that the performance of our
+unsupervised approach is comparable with supervised approaches using
+handcrafted features, although performance is still behind state of the
+art supervised machine learning due to problems inherent to the
+particulair VAE implementation. Finally, testing the final models
+robustness to changes in visual features shows the emergence of a
+property similair to biological neuron, that is to say, the encoding
+scheme specifically supports particulair numerosity percepts invariant
+to visual features other than quantity.
 
 Related Work
 ============
@@ -176,29 +178,128 @@ Related Work
 Visual Number Sense
 -------------------
 
+<!-- Probably skip, but the arxiv paper and stoianov2012 can be reharsed -->
+<!-- Investigate the goodfellow2016deep reference as to why it is somewhat computationally expensive -->
+As previously described ([**???**]{.citeproc-not-found
+data-reference-id="Stoianov2012"}) applied artificial neural netwoks to
+visual numerosity estimation, although without using natural images.
+They discoverd that some resultant neural populations concerned with
+numerosity estimation shared multiple properties with biological
+populations participating in similair tasks, most prominently an
+encoding scheme that was invariant to the cumaltative surface area of
+the objects present in the provided images. Present research hopes to
+discover a similair kind of invarience to surface area. Likewise, we
+will employ the same scale invarience test, although a succesfull
+application to natural images already shows a fairly abstract
+representation of number, as the objects therein already contain varied
+visual features.
+
+Some simplicity of the dataset used by Stoianov and Zorzi (2012) is due
+their use of the relatively computationally expensive restricted
+boltzmann machine ([**???**]{.citeproc-not-found
+data-reference-id="goodfellow2016deep"}). Given developments in
+generative algorithms and the availablity of more computational power,
+we will therefore opt for a different algorithmic approach (as discussed
+in the introduction) that will hopefully scale better to natural images.
+
 Salient Object Subitizing Dataset
 ---------------------------------
 
-<!-- First also talk about how subitizing is a type of visual number sense, what it is, what the subitizing range is etc. -->
 <!-- Also mention something about how this dataset is concustructed -->
-<!-- Do you also explain synthetic data here? (see original ordering) -->
-. As seen in the [figure](#sub) below, the goal of the *Salient Object
+<!-- Do you also explain synthetic data here? (yes seems alright) -->
+<!-- Mention the results of their approach in some section -->
+As seen in the [figure](#sub) below, the goal of the *Salient Object
 Subitizing* (SOS) dataset as defined by Zhang et al. (2016) is to
 clearly show a number of salient objects that lies within the subitizing
-range.
+range. As other approaches (mention something about 0 and 4) The dataset
+was constructed from an ensemble of other datasets to avoid potential
+dataset bias, and contains approximately 14K natural images (Zhang et
+al. 2016).
 
 ![sos\_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/subitizing.png "Example images from the SOS dataset")
 
 Methods
 =======
 
-Variational Autoencoders
-------------------------
+Variational Autoencoder
+-----------------------
 
-Optimization objectives
+                                              ┌───┐
+                                              │ z⁰│
+                                              │ . │
+               ┌─────────────────┐            │ . │            ┌─────────────────┐
+               │                 │            │ . │            │                 │
+               │                 │            │ . │            │                 │
+
+┏━━━━━━━━┓ │ │ │ . │ │ │ ┏━━━━━━━━┓ ┃●●●●●●●●┃ │ │ │ . │ │ │ ┃■■■■■■■■┃
+┃●●●●●●●●┃────▶│ Encoder Network │───────────▶│ . │───────────▶│ Decoder
+Network │────▶┃■■■■■■■■┃ ┃●●●●●●●●┃ │ │ │ . │ │ │ ┃■■■■■■■■┃ ┗━━━━━━━━┛
+│ │ │ . │ │ │ ┗━━━━━━━━┛ X │ │ │ . │ │ │ X' │ │ │ . │ │ │
+└─────────────────┘ │ . │ └─────────────────┘ │ zⁿ│ └───┘
+
+                                  Latent vector z, with zⁱ ∈ R
+
+VAEs are part of the family of autoencoder algorithms, owing this title
+to the majority of their structure consisting of an encoder and a
+decoder module (Doersch 2016) (see figure X for the schematics of an
+autoencoder). In an regular autoencoder, the encoder module learns to
+map features from data samples <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/27ac585e125a63ba0fb7a06816735b9e.svg?invert_in_darkmode" align=middle width=54.998006249999996pt height=22.648391699999998pt/> into latent
+variables <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/b1b69f720063db1ed0b492cea440d19d.svg?invert_in_darkmode" align=middle width=51.99578669999999pt height=22.648391699999998pt/> often so that <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/7137b9b8600538350885d74d5ac21074.svg?invert_in_darkmode" align=middle width=49.87057679999999pt height=17.723762100000005pt/> and thus
+performs in dimenstionality reduction, while the decoder function learns
+to reconstruct latent variables <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/> into <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/aaee0864ff46a34cc8c6dd45b2c64665.svg?invert_in_darkmode" align=middle width=54.99798809999999pt height=31.141535699999984pt/>
+such that <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/a8696e2983fb53ac47995ac9596e2b5e.svg?invert_in_darkmode" align=middle width=14.908688849999992pt height=31.141535699999984pt/> matches <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/cbfb1b2a33b28eab8a3e59464768e810.svg?invert_in_darkmode" align=middle width=14.908688849999992pt height=22.465723500000017pt/> according to some predefined similarity
+measure (Liou et al. 2014). Reducing the input to be of much lower
+dimenstionality forces the autoencoder to learn only the most emblematic
+regularities of the data, as these will minimize the reconstrution
+error. The latent space can thus be seen as an inferred hidden feature
+representation of the data.
+
+Where VAEs primarily differ from regular autoencoders is that rather
+than directly coding data samples into a feature space, they learn the
+parameters of a distribution that represents that feature space.
+Therefore, VAEs perform stochastic inference of the underlying
+distribution of the input data, instead of only creating some efficient
+mappping to a lower dimenstionality that simultaneously facilitates
+accurate reconstruction. Provided with statistical knowledge of the
+characteristics of the input, VAEs can not only reconstruct exisiting
+examples, but also generate novel examples that are similair to the
+input data based on the inferred statistics. The ability to generate
+novel examples makes VAEs a *generative* algorithm.
+
+The task of the encoder network in a VAE is to infer the mean and
+variance parameters of a probability distribution of the latent space
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1e47ffddebff565cbf3bd72a1bcec5eb.svg?invert_in_darkmode" align=middle width=106.92196514999998pt height=24.65753399999998pt/> such that samples <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/>
+drawn from this distribution facilitate reconstruction of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/cbfb1b2a33b28eab8a3e59464768e810.svg?invert_in_darkmode" align=middle width=14.908688849999992pt height=22.465723500000017pt/> (Doersch
+2016). Novel sampled <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/> vectors can then be fed into the decoder
+network as usual. <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c5c66b75f27ea3a5e8a20dfc22ab0394.svg?invert_in_darkmode" align=middle width=37.599025199999986pt height=24.65753399999998pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/588e8c2c9441c1142fd70e76d1d5b7f1.svg?invert_in_darkmode" align=middle width=39.56627894999999pt height=24.65753399999998pt/> are constrained to roughly
+follow a unit gaussian by minizing the Kullback-Leibler divergence
+(denoted as <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/92a3cfa10cc205f69999b396a8a3be8c.svg?invert_in_darkmode" align=middle width=24.100592999999986pt height=22.465723500000017pt/>) between <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6ba9ca2293d01d450671128ce5062746.svg?invert_in_darkmode" align=middle width=52.73634794999999pt height=24.65753399999998pt/> and
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1e47ffddebff565cbf3bd72a1bcec5eb.svg?invert_in_darkmode" align=middle width=106.92196514999998pt height=24.65753399999998pt/>, where <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/92a3cfa10cc205f69999b396a8a3be8c.svg?invert_in_darkmode" align=middle width=24.100592999999986pt height=22.465723500000017pt/>
+measures the distance between probability distribitions. Normally
+distributed latent variables capture the intuition behind generative
+algorithms that they should support sampling latent variables that
+produce reconstructions that are merely similair to the input, and not
+necessarily accurate copies. Furthermore, optimizing an abritary
+distribution would be intractable, thus we need to rely on the fact that
+given a set <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e257acd1ccbe7fcb654708f1a866bfe9.svg?invert_in_darkmode" align=middle width=11.027402099999989pt height=22.465723500000017pt/> of normaly distributed variales in <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3afa189299419b087ab3ae25810cd215.svg?invert_in_darkmode" align=middle width=19.998202949999992pt height=22.648391699999998pt/> and
+any sufficiently complicated function <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/b8bc815b5e9d5177af01fd4d3d3c2f10.svg?invert_in_darkmode" align=middle width=12.85392569999999pt height=22.465723500000017pt/> (such as a neural network),
+there exist an (mappping) <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f494d2f459c4cc8da33204d5001d65c6.svg?invert_in_darkmode" align=middle width=36.66673889999999pt height=24.65753399999998pt/> that can generate any distribution in
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3afa189299419b087ab3ae25810cd215.svg?invert_in_darkmode" align=middle width=19.998202949999992pt height=22.648391699999998pt/>(Doersch 2016). Therefore, the two optimization
+objectives of an VAE become (see figure 4 of Doersch 2016):
 
 1.  <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4a5d495a4a9a1140380700f4affe6e59.svg?invert_in_darkmode" align=middle width=208.26828659999998pt height=24.65753399999998pt/>
-2.  Visual reconstruction loss (e.g. BCE)
+2.  Some reconstruction loss. Within visual problems, plain VAEs can for
+    example minimize the binary cross entropy between $X$ and $\hat{X}$.
+
+The first objective of generating an appropate distribution (research
+into optimizing distribitions differently exists) function of the latent
+spance makes VAEs generative, partly satisfying the third constraint
+outlined in the introduction. To fully satisfy this constraint, the
+final architecture uses deep neural networks for both the encoder and
+decoder module (see Experiments VAE architecture), making the
+implementation an hierarchical model. For a full overview on the
+implementation of a VAE, refer to ([**???**]{.citeproc-not-found
+data-reference-id="kingma2013auto"}) and Doersch (2016).
 
 Deep Feature Consistent Perceptual Loss
 ---------------------------------------
@@ -218,7 +319,21 @@ The more mathematical intuition behind this loss is that whatever some
 hidden layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> of the VGG-19 network encodes should be retained in
 the reconstructed output, as the VGG-19 has proven to model important
 visual characteristics of a large variety of image types (VGG-19 having
-been trained on ImageNet).
+been trained on ImageNet). (One notable downside of this approach is
+that although layers from the VGG-19 represent important visual
+information , it is well known fact that the first few layers (which
+seem to work best in our own test, as well as in their original
+application ) only encode simple features such as edges and lines (i.e
+countours) which are combined into more complex features in deeper
+layers. This means that the optimization is somewhat unambitious, in
+that it will never try to learn any other visual features aside from
+what the set of predfined layers <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> encode, such as detailed object
+textures. Indeed, although countour reconstruction has greatly improved
+with this loss function, reconstructed detail such as facial features
+show less improvement.
+
+Extending The Dataset With Syntethic Images
+-------------------------------------------
 
 Experiments
 ===========
@@ -315,14 +430,17 @@ undersampling, if <img src="https://rawgit.com/rien333/numbersense-vae/master/sv
 classes shrinks towards chance, and, interestingly, accuracy for the
 minority classes becomes comparable to the state of the art.
 
-Synthetic images
-----------------
+Hybrid Dataset
+--------------
 
 Subitizing has been noted to become harder when objects are
-superimposed, thus resorting to external process as counting by object
-enumeration (Dehaene 2011, p57.). Compared to Zhang et al. (2016), we
-therefore increase the overlap threshold for subitizing classes with
-more objects
+superimposed, forcing recource to external processes as counting by
+object enumeration (Dehaene 2011, p57.). Therefore, the object overlap
+threshold is increased by <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/22f2e6fc19e491418d1ec4ee1ef94335.svg?invert_in_darkmode" align=middle width=21.00464354999999pt height=21.18721440000001pt/> starting from <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/cde2d598001a947a6afd044a43d15629.svg?invert_in_darkmode" align=middle width=21.00464354999999pt height=21.18721440000001pt/> for every object
+added to an image, compared to Zhang et al. (2016)'s the static value of
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/cde2d598001a947a6afd044a43d15629.svg?invert_in_darkmode" align=middle width=21.00464354999999pt height=21.18721440000001pt/>, as VAEs have been noted to produce blurry reconstructions,
+indicating a poor ability to code object edges, so distorting class
+labels.
 
 Results & Discussion
 ====================
@@ -401,6 +519,9 @@ Press: 561--79.
 Dehaene, Stanislas. 2011. *The Number Sense: How the Mind Creates
 Mathematics*. OUP USA.
 
+Doersch, Carl. 2016. "Tutorial on Variational Autoencoders." *arXiv
+Preprint arXiv:1606.05908*.
+
 Dreyfus, Hubert L. 2007. "Why Heideggerian Ai Failed and How Fixing It
 Would Require Making It More Heideggerian." *Philosophical Psychology*
 20 (2). Taylor & Francis: 247--68.
@@ -458,6 +579,9 @@ Lemaître, Guillaume, Fernando Nogueira, and Christos K. Aridas. 2017.
 "Imbalanced-Learn: A Python Toolbox to Tackle the Curse of Imbalanced
 Datasets in Machine Learning." *Journal of Machine Learning Research* 18
 (17): 1--5. <http://jmlr.org/papers/v18/16-365>.
+
+Liou, Cheng-Yuan, Wei-Chen Cheng, Jiun-Wei Liou, and Daw-Ran Liou. 2014.
+"Autoencoder for Words." *Neurocomputing* 139. Elsevier: 84--96.
 
 Mnih, Volodymyr, Koray Kavukcuoglu, David Silver, Andrei A Rusu, Joel
 Veness, Marc G Bellemare, Alex Graves, et al. 2015. "Human-Level Control
