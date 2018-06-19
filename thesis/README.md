@@ -180,13 +180,12 @@ Visual Number Sense
 
 <!-- Probably skip, but the arxiv paper and stoianov2012 can be reharsed -->
 <!-- Investigate the goodfellow2016deep reference as to why it is somewhat computationally expensive -->
-As previously described ([**???**]{.citeproc-not-found
-data-reference-id="Stoianov2012"}) applied artificial neural netwoks to
-visual numerosity estimation, although without using natural images.
-They discoverd that some resultant neural populations concerned with
-numerosity estimation shared multiple properties with biological
-populations participating in similair tasks, most prominently an
-encoding scheme that was invariant to the cumaltative surface area of
+As previously described Stoianov and Zorzi (2012) applied artificial
+neural netwoks to visual numerosity estimation, although without using
+natural images. They discoverd that some resultant neural populations
+concerned with numerosity estimation shared multiple properties with
+biological populations participating in similair tasks, most prominently
+an encoding scheme that was invariant to the cumaltative surface area of
 the objects present in the provided images. Present research hopes to
 discover a similair kind of invarience to surface area. Likewise, we
 will employ the same scale invarience test, although a succesfull
