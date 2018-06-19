@@ -280,7 +280,7 @@ distribution would be intractable, thus we need to rely on the fact that
 given a set <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/31e2b8e57714a1b646edeb57c65e2e5a.svg?invert_in_darkmode" align=middle width=83.99525969999999pt height=22.465723500000017pt/> with
 <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb80d7867cd70ef2ba19bcdc87929a24.svg?invert_in_darkmode" align=middle width=51.25553069999999pt height=22.648391699999998pt/> and any sufficiently complicated
 function <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/68ea884fbd70c05c5339170fabc350c8.svg?invert_in_darkmode" align=middle width=30.308325299999993pt height=24.65753399999998pt/> (such as a neural network), there exists a mapping
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1b707e4b12153520e912f0d6cc187b0c.svg?invert_in_darkmode" align=middle width=71.14121849999998pt height=31.141535699999984pt/> from which we can generate any abritary
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/7a1825b059f9c0700cce0667107cc8ff.svg?invert_in_darkmode" align=middle width=71.14121849999998pt height=31.141535699999984pt/> from which we can generate any abritary
 distribution <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/abe1a76a61e3c50260d1f31f45077af1.svg?invert_in_darkmode" align=middle width=80.62021274999998pt height=24.65753399999998pt/> with
 <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f621812d9fc866398da46b6fe06ec815.svg?invert_in_darkmode" align=middle width=101.27248395pt height=31.141535699999984pt/> (Doersch 2016).
 
