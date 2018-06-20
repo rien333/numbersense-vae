@@ -59,15 +59,16 @@ plausibility of the final model are:
 
 1.  Visual number sense is a purely *automatic* appreciation of the
     sensory world. It can be characterized as "sudden", or as visible at
-    a glance (Dehaene 2011, p57; Zhang et al. 2016). *Convolutional
-    neural networks* (CNNs) not only showcase excellent performance in
-    extracting visual features from complicated natural images (Mnih et
-    al. 2015; Krizhevsky, Sutskever, and Hinton 2012; for visual number
-    sense and CNNs see Zhang et al. 2016), but are furthermore
-    functionally inspired by the visual cortex of animals (specifically
-    cats, see LeCun and Bengio 1995). CNNs mimicking aspects of the
-    animal visual cortex thus make them an excellent candidate for
-    modeling automatic neural coding by means of numerosity percepts.
+    a glance (Dehaene 2011, p57; J. Zhang, Ma, et al. 2016).
+    *Convolutional neural networks* (CNNs) not only showcase excellent
+    performance in extracting visual features from complicated natural
+    images (Mnih et al. 2015; Krizhevsky, Sutskever, and Hinton 2012;
+    for visual number sense and CNNs see J. Zhang, Ma, et al. 2016), but
+    are furthermore functionally inspired by the visual cortex of
+    animals (specifically cats, see LeCun and Bengio 1995). CNNs
+    mimicking aspects of the animal visual cortex thus make them an
+    excellent candidate for modeling automatic neural coding by means of
+    numerosity percepts.
 
 2.  The directness of visual number entails that no interposition of
     external processes is required for numerosity perception, at least
@@ -97,10 +98,10 @@ plausibility of the final model are:
     that our model should not apply external computational techniques
     often used in computer vision research on numerical determination
     task such as counting-by-detection (requiring both arithmetic and
-    iterative attention to all group members, see Zhang et al. 2016,
-    and @zhang2016unconstrained) or segmenting techniques (e.g.
-    Chattopadhyay et al. 2016). Instead, we want to our model to operate
-    in an autonomous and purely sensory fashion.
+    iterative attention to all group members, see J. Zhang, Ma, et al.
+    2016, and @detection2016unconstrained) or segmenting techniques
+    (e.g. Chattopadhyay et al. 2016). Instead, we want to our model to
+    operate in an autonomous and purely sensory fashion.
 
 3.  Relatedly, visual sense of number is an emergent property of neurons
     embedded in generative hierarchical learning models, either
@@ -206,15 +207,15 @@ Salient Object Subitizing Dataset
 <!-- Do you also explain synthetic data here? (yes seems alright) -->
 <!-- Mention the results of their approach in some section -->
 As seen in the [figure](#sub) below, the goal of the *Salient Object
-Subitizing* (SOS) dataset as defined by Zhang et al. (2016) is to
-clearly show a number of salient objects that lies within the subitizing
-range. As other approaches often perform poor on images with complex
-backgrounds or with a large number of objects, Zhang et al. (2016) also
-introduce images with no salient objects, as well as images where the
-number of salient objects lies outside of the subitizing range (labeled
-as "4+"). The dataset was constructed from an ensemble of other datasets
-to avoid potential dataset bias, and contains approximately 14K natural
-images (Zhang et al. 2016).
+Subitizing* (SOS) dataset as defined by J. Zhang, Ma, et al. (2016) is
+to clearly show a number of salient objects that lies within the
+subitizing range. As other approaches often perform poor on images with
+complex backgrounds or with a large number of objects, J. Zhang, Ma, et
+al. (2016) also introduce images with no salient objects, as well as
+images where the number of salient objects lies outside of the
+subitizing range (labeled as "4+"). The dataset was constructed from an
+ensemble of other datasets to avoid potential dataset bias, and contains
+approximately 14K natural images (J. Zhang, Ma, et al. 2016).
 
 ![sos\_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/subitizing.png "Example images from the SOS dataset")
 
@@ -450,10 +451,10 @@ Subitizing has been noted to become harder when objects are
 superimposed, forcing recource to external processes as counting by
 object enumeration (Dehaene 2011, p57.). Therefore, the object overlap
 threshold is increased by <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/22f2e6fc19e491418d1ec4ee1ef94335.svg?invert_in_darkmode" align=middle width=21.00464354999999pt height=21.18721440000001pt/> starting from <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/cde2d598001a947a6afd044a43d15629.svg?invert_in_darkmode" align=middle width=21.00464354999999pt height=21.18721440000001pt/> for every object
-added to an image, compared to Zhang et al. (2016)'s the static value of
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/cde2d598001a947a6afd044a43d15629.svg?invert_in_darkmode" align=middle width=21.00464354999999pt height=21.18721440000001pt/>, as VAEs have been noted to produce blurry reconstructions,
-indicating a poor ability to code object edges, so distorting class
-labels.
+added to an image, compared to J. Zhang, Ma, et al. (2016)'s the static
+value of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/cde2d598001a947a6afd044a43d15629.svg?invert_in_darkmode" align=middle width=21.00464354999999pt height=21.18721440000001pt/>, as VAEs have been noted to produce blurry
+reconstructions, indicating a poor ability to code object edges, so
+distorting class labels.
 
 Results & Discussion
 ====================
@@ -467,7 +468,7 @@ Accuray of the `zclassifier` (i.e. the classifier as described in
 [**section x.x**](#classifierarch) that learns to classify latent
 activation patterns to subitizing labels) is reported over the witheld
 SOS test set. Accuracy scores of other algorithms were copied over from
-Zhang et al. (2016).
+J. Zhang, Ma, et al. (2016).
 
 |            | 0    | 1    | 2    | 3    | 4+   | mean |
 |-----------:|------|------|------|------|------|------|
@@ -494,15 +495,15 @@ Zhang et al. (2016).
 <!-- Accuracy of     4 : 31 % -->
 The subitizing performance of the VAE is comparable to highest scoring
 non-machine learning algorithm, and performs worse overall than the CNNs
-trained by Zhang et al. (2016). This can be explained by a number of
-factors. First of all, the `CNN_ft` algorithm used by Zhang et al.
-(2016) has been pretrained on the large, well tested databese of images
-it is trained on (i.e. ImageNet, which contains N images, while our
-procedure uses M syntethic and N2 natural images). Additionaly, their
-model is capable of more complex representations due its depth and the
-amount of modules it contains (). Moreover, all their alogirhtms are
-trained in a supervised manner, which can sometimes be a lot easier than
-unsupervised training ([**???**]{.citeproc-not-found
+trained by J. Zhang, Ma, et al. (2016). This can be explained by a
+number of factors. First of all, the `CNN_ft` algorithm used by J.
+Zhang, Ma, et al. (2016) has been pretrained on the large, well tested
+databese of images it is trained on (i.e. ImageNet, which contains N
+images, while our procedure uses M syntethic and N2 natural images).
+Additionaly, their model is capable of more complex representations due
+its depth and the amount of modules it contains (). Moreover, all their
+alogirhtms are trained in a supervised manner, which can sometimes be a
+lot easier than unsupervised training ([**???**]{.citeproc-not-found
 data-reference-id="ref"})
 
 Qualitive Analysis
@@ -638,6 +639,11 @@ Preprint arXiv:1802.05160*.
 Zhang, Jianming, Shuga Ma, Mehrnoosh Sameki, Stan Sclaroff, Margrit
 Betke, Zhe Lin, Xiaohui Shen, Brian Price, and Radomír Měch. 2016.
 "Salient Object Subitizing." *arXiv Preprint arXiv:1607.07525*.
+
+Zhang, Jianming, Stan Sclaroff, Zhe Lin, Xiaohui Shen, Brian Price, and
+Radomir Mech. 2016. "Unconstrained Salient Object Detection via Proposal
+Subset Optimization." In *Proceedings of the Ieee Conference on Computer
+Vision and Pattern Recognition*, 5733--42.
 
 Zorzi, Marco, Alberto Testolin, and Ivilin P. Stoianov. 2013a. "Modeling
 Language and Cognition with Deep Unsupervised Learning: A Tutorial
