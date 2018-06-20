@@ -283,11 +283,12 @@ produce reconstructions that are merely *similair* to the input, and not
 necessarily accurate copies. Furthermore, optimizing an abritary
 distribution would be intractable, thus we need to rely on the fact that
 given a set of normally distributed variables
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/74eb1332c3719400e7517a687c0a6cd8.svg?invert_in_darkmode" align=middle width=84.99981764999998pt height=22.465723500000017pt/> with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb80d7867cd70ef2ba19bcdc87929a24.svg?invert_in_darkmode" align=middle width=51.25553069999999pt height=22.648391699999998pt/> and
-any sufficiently complicated function <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/68ea884fbd70c05c5339170fabc350c8.svg?invert_in_darkmode" align=middle width=30.308325299999993pt height=24.65753399999998pt/> (such as a neural network),
-there exists a mapping <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/7a1825b059f9c0700cce0667107cc8ff.svg?invert_in_darkmode" align=middle width=71.14121849999998pt height=31.141535699999984pt/> from which we can generate
-any abritary distribution <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/b35d6f59a5e2434e1ab2e6def0bbb465.svg?invert_in_darkmode" align=middle width=80.75901899999998pt height=24.65753399999998pt/> with
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/0203b3b718dba73491715eeed753d9b0.svg?invert_in_darkmode" align=middle width=73.47586619999998pt height=31.141535699999984pt/> (Doersch 2016).
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6b04d182a4cc153c99e63cb11624e429.svg?invert_in_darkmode" align=middle width=102.26015249999999pt height=24.65753399999998pt/> with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb80d7867cd70ef2ba19bcdc87929a24.svg?invert_in_darkmode" align=middle width=51.25553069999999pt height=22.648391699999998pt/> and
+any sufficiently complicated function <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/fb5a9656c65930c54541391b5aa251d4.svg?invert_in_darkmode" align=middle width=35.78112284999999pt height=24.65753399999998pt/> (such as a neural
+network), there exists a mapping <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/7a1825b059f9c0700cce0667107cc8ff.svg?invert_in_darkmode" align=middle width=71.14121849999998pt height=31.141535699999984pt/> from which we
+can generate any abritary distribution
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/b35d6f59a5e2434e1ab2e6def0bbb465.svg?invert_in_darkmode" align=middle width=80.75901899999998pt height=24.65753399999998pt/> with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/0203b3b718dba73491715eeed753d9b0.svg?invert_in_darkmode" align=middle width=73.47586619999998pt height=31.141535699999984pt/> (Doersch
+2016).
 
 Therefore, the optimization objectives of a VAE become (see figure 4 of
 Doersch 2016):
