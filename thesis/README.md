@@ -247,9 +247,9 @@ autoencoder). In an regular autoencoder, the encoder module learns to
 map features from data samples <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/27ac585e125a63ba0fb7a06816735b9e.svg?invert_in_darkmode" align=middle width=54.998006249999996pt height=22.648391699999998pt/> into latent
 variables <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/b1b69f720063db1ed0b492cea440d19d.svg?invert_in_darkmode" align=middle width=51.99578669999999pt height=22.648391699999998pt/> often so that <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/7137b9b8600538350885d74d5ac21074.svg?invert_in_darkmode" align=middle width=49.87057679999999pt height=17.723762100000005pt/> and thus
 performs in dimenstionality reduction, while the decoder function learns
-to reconstruct latent variables <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/> into <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/aaee0864ff46a34cc8c6dd45b2c64665.svg?invert_in_darkmode" align=middle width=54.99798809999999pt height=31.141535699999984pt/>
-such that <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/a8696e2983fb53ac47995ac9596e2b5e.svg?invert_in_darkmode" align=middle width=14.908688849999992pt height=31.141535699999984pt/> matches <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/cbfb1b2a33b28eab8a3e59464768e810.svg?invert_in_darkmode" align=middle width=14.908688849999992pt height=22.465723500000017pt/> according to some predefined similarity
-measure (Liou et al. 2014). Reducing the input to be of much lower
+to reconstruct latent variables <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/> into <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/0662449c28bd0449f7fc10e8c706e5d7.svg?invert_in_darkmode" align=middle width=59.609881649999984pt height=24.7161288pt/> such
+that <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/deaa67ea7054ce0a18480a658535949d.svg?invert_in_darkmode" align=middle width=18.69862829999999pt height=24.7161288pt/> matches <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/cbfb1b2a33b28eab8a3e59464768e810.svg?invert_in_darkmode" align=middle width=14.908688849999992pt height=22.465723500000017pt/> according to some predefined similarity measure
+(Liou et al. 2014). Reducing the input to be of much lower
 dimenstionality forces the autoencoder to learn only the most emblematic
 regularities of the data, as these will minimize the reconstrution
 error. The latent space can thus be seen as an inferred hidden feature
@@ -285,17 +285,16 @@ distribution would be intractable, thus we need to rely on the fact that
 given a set of normally distributed variables
 <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6b04d182a4cc153c99e63cb11624e429.svg?invert_in_darkmode" align=middle width=102.26015249999999pt height=24.65753399999998pt/> with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb80d7867cd70ef2ba19bcdc87929a24.svg?invert_in_darkmode" align=middle width=51.25553069999999pt height=22.648391699999998pt/> and
 any sufficiently complicated function <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/fb5a9656c65930c54541391b5aa251d4.svg?invert_in_darkmode" align=middle width=35.78112284999999pt height=24.65753399999998pt/> (such as a neural
-network), there exists a mapping <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/7a1825b059f9c0700cce0667107cc8ff.svg?invert_in_darkmode" align=middle width=71.14121849999998pt height=31.141535699999984pt/> from which we
-can generate any abritary distribution
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/b35d6f59a5e2434e1ab2e6def0bbb465.svg?invert_in_darkmode" align=middle width=80.75901899999998pt height=24.65753399999998pt/> with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/0203b3b718dba73491715eeed753d9b0.svg?invert_in_darkmode" align=middle width=73.47586619999998pt height=31.141535699999984pt/> (Doersch
-2016).
+network), there exists a mapping <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/2b54f183e96b653f73efc4f4031291a2.svg?invert_in_darkmode" align=middle width=74.93116124999999pt height=24.7161288pt/> from which we can
+generate any abritary distribution <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/b35d6f59a5e2434e1ab2e6def0bbb465.svg?invert_in_darkmode" align=middle width=80.75901899999998pt height=24.65753399999998pt/>
+with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/7b98e2bfe759ee7b24a3cf145ba3056f.svg?invert_in_darkmode" align=middle width=78.08775974999999pt height=24.7161288pt/> (Doersch 2016).
 
 Therefore, the optimization objectives of a VAE become (see figure 4 of
 Doersch 2016):
 
 1.  <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4a5d495a4a9a1140380700f4affe6e59.svg?invert_in_darkmode" align=middle width=208.26828659999998pt height=24.65753399999998pt/>
 2.  Some reconstruction loss. Within visual problems, plain VAEs can for
-    example minimize the binary cross entropy between $X$ and $\hat{X}$.
+    example minimize the binary cross entropy between $X$ and $X'$.
 
 The first objective of generating an appropate distribution (research
 into optimizing distribitions differently exists) function of the latent
