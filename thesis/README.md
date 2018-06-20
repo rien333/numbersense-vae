@@ -97,9 +97,9 @@ plausibility of the final model are:
     number sense being a immediate and purely perceptual process implies
     that our model should not apply external computational techniques
     often used in computer vision research on numerical determination
-    task such as counting-by-detection (requiring both arithmetic and
-    iterative attention to all group members, see J. Zhang, Ma, et al.
-    2016, and @detection2016unconstrained) or segmenting techniques
+    task such as counting-by-detection (which requires both arithmetic
+    and iterative attention to all group members, see J. Zhang, Ma, et
+    al. 2016; J. Zhang, Sclaroff, et al. 2016) or segmenting techniques
     (e.g. Chattopadhyay et al. 2016). Instead, we want to our model to
     operate in an autonomous and purely sensory fashion.
 
