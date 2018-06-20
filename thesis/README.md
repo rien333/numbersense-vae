@@ -305,8 +305,8 @@ decoder module (see Experiments VAE architecture), making the
 implementation an hierarchical model. As an VAEs latent space encodes
 the most important features of the data, it is hoped the samples drawn
 from the encoder provide information regarding it's subitizing
-performance (see [**section x.x**
-implementing a VAE, refer to Kingma and Welling (2013) and Doersch
+performance (see [**section x.x**](#readout)). For a complete overview
+of implementing a VAE, refer to Kingma and Welling (2013) and Doersch
 (2016).
 
 Deep Feature Consistent Perceptual Loss
