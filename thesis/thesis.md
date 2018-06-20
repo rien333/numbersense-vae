@@ -51,6 +51,11 @@ As seen in the [figure](#sub) below, the goal of the _Salient Object Subitizing_
 # Methods #
 
 ## Variational Autoencoder ## {#vae}
+
+<!--
+    TODO 
+    - [ ] Where to place the archictecture with conv nets and all?
+-->
                                               ┌───┐
                                               │ z⁰│
                                               │ . │
@@ -81,7 +86,7 @@ Therefore, the optimization objectives of a VAE become [see figure 4 of @doersch
 1. $\mathcal{KL}\lbrack\mathcal{N}(\mu(X), \Sigma(X)) \vert\vert \mathcal{N}(0, I)\rbrack$
 2. Some reconstruction loss. Within visual problems, plain VAEs can for example minimize the binary cross entropy between $X$ and $X'$.
 
-The first objective of generating an appropate distribution (research into optimizing distribitions differently exists) function of the latent spance makes VAEs generative, partly satisfying the third constraint outlined in the introduction. To fully satisfy this constraint, the final architecture uses deep neural networks for both the encoder and decoder module (see Experiments VAE architecture), making the implementation an hierarchical model. As an VAEs latent space encodes the most important features of the data, it is hoped the samples drawn from the encoder provide information regarding it's subitizing performance (see [**section x.x**](#readout)). For a complete overview of implementing a VAE, refer to @kingma2013auto and @doersch2016tutorial.
+The first objective of generating an appropriate distribution function of the latent spance makes VAEs generative, partly satisfying the third constraint outlined in the introduction. To fully satisfy this constraint, the final architecture uses deep neural networks for both the encoder and decoder module (for details, refer to Experiments VAE architecture), making the implementation an hierarchical model. As an VAEs latent space encodes the most important features of the data, it is hoped the samples drawn from the encoder provide information regarding it's subitizing performance (see [**section x.x**](#readout)). For a complete overview of implementing a VAE, refer to @kingma2013auto and @doersch2016tutorial.
 
 ## Deep Feature Consistent Perceptual Loss ##
 
@@ -92,7 +97,6 @@ $$\mathcal{L}^{l_{i}}_{rec} = \textrm{MSE}(\Phi(x)^{l_{i}}, \Phi(\bar{x}̄)^{l_{
 The more mathematical intuition behind this loss is that whatever some hidden layer $l_i$ of the VGG-19 network encodes should be retained in the reconstructed output, as the VGG-19 has proven to model important visual characteristics of a large variety of image types (VGG-19 having been trained on ImageNet). (One notable downside of this approach is that although layers from the VGG-19 represent important visual information , it is well known fact that the first few layers (which seem to work best in our own test, as well as in their original application ) only encode simple features such as edges and lines (i.e countours) which are combined into more complex features in deeper layers. This means that the optimization is somewhat unambitious, in that it will never try to learn any other visual features aside from what the set of predfined layers $l_i$ encode, such as detailed object textures. Indeed, although countour reconstruction has greatly improved with this loss function, reconstructed detail such as facial features show less improvement.
 
 ## Extending The Dataset With Syntethic Images ##
-
 
 # Experiments #
 
