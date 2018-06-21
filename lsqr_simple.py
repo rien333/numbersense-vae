@@ -9,7 +9,7 @@ import random
 DATA_W = 161
 DATA_H = 161
 C = 4 # amount of class
-nan_eps = 1e-8 # log(0) does not exist
+nan_eps = 1e-2 # log(0) does not exist
 
 # idk what to do with epsilon but maybe just add a small constant to the result
 def residual(params, cum_area, N, activation, eps):
@@ -24,6 +24,8 @@ def residual(params, cum_area, N, activation, eps):
     N_norm = (N / C) + nan_eps
     cum_area_norm = (cum_area / (DATA_H*DATA_W)) + nan_eps
 
+    # print(N)
+    # print(cum_area_norm)
     # residual between model fit and ground truth neuron activations
     model = b1 * np.log(N_norm) + b2 * np.log(cum_area_norm)
     # return (activation - model) / eps
@@ -40,7 +42,7 @@ params.add('B2', value=0.5) # Area
 eps = 5e-5
 
 # High neurons should conversely collerate with *either* cum_a or *N*, but (almost?) never with both
-samples = 20
+samples = 4500
 neurons = 8
 # It's actually somewhat less probable that so many neurons are redundant
 noisy_neurons = 0.2
@@ -56,6 +58,7 @@ N_norm = N / C
 # are often zero, which is never true in the VAEs case
 # maybe reflect this more in the activation tho
 cum_area = N * obj_s * np.random.normal(1.0, size_std, size=samples)
+cum_area = np.clip(cum_area, 0, a_max=None)
 cum_area_norm = cum_area / (DATA_W*DATA_H)
 
 # neurons of interest
@@ -70,10 +73,9 @@ activations = np.random.normal(0.5, act_std, size=(samples, neurons))
 # neurons do some other stuff as well tho so it makes sense that they sometimes are non-zero
 # (they can be zero for N=0), so add some stuff
 add_std = 0.00
-enc_std = 0.09
-activations[:, n_n] += (N_norm * np.random.normal(1.25, enc_std, size=samples)).reshape(samples, 1)
-activations[:, n_a] += (cum_area_norm * np.random.normal(1.25, enc_std, size=samples)).reshape(samples, 1)
-
+enc_std = 0.087
+activations[:, n_n] += (N_norm * np.random.normal(1.32, enc_std, size=samples)).reshape(samples, 1)
+activations[:, n_a] += (cum_area_norm * np.random.normal(1.32, enc_std, size=samples)).reshape(samples, 1)
 # activations[:, n_a] += np.random.normal(0, 0.07)
 # activations[:, n_a] *= cum_area 
 # for s in zip(activations, cum_area, N):
@@ -126,9 +128,9 @@ activations[:, n_a] += (cum_area_norm * np.random.normal(1.25, enc_std, size=sam
 # exit(0)
 
 
-# nia_idx = random.randint(0, len(n_a))
+# nia_idx = random.randint(0, len(n_a)-1)
 # nia = n_a[nia_idx]
-nin_idx = random.randint(0, len(n_n))
+nin_idx = random.randint(0, len(n_n)-1)
 nin = n_n[nin_idx]
 print("Minimizing numerosity neuron", nin)
 
