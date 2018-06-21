@@ -53,7 +53,7 @@ size_std = 0.35
 act_std = 0.12
 n_j = 1 # neuron that we want to look at
 
-N = np.random.randint(low=0, high=5, size=samples) + nan_eps
+N = np.random.randint(low=0, high=5, size=samples)
 N_norm = N / C
 # It's probably a good idea to add at least a little to this as some neurons that code for size
 # are often zero, which is never true in the VAEs case
