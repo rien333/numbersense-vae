@@ -161,16 +161,16 @@ first highlight the details of our training procedure by describing a
 dataset constructed for modeling subitizing and how we implementented
 our VAE algorithm to learn a representation of this dataset. Next, as
 the subitizing task is essentialy an image classification task, a
-methodology for evaluating the unsupervised VAE model on subitizing
-classification is described. We demonstrate that the performance of our
-unsupervised approach is comparable with supervised approaches using
-handcrafted features, although performance is still behind state of the
-art supervised machine learning due to problems inherent to the
-particulair VAE implementation. Finally, testing the final models
-robustness to changes in visual features shows the emergence of a
-property similar to biological neuron, that is to say, the encoding
-scheme specifically supports particulair numerosity percepts invariant
-to visual features other than quantity.
+methodology for evaluating the unsupervised VAE model's performance on
+the subitizing classification task is described. We demonstrate that the
+performance of our unsupervised approach is comparable with supervised
+approaches using handcrafted features, although performance is still
+behind state of the art supervised machine learning approaches due to
+problems inherent to the particulair VAE implementation. Finally,
+testing the final models robustness to changes in visual features shows
+the emergence of a property similar to biological neurons, that is to
+say, the VAE's encoding scheme specifically supports particulair
+numerosity percepts invariant to visual features other than quantity.
 
 Related Work
 ============
@@ -343,8 +343,8 @@ textures. Indeed, although countour reconstruction has greatly improved
 with this loss function, reconstructed detail such as facial features
 show less improvement.
 
-Extending The Dataset With Syntethic Images
--------------------------------------------
+Dataset Extension with Syntethic Images
+---------------------------------------
 
 Experiments
 ===========
