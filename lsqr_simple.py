@@ -5,14 +5,14 @@ import matplotlib.pyplot as plt
 import matplotlib
 import random
 
-
 DATA_W = 161
 DATA_H = 161
 C = 4 # amount of class
-nan_eps = 1e-2 # log(0) does not exist
+nan_eps = 1e-5 # log(0) does not exist
 
 # idk what to do with epsilon but maybe just add a small constant to the result
 def residual(params, cum_area, N, activation, eps):
+    bias = params['B0'].value # number of objects coefficient
     b1 = params['B1'].value # number of objects coefficient
     b2 = params['B2'].value # cum. area size coefficient
     
@@ -21,13 +21,13 @@ def residual(params, cum_area, N, activation, eps):
     # cum_area_norm = cum_area / params['B2'].max
     
     # atm, this data is already normalized somehwere 
-    N_norm = (N / C) + nan_eps
-    cum_area_norm = (cum_area / (DATA_H*DATA_W)) + nan_eps
+    N_norm = (N + nan_eps) / (C+nan_eps)
+    cum_area_norm = (cum_area+nan_eps) / ((DATA_H*DATA_W) + nan_eps)
 
     # print(N)
     # print(cum_area_norm)
     # residual between model fit and ground truth neuron activations
-    model = b1 * np.log(N_norm) + b2 * np.log(cum_area_norm)
+    model = b1 * np.log(N_norm) + b2 * np.log(cum_area_norm) + bias
     # return (activation - model) / eps
     return activation - model
 
@@ -37,12 +37,13 @@ params = Parameters()
 
 # params.add('B1', value=0.7, min=0.0, max=(4.0+N_eps)) # Number of objects
 # params.add('B2', value=0.7, min=0.0, max=DATA_H*DATA_W) # Area
-params.add('B1', value=0.5) # Number of objects
-params.add('B2', value=0.5) # Area
+params.add('B0', value=0.01) # bias
+params.add('B1', value=0.03) # Number of objects
+params.add('B2', value=0.03) # Area
 eps = 5e-5
 
 # High neurons should conversely collerate with *either* cum_a or *N*, but (almost?) never with both
-samples = 4500
+samples = 295800
 neurons = 8
 # It's actually somewhat less probable that so many neurons are redundant
 noisy_neurons = 0.2
@@ -73,7 +74,7 @@ activations = np.random.normal(0.5, act_std, size=(samples, neurons))
 # neurons do some other stuff as well tho so it makes sense that they sometimes are non-zero
 # (they can be zero for N=0), so add some stuff
 add_std = 0.00
-enc_std = 0.087
+enc_std = 0.011
 activations[:, n_n] += (N_norm * np.random.normal(1.32, enc_std, size=samples)).reshape(samples, 1)
 activations[:, n_a] += (cum_area_norm * np.random.normal(1.32, enc_std, size=samples)).reshape(samples, 1)
 # activations[:, n_a] += np.random.normal(0, 0.07)
@@ -128,15 +129,26 @@ activations[:, n_a] += (cum_area_norm * np.random.normal(1.32, enc_std, size=sam
 # exit(0)
 
 
-# nia_idx = random.randint(0, len(n_a)-1)
-# nia = n_a[nia_idx]
+nia_idx = random.randint(0, len(n_a)-1)
+nia = n_a[nia_idx]
+print("Minimizing aree neuron", nia)
 nin_idx = random.randint(0, len(n_n)-1)
 nin = n_n[nin_idx]
 print("Minimizing numerosity neuron", nin)
+
+n_o = np.setdiff1d(np.arange(neurons), noi)
+nio_idx = random.randint(0, len(n_o)-1)
+nio = n_o[nio_idx]
+print("Minimizing other neuron", nio)
+
 
 # print(activations)
 # print(activations[:, nin])
 # exit(0)
 # Least squares optimization
-out = minimize(residual, params, args=(cum_area, N, activations[:, nin], eps))
+a = activations[:, nin]
+out = minimize(residual, params, args=(cum_area, N, a, eps))
 report_fit(out)
+
+print("R^2:",  1 - (np.sum((out.residual)**2) / np.sum((a - np.mean(a))**2)))
+print("R^2:",  1 - out.residual.var() / np.var(a))
