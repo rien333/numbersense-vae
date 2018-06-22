@@ -7,23 +7,23 @@ import numpy as np
 import torch
 import conv_vae_pytorch as vae_pytorch
 from torchvision.utils import save_image
+import SOSDataset
+import random
 
 # Generates synthetic images for the subitizing task, as described in Salient Object Subitizing (2016)
 
-# Setup inline iterm display
-# plt.axis("off")
-
 # 256 cus they need to be transformed still
-DATA_W = 256
-DATA_H = 256
-data_t = transforms.Compose(vae_pytorch.data_transform)
+DATA_W = SOSDataset.DATA_W
+DATA_H = SOSDataset.DATA_H
+DATA_C = SOSDataset.DATA_C
+data_t = transforms.Compose([SOSDataset.Rescale((DATA_H, DATA_W)), SOSDataset.ToTensor()])
 classifier = zclassifier.classifier
 if vae_pytorch.args.cuda:
-    zclassifier.cuda()
-# some relev`ant settings are done in z-classifier for conv_vae
+    zclassifier.classifier.cuda()
+# some relevant settings are done in z-classifier for conv_vae
 model = zclassifier.model
 classifier.load_state_dict(
-        torch.load("classifier-models/vae-224.pt", map_location=lambda storage, loc: storage))
+        torch.load("classifier-models/65-37d7.pt", map_location=lambda storage, loc: storage))
 classifier.eval()
 
 MSRA10K_dir = "../Datasets/MSRA10K_Imgs_GT/"
@@ -33,13 +33,26 @@ with open(files_txt, "r") as f:
 
 # data_out = "../Datasets/synthetic2-small"
 data_out = "../Datasets/syn-new"
+
+# Only generate from a few background classes to reduce noise
+b_types = 7
 b_dir = "../Datasets/SUN397"
 b_classes_txt = b_dir + "/ClassName.txt"
 with open(b_classes_txt, "r") as f:
     b_classes = f.read().splitlines()
+    b_classes = random.sample(b_classes, b_types)
 
-mask_resizing = cv2.INTER_LINEAR
-obj_resizing = cv2.INTER_LINEAR
+mask_resizing = cv2.INTER_AREA
+obj_resizing = cv2.INTER_AREA
+
+im_ref_low = 0.42 # was 0.4
+im_ref_high = 0.75 # was 0.8
+
+im_low = 0.85
+im_high = 1.15
+
+print("Generating images with size factor probability between %s and %s 🌸" % (im_low, im_high))
+print("Using %s for background classes for generation" % (b_types))
 
 # Rotate and expand
 def rotate(mat, angle):
@@ -70,7 +83,7 @@ def generate_transforms(n, ref_size, ref_mask, thresh=0.5):
     label_idxs = []
     for im in range(n):
         transform = []
-        scale_f = random.uniform(0.85,1.15)
+        scale_f = random.uniform(im_low, im_high)
         n_paste_size = tuple(int(s*scale_f) for s in ref_size)
         resize = lambda i, s=n_paste_size: cv2.resize(i, s, obj_resizing)
         n_mask = resize(ref_mask)
@@ -90,7 +103,7 @@ def generate_transforms(n, ref_size, ref_mask, thresh=0.5):
 
         # Experiment with width and height start
         valid_im = False
-        tries = 5 # Maybe avioid death locks like so
+        tries = 4 # Maybe avioid death locks like so
         # tries are handeld else where
         # consider moving the scaling inside to find the right size
         while not valid_im and tries > 0:
@@ -153,30 +166,32 @@ def generate_transforms(n, ref_size, ref_mask, thresh=0.5):
         transforms.append((transform, ploc, c_n_mask))
     return transforms
 
-def generate(fidx, nfiles, cat, thresh=0.5):
-    # for fidx in range(nfiles):
-    nfiles += fidx
-    while fidx < nfiles:
+# Returns: Obj array and Obj filename
+def single_obj():
+    single_obj = False
+    while not single_obj:
         # Load random object
-        fname = MSRA10K_dir+random.choice(files)
+        fname = MSRA10K_dir+random.choice(files) # files is like a global
         # Do this as a preprocessing thing?
         # Object images need to be filtered for containing only one salient object
-        # obj = Image.open(fname)
         obj = cv2.imread(fname, 1) # RGB
-        # mask = Image.open(fname.replace(".jpg", ".png")).convert("L")
-        mask = cv2.imread(fname.replace(".jpg", ".png"), 0).astype(np.float) / 255.0 # Grayscale
 
         # Check for only one object
-        im = data_t((cv2.cvtColor(obj, cv2.COLOR_BGR2RGB), 0))[0].view(1, 3, vae_pytorch.DATA_H, vae_pytorch.DATA_W)
-        save_image(im, "test.png")
-        mu, logvar = model.encode(im)
-        zs = model.reparameterize(mu, logvar)
+        im = data_t((cv2.cvtColor(obj, cv2.COLOR_BGR2RGB), 0))[0].view(1, DATA_C, DATA_H, DATA_W)
+        mu, logvar = model.module.encode(im.cuda())
+        zs = model.module.reparameterize(mu, logvar)
         outputs = classifier(zs)
-        # This always fails for some reason!? ❗❗❗
         # get max index
         if torch.argmax(outputs).item() != 1 or outputs[0][1] < 0.90:
             continue
+        single_obj = True
+    return obj, fname
+    
 
+# Returns:  background array and background filename
+def background_im():
+    valid_background = False
+    while not valid_background:
         rnd_class = random.choice(b_classes)
         rnd_class_p = b_dir + rnd_class + "/"
         b_ims = random.choice(os.listdir(rnd_class_p))
@@ -187,72 +202,96 @@ def generate(fidx, nfiles, cat, thresh=0.5):
             continue
 
         # Check if the background is valid, i.e. contains no clear salient object
-        # This always fails for some reason!? ❗❗❗
-        im = data_t((cv2.cvtColor(background, cv2.COLOR_BGR2RGB), 0))[0].view(1, vae_pytorch.DATA_C, vae_pytorch.DATA_H, vae_pytorch.DATA_W)
-        mu, logvar = model.encode(im)
-        zs = model.reparameterize(mu, logvar)
+        im = data_t((cv2.cvtColor(background, cv2.COLOR_BGR2RGB), 0))[0].view(1, DATA_C, DATA_H, DATA_W)
+        mu, logvar = model.module.encode(im.cuda())
+        zs = model.module.reparameterize(mu, logvar)
         outputs = classifier(zs)
-        
+
         if outputs[0][0] < 0.96:
             continue
 
-        background = background.astype(np.float)
-        # Get boundix box of white region
-        coords = np.argwhere(mask.astype(bool))
-        # Bounding box of non-black pixels.
-        y0, x0 = coords.min(axis=0)
-        y1, x1 = coords.max(axis=0) + 1 # slices are exclusive at the top
+        valid_background = True
+    return background, rnd_class_p + b_ims
 
-        mask_crop = mask[y0:y1, x0:x1]
-        obj_ref = obj[y0:y1, x0:x1]
-        # size for new basis object 
-        l_dim = 0 if mask_crop.shape[0] > mask_crop.shape[1] else 1
+# Returns: scale and image array
+def generate_image(cat, thresh=0.5, obj_f=None, background_f=None):
+    if obj_f:
+        obj = cv2.imread(obj_f, 1) # RGB
+    else:
+        obj, obj_f = single_obj()
 
-        # The basis which will be pasted and transformed further
 
-        # Paste N e [0,4] objects
-        valid_t = False if cat > 0 else True
-        transforms = []
-        while not valid_t:
-            scale = random.uniform(0.4,0.8) * DATA_H
-            scale_f = scale / mask_crop.shape[l_dim]
-            new_size = tuple(s * scale_f for s in obj_ref.shape[:2][::-1])
-            transforms = generate_transforms(cat, new_size, mask_crop, thresh=thresh)
-            if transforms:
-                valid_t = True
+    mask = cv2.imread(obj_f.replace(".jpg", ".png"), 0).astype(np.float) / 255.0 # Grayscale
 
-        for t in transforms:
-            transform, ploc, nmask = t
-            paste_obj = obj_ref.copy()
-            for t in transform:
-                paste_obj = t(paste_obj)            
-            # should already be an array
-            nmask = nmask.reshape(*nmask.shape, 1)
-            rio = background[ploc[0]:ploc[0]+nmask.shape[0], ploc[1]:ploc[1]+nmask.shape[1]]
-            background_rio = rio * (1.0 - nmask)
-            paste_obj = paste_obj * nmask
-            bg_paste = cv2.add(paste_obj, background_rio)
-            # Add region back into the original image
-            background[ploc[0]:ploc[0]+nmask.shape[0], ploc[1]:ploc[1]+nmask.shape[1]] = bg_paste
+    if background_f:
+        background = cv2.imread(background_f, 1) # RGB
+        background = cv2.resize(background, (DATA_H, DATA_W))
+    else:
+        background, _ = background_im() 
 
-        cv2.imwrite("%s/%d-%d.jpg" % (data_out, fidx, cat), background)
+    background = background.astype(np.float)
+    # Get bounding box of white region
+    coords = np.argwhere(mask.astype(bool))
+    # Bounding box of non-black pixels.
+    y0, x0 = coords.min(axis=0)
+    y1, x1 = coords.max(axis=0) + 1 # slices are exclusive at the top
+
+    mask_crop = mask[y0:y1, x0:x1]
+    obj_ref = obj[y0:y1, x0:x1]
+    # size for new basis object 
+    l_dim = 0 if mask_crop.shape[0] > mask_crop.shape[1] else 1
+
+    # The basis which will be pasted and transformed further
+
+    # Paste N e [0,4] objects
+    valid_t = False if cat > 0 else True
+    transforms = []
+    while not valid_t:
+        scale = random.uniform(im_ref_low, im_ref_high) * DATA_H
+        scale_f = scale / mask_crop.shape[l_dim]
+        new_size = tuple(s * scale_f for s in obj_ref.shape[:2][::-1])
+        transforms = generate_transforms(cat, new_size, mask_crop, thresh=thresh)
+        if transforms:
+            valid_t = True
+    
+    # This is handy for some applications
+    cum_area = 0
+    for t in transforms:
+        transform, ploc, nmask = t
+        paste_obj = obj_ref.copy()
+        for t in transform:
+            paste_obj = t(paste_obj)            
+        cum_area += len(np.where(np.ravel(nmask) > 0.9)[0]) # should give considerable color information
+        np.set_printoptions(precision=1, linewidth=238, suppress=True, edgeitems=9)
+
+        # should already be an array
+        nmask = nmask.reshape(*nmask.shape, 1)
+        rio = background[ploc[0]:ploc[0]+nmask.shape[0], ploc[1]:ploc[1]+nmask.shape[1]]
+        background_rio = rio * (1.0 - nmask)
+        paste_obj = paste_obj * nmask
+        bg_paste = cv2.add(paste_obj, background_rio)
+        # Add region back into the original image
+        background[ploc[0]:ploc[0]+nmask.shape[0], ploc[1]:ploc[1]+nmask.shape[1]] = bg_paste
+
+    return background, cum_area
+
+def generate_set(fidx, nfiles, cat, thresh=0.5):
+    # for fidx in range(nfiles):
+    nfiles += fidx
+    while fidx < nfiles:
+        im = generate_image(cat=cat, thresh=thresh)
+        cv2.imwrite("%s/%d-%d.jpg" % (data_out, fidx, cat), im)
         fidx += 1
 
-# Amount per category
-# prev=0
-# nfiles = [1350, 1020, 1550, 1750, 1950]
-# thresh = 0.5
-# for cat, n in enumerate(nfiles):
-#     if cat == 3:
-#         thresh = 0.6
-#     if cat ==4:
-#         thresh = 0.7
-#     generate(prev, n, cat, thresh=thresh)
-#     prev += n
+_, obj_f = single_obj()
+# _, b_f = background_im()
+for i in range(4):
+    im, _ = generate_image(4, thresh=1.0, obj_f=obj_f)
+    cv2.imwrite("/tmp/test%s.png" % (i), im)
 
-
-# generate(0, 4000, cat=4, thresh=0.7)
-# generate(4000, 4000, 3, thresh=0.6)
-# generate(0, 4000, 2, thresh=0.5)
-# generate(2061, 4000, 1, thresh=0.5)
-generate(0, 4000, cat=0, thresh=0.5)
+# generate(4000, 4000, cat=4, thresh=0.7)
+# generate(12000, 14000, 3, thresh=0.66)
+# generate(20000, 24000, 1, thresh=0.56)
+# generate(25000, 30000, 1, thresh=0.5)
+# generate_set(25000, 30000, 2, thresh=0.65)
+# generate(3342, 4700, cat=0, thresh=0.5)
