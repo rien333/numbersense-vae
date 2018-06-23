@@ -7,7 +7,6 @@ header-includes:
    - \usepackage{amssymb}
 ---
 
-
 # Introduction #
 
 (**Note:** the quality and the content of the text is not yet reflective of whatever I have in mind for my thesis)
@@ -20,27 +19,36 @@ Notwithstanding the success of previous biologically informed approaches to mode
 
 2. The directness of visual number entails that no interposition of external processes is required for numerosity perception, at least no other than lower-level sensory neural processes. More appropriately, the sudden character of visual number sense could be explained by it omitting higher cognitive processes, such as conscious representations [@dehaene2011number indeed points to types of visual number sense being preattentive] or symbolic processing [visual numerosity is completely non-verbal, @nieder2016neuronal]. Furthermore, the existence of visual sense of number in human newborns [@lakoff], animals [@animalsnumericalcognition] and cultures without exact counting systems [@dehaene2011number, p261; @franka2008number] further strengthens the idea that specific kinds of sense of number do not require much mediation and can purely function as an interplay between perceptual capabilities and neural encoding schemes, given the aforementioned groups lack of facilities for abstract reasoning about number [see @Everett2005, p. 626; @lakoff, chap. 3, for a discussion on how cultural facilitaties such as fixed symbols and linguistic practices can facilitate the existence of discrete number in humans]. Indeed, @harvey2013topographic show that earlier mentioned neural populations did not display their characteristic response profile when confronted with Arabic numerals, that is, symbolic representations of number. These populations thus show the ability to function seperately from higer-order representational facilities. Visual number sense being a immediate and purely perceptual process implies that our model should not apply external computational techniques often used in computer vision research on numerical determination task such as counting-by-detection [which requires both arithmetic and iterative attention to all group members, see @zhang2016salient; @detection2016unconstrained] or segmenting techniques [e.g. @chattopadhyay2016counting]. Instead, we want to our model to operate in an autonomous and purely sensory fashion. 
 
-3. Relatedly, visual sense of number is an emergent property of neurons embedded in generative hierarchical learning models, either artificial or biological [@stoianov2012]. The fact that visual number sense exist in animals and human newborns suggests that it is an implicitly learned skill learned at the neural level, for animals do not exhibit a lot of vertical learning, let alone human newborns having received much numerical training. Deemed as a generally unrealistic trope of artificial learning by AI critics [@dreyfus2007heideggerian] and research into the human learning process [@Zorzi2013], modeling visual number necessitates non-researcher depended features. This will restrict the choice of algorithm to so called _unsupervised_ learning algorithms, as such an algorithm will learn its own particular representation of the data distribution. Given their ability to infer the underlying stochastic representation of the data, thus performing autonomous feature determination,  _Varitional Autoencoders_ (VAEs) seem fit to tackle this problem (see [**section x.x**](#vae) for more detail). Moreover, VAEs are trained in an unsupervised manner, similar to how learning visual number sense, given appropriate circumstances, does not require labeled data due it being emergent. Another interesting aspect of VAEs is their relatively interpretable and overseeable learned feature space, which might tell us something about how it deals with visual numerosity, and thus allow us to evaluate the properties of the VAE's encoding against biological data. 
+<!-- I'm not sure if this holds in the biological case, but you could argue that "Comparable to how some research describes the brain as Bayesian machine [for a discussion see @bayesianbrain; @bayes2], VAEs learn a stochastic model of sensory input data by optimizing the parameters of a probability distribution such that the probability distribution maximizes the likelihood of the input (or "training") data." 🌸 Maybe after the blosssom: although not specifically true for numerosity learning, the brain is suggestively organized in a similair fashion as some research suggests ... 
+
+Another solution would be ommiting or replacing the two constraints, by for example stating about possibility for complex organisation, and in the case of artificial neurons those embedded in hierarchically structured, generative learning models
+
+"The generative basis of natural number concepts" vaguely supports the biological case for generative models and number sense (generation being some kind of innate skill or something)-->
+
+3. Relatedly, visual sense of number is an emergent property of hierarchically organized neurons embedded in generative learning models, either artificial or biological [@stoianov2012; ]. 🌸 The fact that visual number sense exist in animals and human newborns suggests that it is an implicitly learned skill learned at the neural level, for animals do not exhibit a lot of vertical learning, let alone human newborns having received much numerical training. Deemed as a generally unrealistic trope of artificial learning by AI critics [@dreyfus2007heideggerian] and research into the human learning process [@Zorzi2013], modeling visual number necessitates non-researcher depended features. This will restrict the choice of algorithm to so called _unsupervised_ learning algorithms, as such an algorithm will learn its own particular representation of the data distribution. Given their ability to infer the underlying stochastic representation of the data, i.e. perform in autonomous feature determination,  _Varitional Autoencoders_ (VAEs) seem fit to tackle this problem ([**section x.x**](#vae) details their precise working). Moreover, VAEs are trained in an unsupervised manner, similar to how learning visual number sense, given appropriate circumstances, does not require labeled data due it being emergent. Another interesting aspect of VAEs is their relatively interpretable and overseeable learned feature space, which might tell something about how it deals with visual numerosity, and thus allows us to evaluate the properties of the VAE's encoding against biological data. 
 
 Unfortunately, no dataset fit for visual numerosity estimation satisfied above requirements (sizable collections of natural image with large and varied, precisely labeled objects groups are hard to construct), forcing present research towards _subitizing_,  a type of visual number sense which had a catered dataset readily available. Subitizing is the ability of many animals to immediately perceive the number of items in a group without resorting to counting or enumeration, given that the number of items falls within the subitizing range of 1-4 [@kaufman1949; @animalsnumericalcognition] Most of the research above was conducted on approximate numerical cognition, but the aforementioned characterisics of visual sense of number hold equally well for a more distinct sense of number such as subitizing. Similarly, subitizing is suggested to be a parallel preattentive process in the visual system [@dehaene2011number, p57], the visual system likely relying on it's ability to recognize holistic patterns for a final subitizing count [@jansen2014role; @dehaene2011number, p57; @piazza2002subitizing]. This means that the "sudden" character of subitizing is caused by the visual system's ability to process simple geometric configurations of objects in parallel, whereby increasing the size of a group behind the subitizing range deprives perceiving this group of it's sudden and distinct numerical perceptual character for this would strain our parallelization capabilities too much. The difference in perceptual character is due to a recourse to enumeration techniques (and possibly others) whenever the subizting parallelization threshold is exceeded, which differ from suddenness in being a consciously guided (i.e. attentive) patterned type of activity. 
 
-Present research therefore asks: how can artificial neural networks be applied to learning the emergent neural skill of subitizing in a manner comparable to their biological equivalents? To answer this, we will first highlight the details of our training procedure by describing a dataset constructed for modeling subitizing and how we implementented our VAE algorithm to learn a representation of this dataset. Next, as the subitizing task is essentialy an image classification task, a methodology for evaluating the unsupervised VAE model on subitizing classification is described. We demonstrate that the performance of our unsupervised approach is comparable with supervised approaches using handcrafted features, although performance is still behind state of the art supervised machine learning due to problems inherent to the particulair VAE implementation. Finally, testing the final models robustness to changes in visual features shows the emergence of a property similar to biological neuron, that is to say, the encoding scheme specifically supports particulair numerosity percepts invariant to visual features other than quantity.
+Present research therefore asks: how can artificial neural networks be applied to learning the emergent neural skill of subitizing in a manner comparable to their biological equivalents? To answer this, we will first highlight the details of our training procedure by describing a dataset constructed for modeling subitizing and how we implementented our VAE algorithm to learn a representation of this dataset. Next, as the subitizing task is essentialy an image classification task, a methodology for evaluating the unsupervised VAE model's performance on the subitizing classification task is described. We demonstrate that the performance of our unsupervised approach is comparable with supervised approaches using handcrafted features, although performance is still behind state of the art supervised machine learning approaches due to problems inherent to the particulair VAE implementation. Finally, testing the final models robustness to changes in visual features shows the emergence of a property similar to biological neurons, that is to say, the VAE's encoding scheme specifically supports particulair numerosity percepts invariant to visual features other than quantity.
 
 # Related Work #
+
+<!-- TODO
+    - [ ] Related work is often structured with line subsection, do that as it also saves space
+-->
 
 ## Visual Number Sense ##
 
 <!-- Probably skip, but the arxiv paper and stoianov2012 can be reharsed -->
 <!-- Investigate the goodfellow2016deep reference as to why it is somewhat computationally expensive -->
 
-As previously described @stoianov2012 applied artificial neural netwoks to visual numerosity estimation, although without using natural images. They discoverd that some resultant neural populations concerned with numerosity estimation shared multiple properties with biological populations participating in similar tasks, most prominently an encoding scheme that was invariant to the cumaltative surface area of the objects present in the provided images. Present research hopes to discover a similar kind of invarience to surface area. Likewise, we will employ the same scale invarience test, although a succesfull application to natural images already shows a fairly abstract representation of number, as the objects therein already contain varied visual features. 
+As previously described, @stoianov2012 applied artificial neural netwoks to visual numerosity estimation, although without using natural images. They discoverd neural populations concerned with numerosity estimation that shared multiple properties with biological populations participating in similar tasks, most prominently an encoding scheme that was invariant to the cumaltative surface area of the objects present in the provided images. Present research hopes to discover a similar kind of invarience to surface area. Likewise, we will employ the same scale invarience test, although a succesfull application to natural images already shows a fairly abstract representation of number, as the objects therein already contain varied visual features. 
 
 Some simplicity of the dataset used by @stoianov2012 is due their use of the relatively computationally expensive restricted boltzmann machine [@goodfellow2016deep, chap. 20].  Given developments in generative algorithms and the availablity of more computational power, we will therefore opt for a different algorithmic approach  (as discussed in the introduction) that will hopefully scale better to natural images. 
 
 
 ## Salient Object Subitizing Dataset ##
 
-<!-- Also mention something about how this dataset is concustructed -->
 <!-- Do you also explain synthetic data here? (yes seems alright) -->
 <!-- Mention the results of their approach in some section -->
 
@@ -54,7 +62,7 @@ As seen in the [figure](#sub) below, the goal of the _Salient Object Subitizing_
 
 <!--
     TODO 
-    - [ ] Where to place the archictecture with conv nets and all?
+    - [ ] Image of extact architecture
 -->
                                               ┌───┐
                                               │ z⁰│
@@ -81,22 +89,37 @@ Where VAEs primarily differ from regular autoencoders is that rather than direct
 
 The task of the encoder network in a VAE is to infer the mean and variance parameters of a probability distribution of the latent space $\mathcal{N}(z \mathbin{\vert} \mu(X), \Sigma(X))$ such that samples $z$ drawn from this distribution facilitate reconstruction of $X$ [@doersch2016tutorial]. Novel sampled $z$ vectors can then be fed into the decoder network as usual. $\mu(X)$ and $\Sigma(X)$ are constrained to roughly follow a unit gaussian by minizing the Kullback-Leibler divergence (denoted as $\mathcal{KL}$) between $\mathcal{N}(0, I)$ and $\mathcal{N}(z \mathbin{\vert} \mu(X), \Sigma(X))$, where $\mathcal{KL}$ measures the distance between probability distribitions. Normally distributed latent variables capture the intuition behind generative algorithms that they should support sampling latent variables that produce reconstructions that are merely _similair_ to the input, and not necessarily accurate copies. Furthermore, optimizing an abritary distribution would be intractable, thus we need to rely on the fact that given a set of normally distributed variables $S = \{s_1, ... s_\mathbf{n}\}$ with $S \in \mathbb{R}^{\mathbf{n}}$ and any sufficiently complicated function $f(s_i)$ (such as a neural network), there exists a mapping $f: S \mapsto S'$ from which we can generate any abritary distribution $P(X) \in \mathbb{R}^{\mathbf{n}}$ with $S' \sim P(X)$ [@doersch2016tutorial].
 
-Therefore, the optimization objectives of a VAE become [see figure 4 of @doersch2016tutorial]: 
+Therefore, the optimization objectives of a VAE become [also see figure 4 of @doersch2016tutorial]: 
 
 1. $\mathcal{KL}\lbrack\mathcal{N}(\mu(X), \Sigma(X)) \vert\vert \mathcal{N}(0, I)\rbrack$
-2. Some reconstruction loss. Within visual problems, plain VAEs can for example minimize the binary cross entropy between $X$ and $X'$.
+2. Some reconstruction loss. Within visual problems, plain VAEs can for example minimize the binary cross entropy (BCE) between $X$ and $X'$.
 
-The first objective of generating an appropriate distribution function of the latent spance makes VAEs generative, partly satisfying the third constraint outlined in the introduction. To fully satisfy this constraint, the final architecture uses deep neural networks for both the encoder and decoder module (for details, refer to Experiments VAE architecture), making the implementation an hierarchical model. As an VAEs latent space encodes the most important features of the data, it is hoped the samples drawn from the encoder provide information regarding it's subitizing performance (see [**section x.x**](#readout)). For a complete overview of implementing a VAE, refer to @kingma2013auto and @doersch2016tutorial.
+Objective **(1)** grants VAEs the ability to generate new samples from the learned distribution, partly satisfying the constraint outlined in the introduction whereby visual numerisoty skills emerge in generative learning models. To fully satisfy this constraint, the final architecture uses deep neural networks for both the encoder and decoder module (see figure X for the VAE architecture), making the implementation an hierarchical model as well. As an VAEs latent space encodes the most important features of the data, it is hoped the samples drawn from the encoder provide information regarding it's subitizing performance (see [**section x.x**](#readout)). For a complete overview of implementing a VAE, refer to @kingma2013auto and @doersch2016tutorial.
 
 ## Deep Feature Consistent Perceptual Loss ##
 
-To make the reconstructions made by the VAE perceptually closer to whatever humans deem important characteristics of images, @hou2017deep propose optimizing the reconstructions with help of the hidden layers of a pretrained network. This can be done by predefining a set of layers $l_i$ from a pretrained network (@hou2017deep and present research use VGG-19), and for every $l_i$ matching the hidden representation of the input $x$ to the hidden representation of the reconstruction $\bar{x}$ made by the VAE:
+<!-- TODO
+    - [ ] Comparison on the sos dataset (see compare_rnd.py)
+    - [ ] Note something about alpha and beta? Our dataset worked better with alpha ~= 0.001 and beta, based on reported final reconstrution error, although more work in optimizing this ratio is to be done.
+    - [x] Find a reference for the properties of the first few layers of a deep CNN
+-->
+
+Because the frequently used pixel-by-pixel reconstrution loss measures in VAEs do not necessarily comply with human perceptual similarity judgements, @hou2017deep propose optimizing the reconstructions with help of the hidden layers of a pretrained deep CNN network, because these models are particularly better at capturing spatial correlation compared to pixel-by-pixel measurements [@hou2017deep]. Proposed _Feature Perceptual Loss_ (FPL) alibity to retain spatial correlation should reduce the noted blurriness [@larsen2015autoencoding] of the VAE's reconstructions, which is especially problematic in subitizing tasks because blurring merges objects which in turn distorts class labels. @hou2017deep and present research employ VGG-19 [@simonyan2014very] as the pretrained network, trained on the large and varied ImageNet [@russakovsky2015imagenet] dataset. FPL requires predefining a set of layers $l_i \in L$ from a pretrained network $\Phi$, and minimizes the mean squared error (MSE) between every layer's $l_i$ hidden representation of input $x$ and the hidden representation at $l_i$ of reconstruction $\bar{x}$ made by the VAE. Aside from the $\mathcal{KL}$-divergence, the VAE's second optimization objective is now as follows:
 
 $$\mathcal{L}^{l_{i}}_{rec} = \textrm{MSE}(\Phi(x)^{l_{i}}, \Phi(\bar{x}̄)^{l_{i}})$$
 
-The more mathematical intuition behind this loss is that whatever some hidden layer $l_i$ of the VGG-19 network encodes should be retained in the reconstructed output, as the VGG-19 has proven to model important visual characteristics of a large variety of image types (VGG-19 having been trained on ImageNet). (One notable downside of this approach is that although layers from the VGG-19 represent important visual information , it is well known fact that the first few layers (which seem to work best in our own test, as well as in their original application ) only encode simple features such as edges and lines (i.e countours) which are combined into more complex features in deeper layers. This means that the optimization is somewhat unambitious, in that it will never try to learn any other visual features aside from what the set of predfined layers $l_i$ encode, such as detailed object textures. Indeed, although countour reconstruction has greatly improved with this loss function, reconstructed detail such as facial features show less improvement.
+The more mathematical intuition behind FPL is that whatever some hidden layer $l_i$ of the VGG-19 network encodes should be retained in the reconstruction $\bar{x}$, as the VGG-19 has proven to model important visual characteristics of a large variety of image types. In @hou2017deep's and our experiments $L = \{relu1\_1, relu2\_1, relu3\_1\}$ resulted in the best reconstructions. One notable shortcoming of FPL is that although the layers from the VGG-19 represent important visual information, it is a known fact that the first few layers of deep CNNs only encode simple features such as edges and lines (i.e they support countours), which are only combined into more complex features deeper into the network [@liu2017towards; FPL's authors @hou2017deep note something similair]. This means that the optimization objective is somewhat unambitious, in that it will never try to learn any other visual features aside from what the set of predfined layers $l_i$ represent, like detailed object textures. Indeed, although countour reconstruction has greatly improved with FPL, the reconstruction of detail such as facial features shows less improvement. Although @hou2017deep show a succesfull application of FPL, they might have been unaware of this shortcoming, given that only results on a highly unvaried dataset consisting only of centered faces were reported. For a comparison between FPL loss and BCE reconstruction loss see the figure below. 
 
-## Extending The Dataset With Syntethic Images ##
+## Dataset Extension with Syntethic Images ##
+
+<!-- TODO
+    - [ ] Hybrid dataset (intuition, settings graph etc, pretrain,)
+    - [ ] Synthetic image settings
+-->
+
+We follow @zhang2016salient in pretraining our model with synthetic images, and later fine-tuning on the SOS dataset. However, we propose some small chances to their synthetic image training setup. First, we propose pretraining with a hybrid dataset, as the synthetic images are noted to be 1. fairly unrealistic and 2. not completely comparable to natural data [@zhang2016salient].  Testing many different parameters for the hybrid dataset was not given priority as the total loss shrunk with respect to increasing data samples. 
+
+Synthetic images are generated by pasting objects from THUS 1000 onto the SUN background dataset. The subitizing label is aquired by pasting an object $N$ times, with $N \in \[0, 4\]$. For each paste, the object is transformed in equivalent manner to @zhang2016salient. However, we  as Subitizing is noted be more difficult when objects are superimposed, forcing recource to external processes as counting by object enumeration [@dehaene2011number, p57.]. The object overlap threshold is increased by $0.1$ starting from $0.5$ for every object added to an image, compared to @zhang2016salient's the static value of $0.5$, as VAEs are prone to produce blurry reconstructions [@hou2017deep; @larsen2015autoencoding], indicating a poor ability to code object edges, so distorting class labels. 
 
 # Experiments #
 
@@ -119,11 +142,7 @@ An ensemble of techniques was used to tackle the class imbalance in the SOS data
 
 ## Hybrid Dataset ##
 
-<!-- TODO
-    - [ ] 
--->
-
-Subitizing has been noted to become harder when objects are superimposed, forcing recource to external processes as counting by object enumeration [@dehaene2011number, p57.]. Therefore, the object overlap threshold is increased by $0.1$ starting from $0.5$ for every object added to an image, compared to @zhang2016salient's the static value of $0.5$, as VAEs have been noted to produce blurry reconstructions, indicating a poor ability to code object edges, so distorting class labels. 
+<!-- Some details? Or just move everything to methodology? -->
 
 # Results & Discussion #
 
@@ -163,6 +182,13 @@ Accuray of the `zclassifier` (i.e. the classifier as described in [**section x.x
 The subitizing performance of the VAE is comparable to highest scoring non-machine learning algorithm, and performs worse overall than the CNNs trained by @zhang2016salient. This can be explained by a number of factors. First of all, the `CNN_ft` algorithm used by @zhang2016salient has been pretrained on the large, well tested databese of images it is trained on (i.e. ImageNet, which contains N images, while our procedure uses M syntethic and N2 natural images). Additionaly, their model is capable of more complex representations due its depth and  the amount of modules it contains (). Moreover, all their alogirhtms are trained in a supervised manner, which can sometimes be a lot easier than unsupervised training [@ref]
 
 ## Qualitive Analysis ##
+
+<!-- TODO
+    - [ ] Largely just write what you wrote to Tom + info on obj/background selection
+        and then apparent inhibitory role of some neurons
+-->
+
+$$z_i = \beta_1 \log(N) + \beta_2\log(A) + \epsilon$$, with $N \in [0, 4]$
 
 
 # Conclusion #
