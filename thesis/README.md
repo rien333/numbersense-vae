@@ -293,8 +293,8 @@ distributed latent variables capture the intuition behind generative
 algorithms that they should support sampling latent variables that
 produce reconstructions that are merely *similair* to the input, and not
 necessarily accurate copies. Furthermore, optimizing an abritary
-distribution would be intractable, thus we need to rely on the fact that
-given a set of normally distributed variables
+distribution would be intractable, thus VAEs need to rely on the fact
+that given a set of normally distributed variables
 <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6b04d182a4cc153c99e63cb11624e429.svg?invert_in_darkmode" align=middle width=102.26015249999999pt height=24.65753399999998pt/> with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb80d7867cd70ef2ba19bcdc87929a24.svg?invert_in_darkmode" align=middle width=51.25553069999999pt height=22.648391699999998pt/> and
 any sufficiently complicated function <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/fb5a9656c65930c54541391b5aa251d4.svg?invert_in_darkmode" align=middle width=35.78112284999999pt height=24.65753399999998pt/> (such as a neural
 network), there exists a mapping <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/2b54f183e96b653f73efc4f4031291a2.svg?invert_in_darkmode" align=middle width=74.93116124999999pt height=24.7161288pt/> from which we can
@@ -330,6 +330,7 @@ Deep Feature Consistent Perceptual Loss
     - [ ] Note something about alpha and beta? Our dataset worked better with alpha ~= 0.001 and beta, based on reported final reconstrution error, although more work in optimizing this ratio is to be done.
     - [x] Find a reference for the properties of the first few layers of a deep CNN
 -->
+<!-- This reason is a little strange. I think you need to focus more on how CNNs or say something about CNNs capturing more visual characterisics/human (visual) similarity judgemets in general -->
 Because the frequently used pixel-by-pixel reconstrution loss measures
 in VAEs do not necessarily comply with human perceptual similarity
 judgements, Hou et al. (2017) propose optimizing the reconstructions
@@ -356,24 +357,24 @@ The more mathematical intuition behind FPL is that whatever some hidden
 layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> of the VGG-19 network encodes should be retained in the
 reconstruction <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/33717a96ef162d4ca3780ca7d161f7ad.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=18.666631500000015pt/>, as the VGG-19 has proven to model important
 visual characteristics of a large variety of image types. In Hou et al.
-(2017)'s and our experiments <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/df6efde4b1b85ad88dc9f210b2581e6e.svg?invert_in_darkmode" align=middle width=221.7209016pt height=24.65753399999998pt/>
-resulted in the best reconstructions. One notable shortcoming of FPL is
-that although the layers from the VGG-19 represent important visual
-information, it is a known fact that the first few layers of deep CNNs
-only encode simple features such as edges and lines (i.e they support
-countours), which are only combined into more complex features deeper
-into the network (Liu et al. 2017; FPL's authors Hou et al. 2017 note
-something similair). This means that the optimization objective is
-somewhat unambitious, in that it will never try to learn any other
-visual features aside from what the set of predfined layers <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/>
-represent, like detailed object textures. Indeed, although countour
-reconstruction has greatly improved with FPL, the reconstruction of
-detail such as facial features shows less improvement. Although Hou et
-al. (2017) show a succesfull application of FPL, they might have been
-unaware of this shortcoming, given that only results on a highly
-unvaried dataset consisting only of centered faces were reported. For a
-comparison between FPL loss and BCE reconstruction loss see the figure
-below.
+(2017)'s and our experiments
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/0dfb9aa9d46f10f958623ff85f868b99.svg?invert_in_darkmode" align=middle width=219.03237015pt height=24.65753399999998pt/> resulted in the best
+reconstructions. One notable shortcoming of FPL is that although the
+layers from the VGG-19 represent important visual information, it is a
+known fact that the first few layers of deep CNNs only encode simple
+features such as edges and lines (i.e they support countours), which are
+only combined into more complex features deeper into the network (Liu et
+al. 2017; FPL's authors Hou et al. 2017 note something similair). This
+means that the optimization objective is somewhat unambitious, in that
+it will never try to learn any other visual features (e.g. detailed
+object textures, object parts) aside from what the set of predfined
+layers <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> represent. Indeed, although countour reconstruction has
+greatly improved with FPL, the reconstruction of detail such as facial
+features shows less improvement. Although Hou et al. (2017) show a
+succesfull application of FPL, they might have been unaware of this
+shortcoming, given that only results on a highly unvaried dataset
+consisting only of centered faces were reported. For a comparison
+between FPL loss and BCE reconstruction loss see the figure below.
 
 Dataset Extension with Syntethic Images
 ---------------------------------------
