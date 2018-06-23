@@ -446,16 +446,15 @@ subitizing class label <img src="https://rawgit.com/rien333/numbersense-vae/mast
 image and class label from the SOS training set. Both fully-connected
 layers contain 160 neurons. Each of the linear layers is followed by a
 batch normalization layer (Ioffe and Szegedy 2015), a ReLU activation
-function and a dropout layer ([**???**]{.citeproc-not-found
-data-reference-id="srivastava2014dropout"}), respectively. A
-fully-connected net was chosen because using another connectionist
-module for read-outs of the hidden representation heightens the
-biological plausibility of the final approach (Zorzi, Testolin, and
-Stoianov 2013b). Namely, Zorzi, Testolin, and Stoianov (2013b) note that
-the appended connectionist classifier module can for example be
-concieved of as a cognitive response module (?), although the main
-reason behind training this classifier is to asses it's performance
-against other algorithmic and human data.
+function and a dropout layer (Srivastava et al. 2014) with dropout
+probability <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/332cc365a4987aacce0ead01b8bdcc0b.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=14.15524440000002pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/deceeaf6940a8c7a5a02373728002b0f.svg?invert_in_darkmode" align=middle width=8.649225749999989pt height=14.15524440000002pt/> respectively. A fully-connected net was chosen
+because using another connectionist module for read-outs of the hidden
+representation heightens the biological plausibility of the final
+approach (Zorzi, Testolin, and Stoianov 2013b). Namely, Zorzi, Testolin,
+and Stoianov (2013b) note that the appended connectionist classifier
+module can for example be concieved of as a cognitive response module
+(?), although the main reason behind training this classifier is to
+asses it's performance against other algorithmic and human data.
 
 ### Class imbalance
 
@@ -728,6 +727,11 @@ Recognition Challenge." *International Journal of Computer Vision* 115
 Simonyan, Karen, and Andrew Zisserman. 2014. "Very Deep Convolutional
 Networks for Large-Scale Image Recognition." *arXiv Preprint
 arXiv:1409.1556*.
+
+Srivastava, Nitish, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever,
+and Ruslan Salakhutdinov. 2014. "Dropout: A Simple Way to Prevent Neural
+Networks from Overfitting." *The Journal of Machine Learning Research*
+15 (1). JMLR. org: 1929--58.
 
 Stoianov, Ivilin, and Marco Zorzi. 2012. "Emergence of a'visual Number
 Sense'in Hierarchical Generative Models." *Nature Neuroscience* 15 (2).
