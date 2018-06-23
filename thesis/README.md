@@ -103,30 +103,37 @@ plausibility of the final model are:
     (e.g. Chattopadhyay et al. 2016). Instead, we want to our model to
     operate in an autonomous and purely sensory fashion.
 
-3.  Relatedly, visual sense of number is an emergent property of neurons
-    embedded in generative hierarchical learning models, either
-    artificial or biological (Stoianov and Zorzi 2012). The fact that
-    visual number sense exist in animals and human newborns suggests
-    that it is an implicitly learned skill learned at the neural level,
-    for animals do not exhibit a lot of vertical learning, let alone
-    human newborns having received much numerical training. Deemed as a
-    generally unrealistic trope of artificial learning by AI critics
-    (Dreyfus 2007) and research into the human learning process (Zorzi,
-    Testolin, and Stoianov 2013a), modeling visual number necessitates
-    non-researcher depended features. This will restrict the choice of
-    algorithm to so called *unsupervised* learning algorithms, as such
-    an algorithm will learn its own particular representation of the
-    data distribution. Given their ability to infer the underlying
-    stochastic representation of the data, thus performing autonomous
-    feature determination, *Varitional Autoencoders* (VAEs) seem fit to
-    tackle this problem (see [**section x.x**](#vae) for more detail).
-    Moreover, VAEs are trained in an unsupervised manner, similar to how
-    learning visual number sense, given appropriate circumstances, does
-    not require labeled data due it being emergent. Another interesting
-    aspect of VAEs is their relatively interpretable and overseeable
-    learned feature space, which might tell us something about how it
-    deals with visual numerosity, and thus allow us to evaluate the
-    properties of the VAE's encoding against biological data.
+<!-- I'm not sure if this holds in the biological case, but you could argue that "Comparable to how some research describes the brain as Bayesian machine [for a discussion see @bayesianbrain; @bayes2], VAEs learn a stochastic model of sensory input data by optimizing the parameters of a probability distribution such that the probability distribution maximizes the likelihood of the input (or "training") data." 🌸 Maybe after the blosssom: although not specifically true for numerosity learning, the brain is suggestively organized in a similair fashion as some research suggests ... 
+
+Another solution would be ommiting or replacing the two constraints, by for example stating about possibility for complex organisation, and in the case of artificial neurons those embedded in hierarchically structured, generative learning models
+
+"The generative basis of natural number concepts" vaguely supports the biological case for generative models and number sense (generation being some kind of innate skill or something)-->
+3.  Relatedly, visual sense of number is an emergent property of
+    hierarchically organized neurons embedded in generative learning
+    models, either artificial or biological (Stoianov and Zorzi 2012;
+    [**???**]{.citeproc-not-found data-reference-id="ref"}). 🌸 The fact
+    that visual number sense exist in animals and human newborns
+    suggests that it is an implicitly learned skill learned at the
+    neural level, for animals do not exhibit a lot of vertical learning,
+    let alone human newborns having received much numerical training.
+    Deemed as a generally unrealistic trope of artificial learning by AI
+    critics (Dreyfus 2007) and research into the human learning process
+    (Zorzi, Testolin, and Stoianov 2013a), modeling visual number
+    necessitates non-researcher depended features. This will restrict
+    the choice of algorithm to so called *unsupervised* learning
+    algorithms, as such an algorithm will learn its own particular
+    representation of the data distribution. Given their ability to
+    infer the underlying stochastic representation of the data,
+    i.e. perform in autonomous feature determination, *Varitional
+    Autoencoders* (VAEs) seem fit to tackle this problem ([**section
+    x.x**](#vae) details their precise working). Moreover, VAEs are
+    trained in an unsupervised manner, similar to how learning visual
+    number sense, given appropriate circumstances, does not require
+    labeled data due it being emergent. Another interesting aspect of
+    VAEs is their relatively interpretable and overseeable learned
+    feature space, which might tell something about how it deals with
+    visual numerosity, and thus allows us to evaluate the properties of
+    the VAE's encoding against biological data.
 
 Unfortunately, no dataset fit for visual numerosity estimation satisfied
 above requirements (sizable collections of natural image with large and
@@ -175,22 +182,25 @@ numerosity percepts invariant to visual features other than quantity.
 Related Work
 ============
 
+<!-- TODO
+    - [ ] Related work is often structured with line subsection, do that as it also saves space
+-->
 Visual Number Sense
 -------------------
 
 <!-- Probably skip, but the arxiv paper and stoianov2012 can be reharsed -->
 <!-- Investigate the goodfellow2016deep reference as to why it is somewhat computationally expensive -->
-As previously described Stoianov and Zorzi (2012) applied artificial
+As previously described, Stoianov and Zorzi (2012) applied artificial
 neural netwoks to visual numerosity estimation, although without using
-natural images. They discoverd that some resultant neural populations
-concerned with numerosity estimation shared multiple properties with
-biological populations participating in similar tasks, most prominently
-an encoding scheme that was invariant to the cumaltative surface area of
-the objects present in the provided images. Present research hopes to
-discover a similar kind of invarience to surface area. Likewise, we will
-employ the same scale invarience test, although a succesfull application
-to natural images already shows a fairly abstract representation of
-number, as the objects therein already contain varied visual features.
+natural images. They discoverd neural populations concerned with
+numerosity estimation that shared multiple properties with biological
+populations participating in similar tasks, most prominently an encoding
+scheme that was invariant to the cumaltative surface area of the objects
+present in the provided images. Present research hopes to discover a
+similar kind of invarience to surface area. Likewise, we will employ the
+same scale invarience test, although a succesfull application to natural
+images already shows a fairly abstract representation of number, as the
+objects therein already contain varied visual features.
 
 Some simplicity of the dataset used by Stoianov and Zorzi (2012) is due
 their use of the relatively computationally expensive restricted
@@ -203,7 +213,6 @@ better to natural images.
 Salient Object Subitizing Dataset
 ---------------------------------
 
-<!-- Also mention something about how this dataset is concustructed -->
 <!-- Do you also explain synthetic data here? (yes seems alright) -->
 <!-- Mention the results of their approach in some section -->
 As seen in the [figure](#sub) below, the goal of the *Salient Object
@@ -227,7 +236,7 @@ Variational Autoencoder
 
 <!--
     TODO 
-    - [ ] Where to place the archictecture with conv nets and all?
+    - [ ] Image of extact architecture
 -->
                                               ┌───┐
                                               │ z⁰│
@@ -285,66 +294,140 @@ distributed latent variables capture the intuition behind generative
 algorithms that they should support sampling latent variables that
 produce reconstructions that are merely *similair* to the input, and not
 necessarily accurate copies. Furthermore, optimizing an abritary
-distribution would be intractable, thus we need to rely on the fact that
-given a set of normally distributed variables
+distribution would be intractable, thus VAEs need to rely on the fact
+that given a set of normally distributed variables
 <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6b04d182a4cc153c99e63cb11624e429.svg?invert_in_darkmode" align=middle width=102.26015249999999pt height=24.65753399999998pt/> with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb80d7867cd70ef2ba19bcdc87929a24.svg?invert_in_darkmode" align=middle width=51.25553069999999pt height=22.648391699999998pt/> and
 any sufficiently complicated function <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/fb5a9656c65930c54541391b5aa251d4.svg?invert_in_darkmode" align=middle width=35.78112284999999pt height=24.65753399999998pt/> (such as a neural
 network), there exists a mapping <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/2b54f183e96b653f73efc4f4031291a2.svg?invert_in_darkmode" align=middle width=74.93116124999999pt height=24.7161288pt/> from which we can
 generate any abritary distribution <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/b35d6f59a5e2434e1ab2e6def0bbb465.svg?invert_in_darkmode" align=middle width=80.75901899999998pt height=24.65753399999998pt/>
 with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/7b98e2bfe759ee7b24a3cf145ba3056f.svg?invert_in_darkmode" align=middle width=78.08775974999999pt height=24.7161288pt/> (Doersch 2016).
 
-Therefore, the optimization objectives of a VAE become (see figure 4 of
-Doersch 2016):
+Therefore, the optimization objectives of a VAE become (also see figure
+4 of Doersch 2016):
 
 1.  <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4a5d495a4a9a1140380700f4affe6e59.svg?invert_in_darkmode" align=middle width=208.26828659999998pt height=24.65753399999998pt/>
 2.  Some reconstruction loss. Within visual problems, plain VAEs can for
-    example minimize the binary cross entropy between $X$ and $X'$.
+    example minimize the binary cross entropy (BCE) between $X$ and
+    $X'$.
 
-The first objective of generating an appropriate distribution function
-of the latent spance makes VAEs generative, partly satisfying the third
-constraint outlined in the introduction. To fully satisfy this
-constraint, the final architecture uses deep neural networks for both
-the encoder and decoder module (for details, refer to Experiments VAE
-architecture), making the implementation an hierarchical model. As an
-VAEs latent space encodes the most important features of the data, it is
-hoped the samples drawn from the encoder provide information regarding
-it's subitizing performance (see [**section x.x**](#readout)). For a
-complete overview of implementing a VAE, refer to Kingma and Welling
-(2013) and Doersch (2016).
+Objective **(1)** grants VAEs the ability to generate new samples from
+the learned distribution, partly satisfying the constraint outlined in
+the introduction whereby visual numerisoty skills emerge in generative
+learning models. To fully satisfy this constraint, the final
+architecture uses deep neural networks for both the encoder and decoder
+module (see figure X for the VAE architecture), making the
+implementation an hierarchical model as well. As an VAEs latent space
+encodes the most important features of the data, it is hoped the samples
+drawn from the encoder provide information regarding it's subitizing
+performance (see [**section x.x**](#readout)). For a complete overview
+of implementing a VAE, refer to Kingma and Welling (2013) and Doersch
+(2016).
 
 Deep Feature Consistent Perceptual Loss
 ---------------------------------------
 
-To make the reconstructions made by the VAE perceptually closer to
-whatever humans deem important characteristics of images, Hou et al.
-(2017) propose optimizing the reconstructions with help of the hidden
-layers of a pretrained network. This can be done by predefining a set of
-layers <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> from a pretrained network (Hou et al. (2017) and present
-research use VGG-19), and for every <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> matching the hidden
-representation of the input <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/332cc365a4987aacce0ead01b8bdcc0b.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=14.15524440000002pt/> to the hidden representation of the
-reconstruction <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/33717a96ef162d4ca3780ca7d161f7ad.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=18.666631500000015pt/> made by the VAE:
+<!-- TODO
+    - [ ] Comparison on the sos dataset (see compare_rnd.py)
+    - [ ] Note something about alpha and beta? Our dataset worked better with alpha ~= 0.001 and beta, based on reported final reconstrution error, although more work in optimizing this ratio is to be done.
+    - [x] Find a reference for the properties of the first few layers of a deep CNN
+-->
+<!-- This reason is a little strange. I think you need to focus more on how CNNs or say something about CNNs capturing more visual characterisics/human (visual) similarity judgemets in general -->
+Because the frequently used pixel-by-pixel reconstrution loss measures
+in VAEs do not necessarily comply with human perceptual similarity
+judgements, Hou et al. (2017) propose optimizing the reconstructions
+with help of the hidden layers of a pretrained deep CNN network, because
+these models are particularly better at capturing spatial correlation
+compared to pixel-by-pixel measurements (Hou et al. 2017). Proposed
+*Feature Perceptual Loss* (FPL) alibity to retain spatial correlation
+should reduce the noted blurriness (Larsen et al. 2015) of the VAE's
+reconstructions, which is especially problematic in subitizing tasks
+because blurring merges objects which in turn distorts class labels. Hou
+et al. (2017) and present research employ VGG-19 (Simonyan and Zisserman
+2014) as the pretrained network <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/5e16cba094787c1a10e568c61c63a5fe.svg?invert_in_darkmode" align=middle width=11.87217899999999pt height=22.465723500000017pt/>, trained on the large and varied
+ImageNet (Russakovsky et al. 2015) dataset. FPL requires predefining a
+set of layers <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/63edf80c57e86e2888288fe255830df2.svg?invert_in_darkmode" align=middle width=41.656051799999986pt height=22.831056599999986pt/> from pretrained network <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/5e16cba094787c1a10e568c61c63a5fe.svg?invert_in_darkmode" align=middle width=11.87217899999999pt height=22.465723500000017pt/>, and works by
+minimizing the mean squared error (MSE) between the hidden
+representations of input <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/332cc365a4987aacce0ead01b8bdcc0b.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=14.15524440000002pt/> and VAE reconstruction <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/33717a96ef162d4ca3780ca7d161f7ad.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=18.666631500000015pt/> at every
+layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/>. Aside from the <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/92a3cfa10cc205f69999b396a8a3be8c.svg?invert_in_darkmode" align=middle width=24.100592999999986pt height=22.465723500000017pt/>-divergence, the VAE's second
+optimization objective is now as follows:
 
 <p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ef0c0a57404ef77119b5924d13572cc5.svg?invert_in_darkmode" align=middle width=196.6041231pt height=18.88772655pt/></p>
 
-The more mathematical intuition behind this loss is that whatever some
-hidden layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> of the VGG-19 network encodes should be retained in
-the reconstructed output, as the VGG-19 has proven to model important
-visual characteristics of a large variety of image types (VGG-19 having
-been trained on ImageNet). (One notable downside of this approach is
-that although layers from the VGG-19 represent important visual
-information , it is well known fact that the first few layers (which
-seem to work best in our own test, as well as in their original
-application ) only encode simple features such as edges and lines (i.e
-countours) which are combined into more complex features in deeper
-layers. This means that the optimization is somewhat unambitious, in
-that it will never try to learn any other visual features aside from
-what the set of predfined layers <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> encode, such as detailed object
-textures. Indeed, although countour reconstruction has greatly improved
-with this loss function, reconstructed detail such as facial features
-show less improvement.
+The more mathematical intuition behind FPL is that whatever some hidden
+layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> of the VGG-19 network encodes should be retained in the
+reconstruction <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/33717a96ef162d4ca3780ca7d161f7ad.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=18.666631500000015pt/>, as the VGG-19 has proven to model important
+visual characteristics of a large variety of image types. In Hou et al.
+(2017)'s and our experiments
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/0dfb9aa9d46f10f958623ff85f868b99.svg?invert_in_darkmode" align=middle width=219.03237015pt height=24.65753399999998pt/> resulted in the best
+reconstructions. One notable shortcoming of FPL is that although the
+layers from the VGG-19 represent important visual information, it is a
+known fact that the first few layers of deep CNNs only encode simple
+features such as edges and lines (i.e they support countours), which are
+only combined into more complex features deeper into the network (Liu et
+al. 2017; FPL's authors Hou et al. 2017 note something similair). This
+means that the optimization objective is somewhat unambitious, in that
+it will never try to learn any other visual features (for examples,
+refer to Liu et al. 2017, Fig. 6.) aside from what the set of predfined
+layers <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> represents. Indeed, although countour reconstruction has
+greatly improved with FPL, the reconstruction of detail such as facial
+features shows less improvement. Although Hou et al. (2017) show a
+successful application of FPL, they might have been unaware of this
+shortcoming due to using a more uniform dataset consisting only of
+centered faces. For a comparison between FPL loss and BCE reconstruction
+loss see the figure below.
 
 Dataset Extension with Syntethic Images
 ---------------------------------------
+
+<!-- TODO
+    - [x] Hybrid dataset (intuition, settings graph etc, pretrain,)
+    - [x] Synthetic image settings
+    - [ ] Generate bezier graph
+-->
+We follow J. Zhang, Ma, et al. (2016) in pretraining our model with
+synthetic images and later fine-tuning on the SOS dataset. However, some
+small chances to their synthetic image pretraining setup are proposed.
+First, the synthetic dataset is extened with natural images from the SOS
+dataset such that the amount of examples per class per epoch is always
+equal (hopefully reducing problems encountered with class imbalance, see
+[section X.X](#imbalance)). Another reason for constructing a hybrid
+dataset was the fact that the generation process of synthetic images was
+noted to produes 1. fairly unrealistic looking examples and 2.
+considerably less suitable than natural data for supporting subitizing
+performance (J. Zhang, Ma, et al. 2016). A further intuition behind this
+dataset is thus that the representation of the VAE must always be at
+least a little supportive of natural images, instead of settling on some
+optimum for synthetic images. A final reason for including natural
+images is that any tested growth in dataset size during pretraining
+resulted into lower losses. The ratio of natural to synthethic images is
+increased over time, defined by a bezier curve with parameters
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f2c5b82fa8ce51e3945414af55db9555.svg?invert_in_darkmode" align=middle width=277.18409235pt height=21.18721440000001pt/> shown in figure X.X. We grow the
+original dataset into a hybrid dataset by roughly 8 times, pretraining
+with a total of 80000 hybrid samples per epoch. Testing many different
+parameters for the hybrid dataset was not given much priority as the
+total loss seemed to shrink with dataset expansion and training and
+testing a full model was time expansive.
+
+![bezier\_curve](https://github.com/rien333/numbersense-vae/blob/master/thesis/bezier.png "Bezier curve defining the ratio of natural images over syntethic images at time _t_")
+
+<!-- 🐝 Starting from <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f720bb0bc5c021946e95974e4ae6a230.svg?invert_in_darkmode" align=middle width=48.858371099999985pt height=21.18721440000001pt/>, we increase <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4f4f4e395762a3af4575de74c019ebb5.svg?invert_in_darkmode" align=middle width=5.936097749999991pt height=20.221802699999984pt/> by <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/22f2e6fc19e491418d1ec4ee1ef94335.svg?invert_in_darkmode" align=middle width=21.00464354999999pt height=21.18721440000001pt/> for every pasted object, compared to @zhang2016salient's static <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f720bb0bc5c021946e95974e4ae6a230.svg?invert_in_darkmode" align=middle width=48.858371099999985pt height=21.18721440000001pt/>, -->
+Synthetic images are generated by pasting cutout objects from THUS10000
+(Cheng et al. 2015) onto the SUN background dataset (Xiao et al. 2010).
+The subitizing label is aquired by pasting an object <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f9c4988898e7f532b9f826a75014ed3c.svg?invert_in_darkmode" align=middle width=14.99998994999999pt height=22.465723500000017pt/> times, with
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/7c16ba2fd920e93050add3e2649148bd.svg?invert_in_darkmode" align=middle width=67.967856pt height=24.65753399999998pt/>. For each paste, the object is transformed in
+equivalent manner to J. Zhang, Ma, et al. (2016). However, subitizing is
+noted be more difficult when objects are superimposed, forcing recource
+to external processes as counting by object enumeration (Dehaene 2011,
+p57.), implying that significant paste object overlap should be avoided.
+J. Zhang, Ma, et al. (2016) avoid object overlap by defining a threshold
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/d41f04792af6771ea47e0d7ce294d917.svg?invert_in_darkmode" align=middle width=54.34294964999999pt height=24.65753399999998pt/> whereby an object's visible pixels
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4c4fc8a101c20a451986cbb2b60d50b8.svg?invert_in_darkmode" align=middle width=49.28961839999998pt height=22.465723500000017pt/> and total pixel amount <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ebf0273cdafcc16c896a6ae57cb8c360.svg?invert_in_darkmode" align=middle width=38.328005099999984pt height=22.465723500000017pt/> should satisfy
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3d58d741d8c4ef6d86a04c2bd5140d5b.svg?invert_in_darkmode" align=middle width=131.81812709999997pt height=22.465723500000017pt/>}. We define the object overlap threshold as
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/58ada7345cb70b6b52e95713ca680e10.svg?invert_in_darkmode" align=middle width=166.50200489999997pt height=32.256008400000006pt/> with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/2b4091190736e955f50962736c8a4891.svg?invert_in_darkmode" align=middle width=67.967856pt height=24.65753399999998pt/> 🐝
+compared to J. Zhang, Ma, et al. (2016)'ss static assignment of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f720bb0bc5c021946e95974e4ae6a230.svg?invert_in_darkmode" align=middle width=48.858371099999985pt height=21.18721440000001pt/>,
+as VAEs are prone produce blurry reconstructions (Hou et al. 2017;
+Larsen et al. 2015), which requires extra care with overlapping objects
+as to not distort class labels.
 
 Experiments
 ===========
@@ -354,23 +437,24 @@ Hidden Representation Classifier
 
 ### Classifier architecture
 
-To asses whether the learned latent space of the VAE network supports
-subitizing/(the VAE) showcases the (emergent) ability to perform in
-subitizing, a two layer fully-connected net is fed with latent
-activation vectors <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/8ec2ef7749d65d10a01bcd8e313835d4.svg?invert_in_darkmode" align=middle width=22.81049759999999pt height=14.15524440000002pt/> created by the encoder module of the VAE
-from an image <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1338d1e5163ba5bc872f1411dd30b36a.svg?invert_in_darkmode" align=middle width=18.269651399999987pt height=22.465723500000017pt/>, and a corresponding subitizing class label <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c503cd3cc90b9dc8646daa73c42365ae.svg?invert_in_darkmode" align=middle width=14.19429989999999pt height=22.465723500000017pt/>,
-where <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1338d1e5163ba5bc872f1411dd30b36a.svg?invert_in_darkmode" align=middle width=18.269651399999987pt height=22.465723500000017pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c503cd3cc90b9dc8646daa73c42365ae.svg?invert_in_darkmode" align=middle width=14.19429989999999pt height=22.465723500000017pt/> are respectively an image and class label from the
-SOS training set. Both fully-connected layers contain 160 neurons. Each
-of the linear layers is followed by a batch normalization layer (Ioffe
-and Szegedy 2015), a ReLU activation function and a dropout layer,
-respectively. A fully-connected net was choosen because using another
-connectionist module for read-outs of the hidden representation
-heightens the biological plausibility of the final approach (Zorzi,
-Testolin, and Stoianov 2013b). Zorzi, Testolin, and Stoianov (2013b)
-note that the appended connectionist classifier module can for example
-be concieved of as cognitive response module (?), although the main
-reason behind training this classifier is to asses it's performance
-against other algorithmic and human data.
+<!-- Maybe or maybe not mention dropout probabilities (should be final tho) -->
+To asses whether the learned latent space of the VAE showcases the
+emergent ability to perform in subitizing, a two layer fully-connected
+net is fed with latent activation vectors <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/8ec2ef7749d65d10a01bcd8e313835d4.svg?invert_in_darkmode" align=middle width=22.81049759999999pt height=14.15524440000002pt/> created by the
+encoder module of the VAE from an image <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1338d1e5163ba5bc872f1411dd30b36a.svg?invert_in_darkmode" align=middle width=18.269651399999987pt height=22.465723500000017pt/>, and a corresponding
+subitizing class label <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c503cd3cc90b9dc8646daa73c42365ae.svg?invert_in_darkmode" align=middle width=14.19429989999999pt height=22.465723500000017pt/>, where <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1338d1e5163ba5bc872f1411dd30b36a.svg?invert_in_darkmode" align=middle width=18.269651399999987pt height=22.465723500000017pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c503cd3cc90b9dc8646daa73c42365ae.svg?invert_in_darkmode" align=middle width=14.19429989999999pt height=22.465723500000017pt/> are respectively an
+image and class label from the SOS training set. Both fully-connected
+layers contain 160 neurons. Each of the linear layers is followed by a
+batch normalization layer (Ioffe and Szegedy 2015), a ReLU activation
+function and a dropout layer (Srivastava et al. 2014) with dropout
+probability <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/332cc365a4987aacce0ead01b8bdcc0b.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=14.15524440000002pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/deceeaf6940a8c7a5a02373728002b0f.svg?invert_in_darkmode" align=middle width=8.649225749999989pt height=14.15524440000002pt/> respectively. A fully-connected net was chosen
+because using another connectionist module for read-outs of the hidden
+representation heightens the biological plausibility of the final
+approach (Zorzi, Testolin, and Stoianov 2013b). Namely, Zorzi, Testolin,
+and Stoianov (2013b) note that the appended connectionist classifier
+module can for example be concieved of as a cognitive response module
+(?), although the main reason behind training this classifier is to
+asses it's performance against other algorithmic and human data.
 
 ### Class imbalance
 
@@ -444,18 +528,7 @@ minority classes becomes comparable to the state of the art.
 Hybrid Dataset
 --------------
 
-<!-- TODO
-    - [ ] 
--->
-Subitizing has been noted to become harder when objects are
-superimposed, forcing recource to external processes as counting by
-object enumeration (Dehaene 2011, p57.). Therefore, the object overlap
-threshold is increased by <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/22f2e6fc19e491418d1ec4ee1ef94335.svg?invert_in_darkmode" align=middle width=21.00464354999999pt height=21.18721440000001pt/> starting from <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/cde2d598001a947a6afd044a43d15629.svg?invert_in_darkmode" align=middle width=21.00464354999999pt height=21.18721440000001pt/> for every object
-added to an image, compared to J. Zhang, Ma, et al. (2016)'s the static
-value of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/cde2d598001a947a6afd044a43d15629.svg?invert_in_darkmode" align=middle width=21.00464354999999pt height=21.18721440000001pt/>, as VAEs have been noted to produce blurry
-reconstructions, indicating a poor ability to code object edges, so
-distorting class labels.
-
+<!-- Some details? Or just move everything to methodology? -->
 Results & Discussion
 ====================
 
@@ -509,6 +582,13 @@ data-reference-id="ref"})
 Qualitive Analysis
 ------------------
 
+<!-- TODO
+    - [ ] Largely just write what you wrote to Tom + info on obj/background selection
+        and then apparent inhibitory role of some neurons
+-->
+<p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ade23ce7045d74d9712a2eb21f1c3f69.svg?invert_in_darkmode" align=middle width=216.07947405pt height=16.438356pt/></p>, with
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3bc73926c3631eaeaa6d7f3ad0791c76.svg?invert_in_darkmode" align=middle width=67.967856pt height=24.65753399999998pt/>
+
 Conclusion
 ==========
 
@@ -524,6 +604,11 @@ Objects in Everyday Scenes." *arXiv Preprint arXiv:1604.03505*.
 Chawla, Nitesh V, Kevin W Bowyer, Lawrence O Hall, and W Philip
 Kegelmeyer. 2002. "SMOTE: Synthetic Minority over-Sampling Technique."
 *Journal of Artificial Intelligence Research* 16: 321--57.
+
+Cheng, Ming-Ming, Niloy J Mitra, Xiaolei Huang, Philip HS Torr, and
+Shi-Min Hu. 2015. "Global Contrast Based Salient Region Detection."
+*IEEE Transactions on Pattern Analysis and Machine Intelligence* 37 (3).
+IEEE: 569--82.
 
 Davis, Hank, and Rachelle Pérusse. 1988. "Numerical Competence in
 Animals: Definitional Issues, Current Evidence, and a New Research
@@ -595,6 +680,10 @@ Neural Information Processing Systems*, 1097--1105.
 Lakoff, George, and Rafael E Núñez. 2000. "Where Mathematics Comes from:
 How the Embodied Mind Brings Mathematics into Being." *AMC* 10: 12.
 
+Larsen, Anders Boesen Lindbo, Søren Kaae Sønderby, Hugo Larochelle, and
+Ole Winther. 2015. "Autoencoding Beyond Pixels Using a Learned
+Similarity Metric." *arXiv Preprint arXiv:1512.09300*.
+
 LeCun, Yann, and et al. Bengio Yoshua. 1995. "Convolutional Networks for
 Images, Speech, and Time Series." *The Handbook of Brain Theory and
 Neural Networks* 3361 (10): 1995.
@@ -606,6 +695,11 @@ Datasets in Machine Learning." *Journal of Machine Learning Research* 18
 
 Liou, Cheng-Yuan, Wei-Chen Cheng, Jiun-Wei Liou, and Daw-Ran Liou. 2014.
 "Autoencoder for Words." *Neurocomputing* 139. Elsevier: 84--96.
+
+Liu, Mengchen, Jiaxin Shi, Zhen Li, Chongxuan Li, Jun Zhu, and Shixia
+Liu. 2017. "Towards Better Analysis of Deep Convolutional Neural
+Networks." *IEEE Transactions on Visualization and Computer Graphics* 23
+(1). IEEE: 91--100.
 
 Mnih, Volodymyr, Koray Kavukcuoglu, David Silver, Andrei A Rusu, Joel
 Veness, Marc G Bellemare, Alex Graves, et al. 2015. "Human-Level Control
@@ -625,6 +719,20 @@ Piazza, Manuela, Andrea Mechelli, Brian Butterworth, and Cathy J Price.
 Functionally Overlapping Processes?" *Neuroimage* 15 (2). Elsevier:
 435--46.
 
+Russakovsky, Olga, Jia Deng, Hao Su, Jonathan Krause, Sanjeev Satheesh,
+Sean Ma, Zhiheng Huang, et al. 2015. "Imagenet Large Scale Visual
+Recognition Challenge." *International Journal of Computer Vision* 115
+(3). Springer: 211--52.
+
+Simonyan, Karen, and Andrew Zisserman. 2014. "Very Deep Convolutional
+Networks for Large-Scale Image Recognition." *arXiv Preprint
+arXiv:1409.1556*.
+
+Srivastava, Nitish, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever,
+and Ruslan Salakhutdinov. 2014. "Dropout: A Simple Way to Prevent Neural
+Networks from Overfitting." *The Journal of Machine Learning Research*
+15 (1). JMLR. org: 1929--58.
+
 Stoianov, Ivilin, and Marco Zorzi. 2012. "Emergence of a'visual Number
 Sense'in Hierarchical Generative Models." *Nature Neuroscience* 15 (2).
 Nature Publishing Group: 194.
@@ -635,6 +743,11 @@ and Cybernetics* 6: 769--72.
 Wu, Xiaolin, Xi Zhang, and Jun Du. 2018. "Two Is Harder to Recognize
 Than Tom: The Challenge of Visual Numerosity for Deep Learning." *arXiv
 Preprint arXiv:1802.05160*.
+
+Xiao, Jianxiong, James Hays, Krista A Ehinger, Aude Oliva, and Antonio
+Torralba. 2010. "Sun Database: Large-Scale Scene Recognition from Abbey
+to Zoo." In *Computer Vision and Pattern Recognition (Cvpr), 2010 Ieee
+Conference on*, 3485--92. IEEE.
 
 Zhang, Jianming, Shuga Ma, Mehrnoosh Sameki, Stan Sclaroff, Margrit
 Betke, Zhe Lin, Xiaohui Shen, Brian Price, and Radomír Měch. 2016.
