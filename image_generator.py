@@ -26,10 +26,13 @@ classifier.load_state_dict(
         torch.load("classifier-models/65-37d7.pt", map_location=lambda storage, loc: storage))
 classifier.eval()
 
+obj_types = 32
 MSRA10K_dir = "../Datasets/MSRA10K_Imgs_GT/"
 files_txt = MSRA10K_dir + "files_jpg.txt"
 with open(files_txt, "r") as f:
     files = f.read().splitlines()
+random.shuffle(files)
+files=files[:obj_types]
 
 # data_out = "../Datasets/synthetic2-small"
 data_out = "../Datasets/syn-new"
@@ -42,17 +45,21 @@ with open(b_classes_txt, "r") as f:
     b_classes = f.read().splitlines()
     b_classes = random.sample(b_classes, b_types)
 
-mask_resizing = cv2.INTER_AREA
-obj_resizing = cv2.INTER_AREA
+b_classes = ["/f/forest/needleleaf/"]
 
-im_ref_low = 0.42 # was 0.4
-im_ref_high = 0.75 # was 0.8
+# Linear definitley works better for the fitting task
+mask_resizing = cv2.INTER_LINEAR
+obj_resizing = cv2.INTER_LINEAR
 
-im_low = 0.85
-im_high = 1.15
+im_ref_low = 0.41 # was 0.4
+im_ref_high = 0.66 # was 0.8
+
+im_low = 0.85 # was 0.85 
+im_high = 1.15 # was 1.15
 
 print("Generating images with size factor probability between %s and %s 🌸" % (im_low, im_high))
-print("Using %s for background classes for generation" % (b_types))
+print("Using %s background classes for generation" % (len(b_classes)))
+print("Using %s objects for generation" % (len(files)))
 
 # Rotate and expand
 def rotate(mat, angle):
@@ -182,13 +189,13 @@ def single_obj():
         zs = model.module.reparameterize(mu, logvar)
         outputs = classifier(zs)
         # get max index
-        if torch.argmax(outputs).item() != 1 or outputs[0][1] < 0.90:
+        if torch.argmax(outputs).item() != 1 or outputs[0][1] < 0.92:
             continue
         single_obj = True
     return obj, fname
     
 
-# Returns:  background array and background filename
+# Returns:  background array
 def background_im():
     valid_background = False
     while not valid_background:
@@ -211,23 +218,20 @@ def background_im():
             continue
 
         valid_background = True
-    return background, rnd_class_p + b_ims
+    return background
 
 # Returns: scale and image array
-def generate_image(cat, thresh=0.5, obj_f=None, background_f=None):
+# obj_f is a file path refering to an object/mask combo
+# background is a numpy image
+def generate_image(cat, thresh=0.5, obj_f=None, background=None):
     if obj_f:
         obj = cv2.imread(obj_f, 1) # RGB
     else:
         obj, obj_f = single_obj()
-
-
     mask = cv2.imread(obj_f.replace(".jpg", ".png"), 0).astype(np.float) / 255.0 # Grayscale
 
-    if background_f:
-        background = cv2.imread(background_f, 1) # RGB
-        background = cv2.resize(background, (DATA_H, DATA_W))
-    else:
-        background, _ = background_im() 
+    if background is None:
+        background = background_im() 
 
     background = background.astype(np.float)
     # Get bounding box of white region
@@ -283,10 +287,10 @@ def generate_set(fidx, nfiles, cat, thresh=0.5):
         cv2.imwrite("%s/%d-%d.jpg" % (data_out, fidx, cat), im)
         fidx += 1
 
-_, obj_f = single_obj()
-# _, b_f = background_im()
-for i in range(4):
-    im, _ = generate_image(4, thresh=1.0, obj_f=obj_f)
+# _, obj_f = single_obj()
+b = background_im()
+for i in range(3):
+    im, _ = generate_image(4, thresh=1.0, background=b)
     cv2.imwrite("/tmp/test%s.png" % (i), im)
 
 # generate(4000, 4000, cat=4, thresh=0.7)

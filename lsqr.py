@@ -59,7 +59,7 @@ params.add('B2', value=0.5) # Area
 eps = 5e-5
 
 im_bsize = 128
-samples = im_bsize * 70
+samples = im_bsize * 150 # was like 70?
 # I guess you can pregenerate the object sizes like this but idk
 # obj_s = (DATA_W*DATA_H) * 0.15
 
@@ -106,6 +106,7 @@ plt.ylabel('Cumaltative area')
 plt.show()
 
 noi = []
+R_sum = 0
 for i, a in enumerate(activations.T): # iterate over collumns
     out = minimize(residual, params, args=(cum_area, N, a, eps),) # note changed method
     R = 1 - out.residual.var() / np.var(a)
@@ -116,11 +117,13 @@ for i, a in enumerate(activations.T): # iterate over collumns
     report_fit(out)
     print("R^2:", R)
     noi.append(i)
+    R_sum += R
 
-np.save("noi2.npy", np.array(noi))
-np.save("activations2.npy", activations)
-np.save("cum_area2.npy", cum_area)
-np.save("N2.npy", N)
+print("R sum", (R_sum / len(noi)))
+np.save("noi.npy", np.array(noi))
+np.save("activations.npy", activations)
+np.save("cum_area.npy", cum_area)
+np.save("N.npy", N)
 # fig = plt.figure()
 # for i, n in enumerate(noi):
 #     ax = fig.add_subplot(2, int(len(noi)/2), i+1, projection='3d')
