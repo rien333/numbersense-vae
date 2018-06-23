@@ -17,7 +17,7 @@ import sys
 DATA_W = SOSDataset.DATA_W
 DATA_H = SOSDataset.DATA_H
 DATA_C = SOSDataset.DATA_C
-C = 4 # amount of classes
+C = 4 # highest class value
 data_t = transforms.Compose([transforms.ToTensor()])
 ZDIMS = vae.args.z_dims
 
@@ -59,7 +59,7 @@ params.add('B2', value=0.5) # Area
 eps = 5e-5
 
 im_bsize = 128
-samples = im_bsize * 150 # was like 70?
+samples = im_bsize * 250 # was like 70?
 # I guess you can pregenerate the object sizes like this but idk
 # obj_s = (DATA_W*DATA_H) * 0.15
 
@@ -120,10 +120,10 @@ for i, a in enumerate(activations.T): # iterate over collumns
     R_sum += R
 
 print("R sum", (R_sum / len(noi)))
-np.save("noi.npy", np.array(noi))
-np.save("activations.npy", activations)
-np.save("cum_area.npy", cum_area)
-np.save("N.npy", N)
+np.save("noi2.npy", np.array(noi))
+np.save("activations2.npy", activations)
+np.save("cum_area2.npy", cum_area)
+np.save("N2.npy", N)
 # fig = plt.figure()
 # for i, n in enumerate(noi):
 #     ax = fig.add_subplot(2, int(len(noi)/2), i+1, projection='3d')
