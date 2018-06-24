@@ -51,8 +51,8 @@ b_classes = ["/f/forest/needleleaf/"]
 mask_resizing = cv2.INTER_LINEAR
 obj_resizing = cv2.INTER_LINEAR
 
-im_ref_low = 0.41 # was 0.4
-im_ref_high = 0.66 # was 0.8
+im_ref_low = 0.4 # was 0.4
+im_ref_high = 0.8 # was 0.8
 
 im_low = 0.85 # was 0.85 
 im_high = 1.15 # was 1.15
@@ -83,16 +83,23 @@ def rotate(mat, angle):
   return rotated_mat
 
 # returns transform at location with corresponding mask for pasting in new objecs
-def generate_transforms(n, ref_size, ref_mask, thresh=0.5):
+# maybe could just be written as a series of list comphresions
+def generate_transforms(n, ref_size, ref_mask, thresh=0.5, total_size=False):
     transforms = []
     # record amount of pixels each object takes up originally
     total_pixels = []
     label_idxs = []
-    for im in range(n):
+    r_s = np.random.uniform(im_low, im_high, size=n)
+    if total_size:
+        s=np.sum(r_s)
+        n_paste_sizes = np.uint32((r_s/s) * total_size)
+    else:
+        n_paste_sizes = np.uint32(r_s * ref_size)
+
+    # maybe the whole could just be written as a series of list comphresions
+    for nps in n_paste_sizes:
         transform = []
-        scale_f = random.uniform(im_low, im_high)
-        n_paste_size = tuple(int(s*scale_f) for s in ref_size)
-        resize = lambda i, s=n_paste_size: cv2.resize(i, s, obj_resizing)
+        resize = lambda i, s=nps: cv2.resize(i, s, obj_resizing)
         n_mask = resize(ref_mask)
         transform.append(resize)
         # Rotate
@@ -223,7 +230,7 @@ def background_im():
 # Returns: scale and image array
 # obj_f is a file path refering to an object/mask combo
 # background is a numpy image
-def generate_image(cat, thresh=0.5, obj_f=None, background=None):
+def generate_image(cat, thresh=0.5, obj_f=None, background=None, size=False):
     if obj_f:
         obj = cv2.imread(obj_f, 1) # RGB
     else:
@@ -253,8 +260,8 @@ def generate_image(cat, thresh=0.5, obj_f=None, background=None):
     while not valid_t:
         scale = random.uniform(im_ref_low, im_ref_high) * DATA_H
         scale_f = scale / mask_crop.shape[l_dim]
-        new_size = tuple(s * scale_f for s in obj_ref.shape[:2][::-1])
-        transforms = generate_transforms(cat, new_size, mask_crop, thresh=thresh)
+        ref_size = tuple(s * scale_f for s in obj_ref.shape[:2][::-1])
+        transforms = generate_transforms(cat, ref_size, mask_crop, thresh=thresh, total_size=size)
         if transforms:
             valid_t = True
     
@@ -289,8 +296,8 @@ def generate_set(fidx, nfiles, cat, thresh=0.5):
 
 # _, obj_f = single_obj()
 b = background_im()
-for i in range(3):
-    im, _ = generate_image(4, thresh=1.0, background=b)
+for i in range(4):
+    im, _ = generate_image(i, thresh=1.0, background=b, total_size=5000)
     cv2.imwrite("/tmp/test%s.png" % (i), im)
 
 # generate(4000, 4000, cat=4, thresh=0.7)
