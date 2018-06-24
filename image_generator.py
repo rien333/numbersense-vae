@@ -295,10 +295,12 @@ def generate_set(fidx, nfiles, cat, thresh=0.5):
         fidx += 1
 
 # _, obj_f = single_obj()
-b = background_im()
-for i in range(4):
-    im, _ = generate_image(i, thresh=1.0, background=b, total_size=5002)
-    cv2.imwrite("/tmp/test%s.png" % (i), im)
+
+if __name__ == "__main__":
+    b = background_im()
+    for i in range(4):
+        im, _ = generate_image(i, thresh=1.0, background=b, total_size=5002)
+        cv2.imwrite("/tmp/test%s.png" % (i), im)
 
 # generate(4000, 4000, cat=4, thresh=0.7)
 # generate(12000, 14000, 3, thresh=0.66)
