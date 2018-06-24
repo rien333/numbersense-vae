@@ -230,7 +230,7 @@ def background_im():
 # Returns: scale and image array
 # obj_f is a file path refering to an object/mask combo
 # background is a numpy image
-def generate_image(cat, thresh=0.5, obj_f=None, background=None, size=False):
+def generate_image(cat, thresh=0.5, obj_f=None, background=None, total_size=False):
     if obj_f:
         obj = cv2.imread(obj_f, 1) # RGB
     else:
