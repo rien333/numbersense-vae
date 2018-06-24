@@ -21,7 +21,6 @@ C = 4 # highest class value
 data_t = transforms.Compose([transforms.ToTensor()])
 ZDIMS = vae.args.z_dims
 
-
 model = vae.model
 # toggle model to test / inference mode
 model.eval()
@@ -31,7 +30,7 @@ model.training = False
 if vae.args.cuda:
     model.cuda() # need to call this here again 
 
-nan_eps = 1e-6 # log(0) does not exist
+nan_eps = 1e-6
 
 # idk what to do with epsilon but maybe just add a small constant to the result
 def residual(params, cum_area, N, activation, eps):
