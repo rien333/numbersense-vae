@@ -1,5 +1,5 @@
 import cv2
-from random import randint, gauss
+from random import randint, gauss, uniform
 import numpy as np
 import os
 import torch
@@ -7,6 +7,8 @@ from torchvision import transforms
 from torch.utils.data import Dataset
 from torchvision.utils import save_image
 import pickle
+from PIL import Image
+from imgaug import augmenters as iaa
 
 # disable h5py warning, but disables pytorch warnings as well!!!
 np.warnings.filterwarnings('ignore')
@@ -22,9 +24,10 @@ class RandomColorShift(object):
 
     def __call__(self, s):
         im = s[0].astype(np.int16)
+        h, w = s[0].shape[:2]
         # add = [gauss(0, 12), gauss(0, 12), gauss(0, 12)]
         add = [gauss(0, 10), gauss(-0.5, 3.5), gauss(0, 9.5)]
-        add_v = np.tile(add, (DATA_W, DATA_H, 1)).astype(np.int16)
+        add_v = np.tile(add, (h, w, 1)).astype(np.int16)
         return (np.add(im, add_v)).clip(0, 255).astype(np.uint8), s[1]
 
 class Rescale(object):
@@ -34,7 +37,7 @@ class Rescale(object):
 
     def __call__(self, s):
         # default interpolation=cv2.INTER_LINEAR (rec., fast and ok quality)
-        return cv2.resize(s[0], self.output_size), s[1]
+        return cv2.resize(s[0], self.output_size,), s[1]
 
 class RandomCrop(object):
 
@@ -48,6 +51,26 @@ class RandomCrop(object):
         left = np.random.randint(0, w - new_w)
         crop_im = s[0][top : top + new_h, left : left + new_w]
         return crop_im, s[1]
+
+class RandomRandomCrop(object):
+
+    """
+    Crops a random area of a random size, limited by max_size
+    max_f: the max factor by which pixels will be removed from 
+    """
+
+    def __init__(self, max_f):
+        self.max_f = max_f 
+
+    def __call__(self, s):
+        h, w = s[0].shape[:2]
+        f = 1 - uniform(0, self.max_f)
+        new_h, new_w = (int(d*f) for d in (h,w))
+        top = np.random.randint(0, h - new_h)
+        left = np.random.randint(0, w - new_w)
+        crop_im = s[0][top : top + new_h, left : left + new_w]
+        return crop_im, s[1]
+
 
 class RandHorizontalFlip(object):
 
@@ -170,6 +193,7 @@ class SOSDataset(Dataset):
 
         s = self.train_data[index] if self.train else self.test_data[index]
         s = cv2.cvtColor(cv2.imread(self.datadir + s[0]), cv2.COLOR_BGR2RGB), s[1]
+        s = cv2.imread(self.datadir + s[0]), s[1]
         return self.transform(s)
 
 
@@ -194,17 +218,70 @@ class SOSDataset(Dataset):
             classes[c] = classes[c] + [i]
         return classes
 
+class RandomGrayscale(object):
+
+    def __call__(self, s):
+        # default interpolation=cv2.INTER_LINEAR (rec., fast and ok quality)
+        g = iaa.Grayscale(abs(gauss(0.0, 0.091)))
+        return g.augment_image(s[0]), s[1]
+
+class PerspectiveTransform(object):
+
+    def __call__(self, s):
+        p = iaa.PerspectiveTransform(abs(gauss(0.0, 0.095)))
+        return p.augment_image(s[0]), s[1]
+
+class ContrastNormalization(object):
+
+    def __call__(self, s):
+        c = iaa.ContrastNormalization(abs(gauss(1.0, 0.099)))
+        return c.augment_image(s[0]), s[1]
+
+class AugmentWrapper(object):
+    
+    def __init__(self):
+        import Augmentor
+        p = Augmentor.Pipeline()
+        p.rotate(probability=0.75, max_left_rotation=12, max_right_rotation=12)
+        p.zoom(probability=0.7, min_factor=1.00, max_factor=1.06)
+        p.random_color(0.3, 0.9, 1.0)
+        p.skew(probability=0.7, magnitude=0.24)
+        self.p = p.torch_transform()
+
+    def __call__(self, s):
+        return self.p(s[0]), s[1]
+
+class ToPILImage(object):
+
+    def __call__(self, s):
+        # return self.t(s[0]), s[1]
+        return Image.fromarray(s[0]), s[1]
+
+class ToNumpy(object):
+
+    def __call__(self, s):
+        return np.array(s[0]), s[1]
 
 if __name__ == "__main__":
-    # load preprocess
-    transform = [Rescale((256, 256))]
+    
+    transform = [ToPILImage(), AugmentWrapper(), ToNumpy(), RandomColorShift(), ContrastNormalization(), Rescale((250, 250))]
+    st = [Rescale((250, 250))]
     # transform = [Rescale((256, 256)), 
     #               ToTensor(), Normalize()]
-    dataset = SOSDataset(train=True, transform=transform, extended=True)
+    dataset = SOSDataset(train=True, transform=transform, extended=False)
     # print(torch.unique(dataset[1][0], sorted=True))
     classes = dataset.load_sorted_classes()
-    for l in classes:
-        print(len(l))
+    # for l in classes:
+    #     print(len(l))
+    t = transforms.Compose(transform)
+    st = transforms.Compose(st)
+    for i in classes[3]:
+        e = dataset[i]
+        print(e[1])
+        cv2.imshow("norm", st(e)[0])
+        cv2.waitKey(0)
+        cv2.imshow("crop", t(e)[0])
+        cv2.waitKey(0)
     # cv2.imwrite("test.jpg", cv2.cvtColor(dataset[dataset.sorted()[2][8]][0], cv2.COLOR_BGR2RGB))
     
     # Save preprocess 
