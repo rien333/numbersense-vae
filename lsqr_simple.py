@@ -7,8 +7,8 @@ import random
 
 DATA_W = 161
 DATA_H = 161
-C = 4 # amount of class
-nan_eps = 1e-5 # log(0) does not exist
+C = 5 # amount of class
+nan_eps = 1e-6 # log(0) does not exist
 
 # idk what to do with epsilon but maybe just add a small constant to the result
 def residual(params, cum_area, N, activation, eps):
@@ -37,21 +37,20 @@ params = Parameters()
 
 # params.add('B1', value=0.7, min=0.0, max=(4.0+N_eps)) # Number of objects
 # params.add('B2', value=0.7, min=0.0, max=DATA_H*DATA_W) # Area
-params.add('B0', value=0.01) # bias
-params.add('B1', value=0.03) # Number of objects
-params.add('B2', value=0.03) # Area
+params.add('B0', value=0.01, min=-2.0, max=2.0) # bias
+params.add('B1', value=0.03, min=-2.0, max=2.0) # Number of objects
+params.add('B2', value=0.03, min=-2.0, max=2.0) # Area
 eps = 5e-5
 
 # High neurons should conversely collerate with *either* cum_a or *N*, but (almost?) never with both
-samples = 295800
+samples = 992500
 neurons = 8
 # It's actually somewhat less probable that so many neurons are redundant
 noisy_neurons = 0.2
 obj_s = (DATA_W*DATA_H) * 0.15
-size_std = 0.35
+size_std = 0.35 # was 0.35
 # act_std = 0.08
-act_std = 0.12
-n_j = 1 # neuron that we want to look at
+act_std = 0.12 # was 12
 
 N = np.random.randint(low=0, high=5, size=samples)
 N_norm = N / C
@@ -68,7 +67,7 @@ np.random.shuffle(noi)
 # area and number neurons
 n_a, n_n = np.split(noi, 2)
 
-np.set_printoptions(precision=3, linewidth=120, suppress=True)
+np.set_printoptions(precision=3, linewidth=120, suppress=True, edgeitems=90)
 activations = np.random.normal(0.5, act_std, size=(samples, neurons))
 # print(activations)
 # neurons do some other stuff as well tho so it makes sense that they sometimes are non-zero
@@ -90,15 +89,12 @@ activations[:, n_a] += (cum_area_norm * np.random.normal(1.32, enc_std, size=sam
 # for v in (N, cum_area):
 #     print('[%s]' % (' '.join('%5.f' % i for i in v)))
 
-
-## plotting
-# fig = plt.figure(figsize=(12,8))
-# ax = Axes3D(fig)
-# ax.scatter(N, cum_area, activation,)
-# ax.set_xlabel('Number of objecs')
-# ax.set_ylabel('Cumaltative area')
-# ax.set_zlabel('Activation')
+# fig = plt.figure(figsize=(20, 16))
+# plt.scatter(N, cum_area)
+# plt.xlabel('Number of objecs')
+# plt.ylabel('Cumaltative area')
 # plt.show()
+
 
 # fig = plt.figure()
 # for i in range(neurons):
@@ -128,10 +124,9 @@ activations[:, n_a] += (cum_area_norm * np.random.normal(1.32, enc_std, size=sam
 # print("Cumelative area:\n", cum_area)
 # exit(0)
 
-
 nia_idx = random.randint(0, len(n_a)-1)
 nia = n_a[nia_idx]
-print("Minimizing aree neuron", nia)
+print("Minimizing area neuron", nia)
 nin_idx = random.randint(0, len(n_n)-1)
 nin = n_n[nin_idx]
 print("Minimizing numerosity neuron", nin)
@@ -147,7 +142,7 @@ print("Minimizing other neuron", nio)
 # exit(0)
 # Least squares optimization
 a = activations[:, nin]
-out = minimize(residual, params, args=(cum_area, N, a, eps))
+out = minimize(residual, params,  args=(cum_area, N, a, eps),)
 report_fit(out)
 
 print("R^2:",  1 - (np.sum((out.residual)**2) / np.sum((a - np.mean(a))**2)))

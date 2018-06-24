@@ -408,6 +408,7 @@ parameters for the hybrid dataset was not given much priority as the
 total loss seemed to shrink with dataset expansion and training and
 testing a full model was time expansive.
 
+<!-- Make this a pdf when exporting, maybe in the generate figures.fish thing -->
 ![bezier\_curve](https://github.com/rien333/numbersense-vae/blob/master/thesis/bezier.png "Bezier curve defining the ratio of natural images over syntethic images at time _t_")
 
 <!-- 🐝 Starting from <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f720bb0bc5c021946e95974e4ae6a230.svg?invert_in_darkmode" align=middle width=48.858371099999985pt height=21.18721440000001pt/>, we increase <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4f4f4e395762a3af4575de74c019ebb5.svg?invert_in_darkmode" align=middle width=5.936097749999991pt height=20.221802699999984pt/> by <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/22f2e6fc19e491418d1ec4ee1ef94335.svg?invert_in_darkmode" align=middle width=21.00464354999999pt height=21.18721440000001pt/> for every pasted object, compared to @zhang2016salient's static <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f720bb0bc5c021946e95974e4ae6a230.svg?invert_in_darkmode" align=middle width=48.858371099999985pt height=21.18721440000001pt/>, -->

@@ -21,7 +21,6 @@ C = 4 # highest class value
 data_t = transforms.Compose([transforms.ToTensor()])
 ZDIMS = vae.args.z_dims
 
-
 model = vae.model
 # toggle model to test / inference mode
 model.eval()
