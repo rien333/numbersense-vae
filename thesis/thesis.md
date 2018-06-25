@@ -113,7 +113,7 @@ This but as a sum.
 You could also just note two objectives, and so also introduce alpha and beta 
 -->
 
-$$ \sum_{l}^{i=1} = \textrm{MSE}(\Phi(x)^{l_{i}}, \Phi(\bar{x}̄)^{l_{i}})$$
+$$ \sum_{i=1}^{l} = \textrm{MSE}(\Phi(x)^{l_{i}}, \Phi(\bar{x}̄)^{l_{i}})$$
 
 The more mathematical (?) intuition behind FPL is that whatever some hidden layer $l_i$ of the VGG-19 network encodes should be retained in the reconstruction $\bar{x}$, as the VGG-19 has proven to model important visual characteristics of a large variety of image types. In @hou2017deep's and our experiments $L = \{\texttt{relu1\_1, relu2\_1, relu3\_1\}}$ resulted in the best reconstructions. One notable shortcoming of FPL is that although the layers from the VGG-19 represent important visual information, it is a known fact that the first few layers of deep CNNs only encode simple features such as edges and lines (i.e they support countours), which are only combined into more complex features deeper into the network [@liu2017towards; FPL's authors @hou2017deep note something similair]. This means that the optimization objective is somewhat unambitious, in that it will never try to learn any other visual features [for examples, refer to @liu2017towards, Fig. 6.] aside from what the set of predfined layers $l_i$ represents. Indeed, although countour reconstruction has greatly improved with FPL, the reconstruction of detail such as facial features shows less improvement. Although @hou2017deep show a successful application of FPL, they might have been unaware of this shortcoming due to using a more uniform dataset consisting only of centered faces. For a comparison between FPL loss and BCE reconstruction loss see the figure below. 
 
