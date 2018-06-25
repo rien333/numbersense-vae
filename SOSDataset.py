@@ -25,8 +25,8 @@ class RandomColorShift(object):
     def __call__(self, s):
         im = s[0].astype(np.int16)
         h, w = s[0].shape[:2]
-        # add = [gauss(0, 12), gauss(0, 12), gauss(0, 12)]
-        add = [gauss(0, 10), gauss(-0.5, 3.5), gauss(0, 9.5)]
+        add = [uniform(0, 12), uniform(0, 12), uniform(0, 12)]
+        # add = [gauss(0, 10), gauss(-0.5, 3.5), gauss(0, 9.5)]
         add_v = np.tile(add, (h, w, 1)).astype(np.int16)
         return (np.add(im, add_v)).clip(0, 255).astype(np.uint8), s[1]
 
@@ -193,7 +193,6 @@ class SOSDataset(Dataset):
 
         s = self.train_data[index] if self.train else self.test_data[index]
         s = cv2.cvtColor(cv2.imread(self.datadir + s[0]), cv2.COLOR_BGR2RGB), s[1]
-        s = cv2.imread(self.datadir + s[0]), s[1]
         return self.transform(s)
 
 

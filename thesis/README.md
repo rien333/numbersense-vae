@@ -127,13 +127,13 @@ Another solution would be ommiting or replacing the two constraints, by for exam
     i.e. perform in autonomous feature determination, *Varitional
     Autoencoders* (VAEs) seem fit to tackle this problem ([**section
     x.x**](#vae) details their precise working). Moreover, VAEs are
-    trained in an unsupervised manner, similar to how learning visual
-    number sense, given appropriate circumstances, does not require
-    labeled data due it being emergent. Another interesting aspect of
-    VAEs is their relatively interpretable and overseeable learned
-    feature space, which might tell something about how it deals with
-    visual numerosity, and thus allows us to evaluate the properties of
-    the VAE's encoding against biological data.
+    trained in an unsupervised manner similar to how, given appropriate
+    circumstances, visual numoristy abilities are implictly learned
+    skills that emerge without "labeled data". Another interesting
+    aspect of VAEs is their relatively interpretable and overseeable
+    learned feature space, which might tell something about how it deals
+    with visual numerosity, and thus allows us to evaluate the
+    properties of the VAE's encoding against biological data.
 
 Unfortunately, no dataset fit for visual numerosity estimation satisfied
 above requirements (sizable collections of natural image with large and
@@ -337,28 +337,32 @@ in VAEs do not necessarily comply with human perceptual similarity
 judgements, Hou et al. (2017) propose optimizing the reconstructions
 with help of the hidden layers of a pretrained deep CNN network, because
 these models are particularly better at capturing spatial correlation
-compared to pixel-by-pixel measurements (Hou et al. 2017). Proposed
-*Feature Perceptual Loss* (FPL) alibity to retain spatial correlation
-should reduce the noted blurriness (Larsen et al. 2015) of the VAE's
-reconstructions, which is especially problematic in subitizing tasks
-because blurring merges objects which in turn distorts class labels. Hou
-et al. (2017) and present research employ VGG-19 (Simonyan and Zisserman
-2014) as the pretrained network <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/5e16cba094787c1a10e568c61c63a5fe.svg?invert_in_darkmode" align=middle width=11.87217899999999pt height=22.465723500000017pt/>, trained on the large and varied
-ImageNet (Russakovsky et al. 2015) dataset. FPL requires predefining a
-set of layers <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/63edf80c57e86e2888288fe255830df2.svg?invert_in_darkmode" align=middle width=41.656051799999986pt height=22.831056599999986pt/> from pretrained network <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/5e16cba094787c1a10e568c61c63a5fe.svg?invert_in_darkmode" align=middle width=11.87217899999999pt height=22.465723500000017pt/>, and works by
-minimizing the mean squared error (MSE) between the hidden
-representations of input <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/332cc365a4987aacce0ead01b8bdcc0b.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=14.15524440000002pt/> and VAE reconstruction <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/33717a96ef162d4ca3780ca7d161f7ad.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=18.666631500000015pt/> at every
-layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/>. Aside from the <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/92a3cfa10cc205f69999b396a8a3be8c.svg?invert_in_darkmode" align=middle width=24.100592999999986pt height=22.465723500000017pt/>-divergence, the VAE's second
-optimization objective is now as follows:
+compared to pixel-by-pixel measurements (Hou et al. 2017). The ability
+of the proposed *Feature Perceptual Loss* (FPL) to retain spatial
+correlation should reduce the noted blurriness (Larsen et al. 2015) of
+the VAE's reconstructions, which is especially problematic in subitizing
+tasks since blurring merges objects which in turn distorts subitizing
+labels. Hou et al. (2017) and present research employ VGG-19 (Simonyan
+and Zisserman 2014) as the pretrained network <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/5e16cba094787c1a10e568c61c63a5fe.svg?invert_in_darkmode" align=middle width=11.87217899999999pt height=22.465723500000017pt/>, trained on the
+large and varied ImageNet (Russakovsky et al. 2015) dataset. FPL
+requires predefining a set of layers <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/63edf80c57e86e2888288fe255830df2.svg?invert_in_darkmode" align=middle width=41.656051799999986pt height=22.831056599999986pt/> from pretrained network
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/5e16cba094787c1a10e568c61c63a5fe.svg?invert_in_darkmode" align=middle width=11.87217899999999pt height=22.465723500000017pt/>, and works by minimizing the mean squared error (MSE) between the
+hidden representations of input <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/332cc365a4987aacce0ead01b8bdcc0b.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=14.15524440000002pt/> and VAE reconstruction <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/33717a96ef162d4ca3780ca7d161f7ad.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=18.666631500000015pt/> at
+every layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/>. Aside from the <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/92a3cfa10cc205f69999b396a8a3be8c.svg?invert_in_darkmode" align=middle width=24.100592999999986pt height=22.465723500000017pt/>-divergence, the VAE's
+second optimization objective is now as follows:
 
-<p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ef0c0a57404ef77119b5924d13572cc5.svg?invert_in_darkmode" align=middle width=196.6041231pt height=18.88772655pt/></p>
+<!-- 
+This but as a sum.
+You could also just note two objectives, and so also introduce alpha and beta 
+-->
+<p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6756eb6b7523bac0db4b8270c76f00c1.svg?invert_in_darkmode" align=middle width=189.61965pt height=47.9339256pt/></p>
 
-The more mathematical intuition behind FPL is that whatever some hidden
-layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> of the VGG-19 network encodes should be retained in the
-reconstruction <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/33717a96ef162d4ca3780ca7d161f7ad.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=18.666631500000015pt/>, as the VGG-19 has proven to model important
-visual characteristics of a large variety of image types. In Hou et al.
-(2017)'s and our experiments
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/0dfb9aa9d46f10f958623ff85f868b99.svg?invert_in_darkmode" align=middle width=219.03237015pt height=24.65753399999998pt/> resulted in the best
+The more mathematical (?) intuition behind FPL is that whatever some
+hidden layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> of the VGG-19 network encodes should be retained in
+the reconstruction <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/33717a96ef162d4ca3780ca7d161f7ad.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=18.666631500000015pt/>, as the VGG-19 has proven to model
+important visual characteristics of a large variety of image types. In
+Hou et al. (2017)'s and our experiments
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/502cc1e9fcfec07b3e1241ce483069b0.svg?invert_in_darkmode" align=middle width=258.04564005pt height=24.65753399999998pt/> resulted in the best
 reconstructions. One notable shortcoming of FPL is that although the
 layers from the VGG-19 represent important visual information, it is a
 known fact that the first few layers of deep CNNs only encode simple
