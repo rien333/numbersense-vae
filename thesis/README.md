@@ -355,7 +355,7 @@ second optimization objective is now as follows:
 This but as a sum.
 You could also just note two objectives, and so also introduce alpha and beta 
 -->
-<p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/42e2f78c341899e14ef5db290fa70919.svg?invert_in_darkmode" align=middle width=179.3380512pt height=37.03214955pt/></p>
+<p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1ce8859789816bd831df6a21198a44a3.svg?invert_in_darkmode" align=middle width=179.3380512pt height=37.90293045pt/></p>
 
 The more mathematical (?) intuition behind FPL is that whatever some
 hidden layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> of the VGG-19 network encodes should be retained in
