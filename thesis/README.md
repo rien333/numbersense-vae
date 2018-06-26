@@ -59,7 +59,7 @@ plausibility of the final model are:
 
 1.  Visual number sense is a purely *automatic* appreciation of the
     sensory world. It can be characterized as "sudden", or as visible at
-    a glance (Dehaene 2011, p57; J. Zhang, Ma, et al. 2016).
+    a glance (Dehaene 2011, 57; J. Zhang, Ma, et al. 2016).
     *Convolutional neural networks* (CNNs) not only showcase excellent
     performance in extracting visual features from complicated natural
     images (Mnih et al. 2015; Krizhevsky, Sutskever, and Hinton 2012;
@@ -75,20 +75,20 @@ plausibility of the final model are:
     no other than lower-level sensory neural processes. More
     appropriately, the sudden character of visual number sense could be
     explained by it omitting higher cognitive processes, such as
-    conscious representations (Dehaene 2011 indeed points to types of
-    visual number sense being preattentive) or symbolic processing
-    (visual numerosity is completely non-verbal, Nieder 2016).
-    Furthermore, the existence of visual sense of number in human
-    newborns (Lakoff and Núñez 2000), animals (Davis and Pérusse 1988)
-    and cultures without exact counting systems (Dehaene 2011, p261;
-    Franka et al. 2008) further strengthens the idea that specific kinds
-    of sense of number do not require much mediation and can purely
-    function as an interplay between perceptual capabilities and neural
-    encoding schemes, given the aforementioned groups lack of facilities
-    for abstract reasoning about number (see Everett 2005, 626; Lakoff
-    and Núñez 2000, chap. 3, for a discussion on how cultural
-    facilitaties such as fixed symbols and linguistic practices can
-    facilitate the existence of discrete number in humans). Indeed,
+    conscious representations (Dehaene 2011, 58 indeed points to types
+    of visual number sense being preattentive) or symbolic processing
+    (visual numerosity percepts are understood non-verbally,
+    Nieder 2016). Furthermore, the existence of visual sense of number
+    in human newborns (Lakoff and Núñez 2000), animals (Davis and
+    Pérusse 1988) and cultures without exact counting systems (Dehaene
+    2011, 261; Franka et al. 2008) further strengthens the idea that
+    specific kinds of sense of number do not require much mediation and
+    can purely function as an interplay between perceptual capabilities
+    and neural encoding schemes, given the aforementioned groups lack of
+    facilities for abstract reasoning about number (see Everett 2005,
+    626; Lakoff and Núñez 2000, chap. 3, for a discussion on how
+    cultural facilitaties such as fixed symbols and linguistic practices
+    can facilitate the existence of discrete number in humans). Indeed,
     Harvey et al. (2013) show that earlier mentioned neural populations
     did not display their characteristic response profile when
     confronted with Arabic numerals, that is, symbolic representations
@@ -150,10 +150,10 @@ Davis and Pérusse 1988) Most of the research above was conducted on
 approximate numerical cognition, but the aforementioned characterisics
 of visual sense of number hold equally well for a more distinct sense of
 number such as subitizing. Similarly, subitizing is suggested to be a
-parallel preattentive process in the visual system (Dehaene 2011, p57),
+parallel preattentive process in the visual system (Dehaene 2011, 57),
 the visual system likely relying on it's ability to recognize holistic
 patterns for a final subitizing count (Jansen et al. 2014; Dehaene 2011,
-p57; Piazza et al. 2002). This means that the "sudden" character of
+57; Piazza et al. 2002). This means that the "sudden" character of
 subitizing is caused by the visual system's ability to process simple
 geometric configurations of objects in parallel, whereby increasing the
 size of a group behind the subitizing range deprives perceiving this
@@ -426,7 +426,7 @@ The subitizing label is aquired by pasting an object <img src="https://rawgit.co
 equivalent manner to J. Zhang, Ma, et al. (2016). However, subitizing is
 noted be more difficult when objects are superimposed, forcing recource
 to external processes as counting by object enumeration (Dehaene 2011,
-p57.), implying that significant paste object overlap should be avoided.
+57.), implying that significant paste object overlap should be avoided.
 J. Zhang, Ma, et al. (2016) avoid object overlap by defining a threshold
 <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/d41f04792af6771ea47e0d7ce294d917.svg?invert_in_darkmode" align=middle width=54.34294964999999pt height=24.65753399999998pt/> whereby an object's visible pixels
 <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4c4fc8a101c20a451986cbb2b60d50b8.svg?invert_in_darkmode" align=middle width=49.28961839999998pt height=22.465723500000017pt/> and total pixel amount <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ebf0273cdafcc16c896a6ae57cb8c360.svg?invert_in_darkmode" align=middle width=38.328005099999984pt height=22.465723500000017pt/> should satisfy
@@ -545,6 +545,14 @@ minority classes becomes comparable to the state of the art.
 Results & Discussion
 ====================
 
+VAE performance
+---------------
+
+<!-- TODO
+    - [ ] graphs of loss
+    - [ ] Mus example with all the dimensions
+    - [ ] Discuss and show quality of representation (visual problem/dfc versus plain)
+-->
 Subitizing Read-Out
 -------------------
 
@@ -599,13 +607,81 @@ Qualitive Analysis
     - [ ] Largely just write what you wrote to Tom + info on obj/background selection
         and then apparent inhibitory role of some neurons
 -->
-<p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/b5c0c8b1b37c159e69e10df41d0f0802.svg?invert_in_darkmode" align=middle width=330.34301849999997pt height=16.438356pt/></p>,
+Artificial and biological neural populations concerned with visual
+numerosity support quantitative judgements invariant to object size and,
+conversely, some populations detect object size without responding to
+quantity, indicating a seperate encoding scheme for both properties
+(Stoianov and Zorzi 2012; Harvey et al. 2013). Analogously, we tested
+wether our VAE's latent representation contained dimensions <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/>
+encoding either one of these properties. To test this, we first created
+a dataset with synthetic examples containing <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f9c4988898e7f532b9f826a75014ed3c.svg?invert_in_darkmode" align=middle width=14.99998994999999pt height=22.465723500000017pt/> objects
+(<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f079a79d2483ab629ab646984b6a1a00.svg?invert_in_darkmode" align=middle width=67.967856pt height=24.65753399999998pt/>, with N uniformly distributed over the
+dataset) and corresponding cumalative area values <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/53d147e7f3fe6e47ee05b88b166bd3f6.svg?invert_in_darkmode" align=middle width=12.32879834999999pt height=22.465723500000017pt/> that those N
+objects occupied (measured in pixels, with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/53d147e7f3fe6e47ee05b88b166bd3f6.svg?invert_in_darkmode" align=middle width=12.32879834999999pt height=22.465723500000017pt/> normally distributed over
+the dataset[^1]). The object overlap threshold was set to 1 for each
+example, to reduce noise induced by possible weak encoding capabilities
+and reasons outlined in [section X.X](#hybrid). As visualisations showed
+that each dimension <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/> encodes more than one type of visual feature
+(see figure Y.Y) special care was undertaken to reduce <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/>'s response
+varience by only generating data with 15 randomly sampled objects from
+the object cut-out set, and one random background class from the
+background dataset (performance is reported on the "sand desserts"
+class, which contains particularly visually uniform examples). A
+dimension <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/> is said to be able to perform as either a numerical or
+area detector when regressing it's reponse over novel synthetic dataset
+(<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e3b0e5bb817a6d275abc4a9720726da9.svg?invert_in_darkmode" align=middle width=72.88055444999999pt height=21.18721440000001pt/>) supports the following relationship between normalized
+variables <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/53d147e7f3fe6e47ee05b88b166bd3f6.svg?invert_in_darkmode" align=middle width=12.32879834999999pt height=22.465723500000017pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f9c4988898e7f532b9f826a75014ed3c.svg?invert_in_darkmode" align=middle width=14.99998994999999pt height=22.465723500000017pt/> (Stoianov and Zorzi 2012):
 
-For the area neurons, more extreme cumaltative area samples bend the
-mean distribition either upwards or downwards, while response to
-cumaltative area in the case of numerosity neurons the mean response
-distribution that stayed relatively centered. (neuron 35 is not a
-numerisoty neuron btw) (neuron 52 transparent and neuron 77 transparent)
+<!-- If you want you could make this tag automatic with "\begin{align}" or something -->
+<p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/25927ca8c051e1831fdf4138c0bba2c8.svg?invert_in_darkmode" align=middle width=333.0826785pt height=16.438356pt/></p>
+
+The regression was accomplised with linear regression algorithms taken
+from (Newville et al. 2016) (Levenberg--Marquardt proved best). The
+criteria set by Stoianov and Zorzi (2012) for being a good fit are
+**(1)** the regression explaining at least 10% of the varience
+(<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/fb5210a16eededef1ee1580ee889dd24.svg?invert_in_darkmode" align=middle width=40.98757244999999pt height=26.76175259999998pt/>) **(2)** and a "ideal" detector of some property should
+have a low (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ed447abaf96248c199e24b5fc45f761a.svg?invert_in_darkmode" align=middle width=71.39158124999999pt height=24.65753399999998pt/>) regression coefficient for the
+complementary property. We slightly altered these criteria to fit our
+training setup. The complexity of the SOS dataset in comparison to the
+binary images used by Stoianov and Zorzi (2012) requires our model to
+encode a higher variety of information, meaning that any fit is going to
+have more noise as no dimension <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/> has one role (see figure Y.Y for
+an overview). Moreover, the syntethic data we use for the regression
+includes more complex information than the dataset used by Stoianov and
+Zorzi (2012). Nevertheless, we still found a small number of reoccuring
+detectors of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/53d147e7f3fe6e47ee05b88b166bd3f6.svg?invert_in_darkmode" align=middle width=12.32879834999999pt height=22.465723500000017pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f9c4988898e7f532b9f826a75014ed3c.svg?invert_in_darkmode" align=middle width=14.99998994999999pt height=22.465723500000017pt/>, with an R value higher than (all <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/> with
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/0b47087c766b52e6dc2e3d0c75fe067d.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/> resulted in an <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/75b2520cc78fcb9fcb51ceb86a0a707b.svg?invert_in_darkmode" align=middle width=91.14736619999998pt height=22.465723500000017pt/>) Due to randomisation in
+the fitting process (and data distribition problems?) the role
+distribution varied slighty with both properties being encoded by about
+1-2 dimensions (latent dimensions that provide a better fit of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/876af6dcdadde76f9725f4e40ba6d535.svg?invert_in_darkmode" align=middle width=8.21920935pt height=14.15524440000002pt/>
+exist, but don't satisfy the low coefficient criteria). An interesting
+note is that whenever the regression showed multiple dimensions encoding
+area, they either exhibited or positive a negative responses to area
+increase, in accordance with how visual numerisoty migt rely on a
+(inhibitory?) size normalisation signal according to some theories on
+the neurocomputational basis for numerisoty (see Stoianov and Zorzi 2012
+for a discussion). For the area neurons, more extreme cumaltative area
+samples bend the mean distribition either upwards or downwards, while
+response to cumaltative area in the case of numerosity neurons the mean
+response distribution that stayed relatively centered. (neuron 35 is not
+a numerisoty neuron btw) (neuron 52 transparent and neuron 77
+transparent) It's slight strong negative response for more extreme
+values might indicate a inhibitory role in area detection, for example
+providing a signal to numerisity that normalizes area (idk what the sign
+of these numbers means later on tho). Both the total reponse center of
+response distribution increased with numerisoty, although the difference
+between 3 and 4 is not extremely apparanent. This might be due to the
+fact that 4 being outside of the subitizing range means that a different
+encoding scheme or techqnique is used, as the case if for humans
+(Dehaene 2011, 57)
+
+<!-- (figure caption) -->
+Figure X.X (a) shows a typical response profile for a numerosity
+detector. Figure X.x (b) shows a typical response profile of dimension
+that encodes area with invarience to numeriosity information. Cumalative
+area (A) was normalized and is displayed across a logirithmic scale. For
+visual convenience, examples with A=0 were shifted next to lowest value
+of A in the dataset.
 
 Conclusion
 ==========
@@ -619,6 +695,12 @@ numerosities without resorting to counting schemes relying to
 cumaltative (objective) area, and conversly encodes cumaltative area
 without using numerisity information, in accordance with previous
 (other?) comparables artificial models (Stoianov and Zorzi 2012).
+However, more research is needed to asses , as more proteries of input
+need to be varied (such as visual variation and the distribution of
+variables ), there is room for improvement in the VAE's reconstrional
+abilities, i.e. efficiency of coding scheme. These two problems also
+indicate room for improvent in the subitizing classification task, which
+has the additional improvement of solving the class imbalance problem.
 
 References
 ==========
@@ -732,6 +814,11 @@ Veness, Marc G Bellemare, Alex Graves, et al. 2015. "Human-Level Control
 Through Deep Reinforcement Learning." *Nature* 518 (7540). Nature
 Publishing Group: 529.
 
+Newville, Matthew, Till Stensitzki, Daniel B Allen, Michal Rawlik,
+Antonino Ingargiola, and Andrew Nelson. 2016. "LMFIT: Non-Linear
+Least-Square Minimization and Curve-Fitting for Python." *Astrophysics
+Source Code Library*.
+
 Nieder, Andreas. 2016. "The Neuronal Code for Number." *Nature Reviews
 Neuroscience* 17 (6). Springer Nature: 366--82.
 <https://doi.org/10.1038/nrn.2016.40>.
@@ -792,3 +879,8 @@ Overview." *Frontiers in Psychology* 4. Frontiers Media SA.
 Zorzi, Marco, Alberto Testolin, and Ivilin Peev Stoianov. 2013b.
 "Modeling Language and Cognition with Deep Unsupervised Learning: A
 Tutorial Overview." *Frontiers in Psychology* 4. Frontiers: 515.
+
+[^1]: A uniform distribution of cumalative area might have worked
+    better, but required algorithmic changes to the synthethic data
+    generation process that were inhibited by the amount of time still
+    avialable.
