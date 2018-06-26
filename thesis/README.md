@@ -599,7 +599,7 @@ Qualitive Analysis
     - [ ] Largely just write what you wrote to Tom + info on obj/background selection
         and then apparent inhibitory role of some neurons
 -->
-<p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ca520e23529fdff19e4294b2332a249a.svg?invert_in_darkmode" align=middle width=324.86357474999994pt height=16.438356pt/></p>,
+<p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/b5c0c8b1b37c159e69e10df41d0f0802.svg?invert_in_darkmode" align=middle width=330.34301849999997pt height=16.438356pt/></p>,
 
 For the area neurons, more extreme cumaltative area samples bend the
 mean distribition either upwards or downwards, while response to
