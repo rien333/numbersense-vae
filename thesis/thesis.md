@@ -23,7 +23,10 @@ Notwithstanding the success of previous biologically informed approaches to mode
 
 Another solution would be ommiting or replacing the two constraints, by for example stating about possibility for complex organisation, and in the case of artificial neurons those embedded in hierarchically structured, generative learning models
 
-"The generative basis of natural number concepts" vaguely supports the biological case for generative models and number sense (generation being some kind of innate skill or something)-->
+"The generative basis of natural number concepts" vaguely supports the biological case for generative models and number sense (generation being some kind of innate skill or something)
+
+(after biological:) under the probable assumption that the brain is also a preditive modeller/stochastic inferational device
+-->
 
 3. Relatedly, visual sense of number is an emergent property of hierarchically organized neurons embedded in generative learning models, either artificial or biological [@stoianov2012; @ref]. 🌸 The fact that visual number sense exist in animals and human newborns suggests that it is an implicitly learned skill learned at the neural level, for animals do not exhibit a lot of vertical learning, let alone human newborns having received much numerical training. Deemed as a generally unrealistic trope of artificial learning by AI critics [@dreyfus2007heideggerian] and research into the human learning process [@Zorzi2013], modeling visual number necessitates non-researcher depended features. This will restrict the choice of algorithm to so called _unsupervised_ learning algorithms, as such an algorithm will learn its own particular representation of the data distribution. Given their ability to infer the underlying stochastic representation of the data, i.e. perform in autonomous feature determination,  _Varitional Autoencoders_ (VAEs) seem fit to tackle this problem ([**section x.x**](#vae) details their precise working). Moreover, VAEs are trained in an unsupervised manner similar to how, given appropriate circumstances, visual numoristy abilities are implictly learned skills that emerge without "labeled data". Another interesting aspect of VAEs is their relatively interpretable and overseeable learned feature space, which might tell something about how it deals with visual numerosity, and thus allows us to evaluate the properties of the VAE's encoding against biological data. 
 
@@ -115,9 +118,9 @@ You could also just note two objectives, and so also introduce alpha and beta
 
 $$ \sum_{l \in L}^{} = \textrm{MSE}(\Phi(x)^{l}, \Phi(\bar{x}̄)^{l})$$
 
-The more mathematical (?) intuition behind FPL is that whatever some hidden layer $l_i$ of the VGG-19 network encodes should be retained in the reconstruction $\bar{x}$, as the VGG-19 has proven to model important visual characteristics of a large variety of image types. In @hou2017deep's and our experiments $L = \{\texttt{relu1\_1, relu2\_1, relu3\_1\}}$ resulted in the best reconstructions. One notable shortcoming of FPL is that although the layers from the VGG-19 represent important visual information, it is a known fact that the first few layers of deep CNNs only encode simple features such as edges and lines (i.e they support countours), which are only combined into more complex features deeper into the network [@liu2017towards; FPL's authors @hou2017deep note something similair]. This means that the optimization objective is somewhat unambitious, in that it will never try to learn any other visual features [for examples, refer to @liu2017towards, Fig. 6.] aside from what the set of predfined layers $l_i$ represents. Indeed, although countour reconstruction has greatly improved with FPL, the reconstruction of detail such as facial features shows less improvement. Although @hou2017deep show a successful application of FPL, they might have been unaware of this shortcoming due to using a more uniform dataset consisting only of centered faces. For a comparison between FPL loss and BCE reconstruction loss see the figure below. 
+The intuition behind FPL is that whatever some hidden layer $l_i$ of the VGG-19 network encodes should be retained in the reconstruction $\bar{x}$, as the VGG-19 has proven to model important visual characteristics of a large variety of image types. In @hou2017deep's and our experiments $L = \{\texttt{relu1\_1, relu2\_1, relu3\_1\}}$ resulted in the best reconstructions. One notable shortcoming of FPL is that although the layers from VGG-19 represent important visual information, it is a known fact that the first few layers of deep CNNs only encode simple features such as edges and lines (i.e they support countours), which are only combined into more complex features deeper into the network [@liu2017towards; FPL's authors @hou2017deep note something similair]. This means that the optimization objective is somewhat unambitious, in that it will never try to learn any other visual features [for examples, refer to @liu2017towards, Fig. 6.] aside from what the set of predefined layers $L$ represents. Indeed, although countour reconstruction has greatly improved with FPL, the reconstruction of detail such as facial features shows less improvement. Although @hou2017deep show a successful application of FPL, they might have been unaware of this shortcoming due to using a more uniform dataset consisting only of centered faces. For a comparison between FPL loss and BCE reconstruction loss see the figure below. 
 
-## Dataset Extension with Syntethic Images ##
+## Hybrid Dataset ##
 
 <!-- TODO
     - [x] Hybrid dataset (intuition, settings graph etc, pretrain,)
@@ -125,7 +128,7 @@ The more mathematical (?) intuition behind FPL is that whatever some hidden laye
     - [ ] Generate bezier graph
 -->
 
-We follow @zhang2016salient in pretraining our model with synthetic images and later fine-tuning on the SOS dataset. However, some small chances to their synthetic image pretraining setup are proposed. First, the synthetic dataset is extened with natural images from the SOS dataset such that the amount of examples per class per epoch is always equal (hopefully reducing problems encountered with class imbalance, see [section X.X](#imbalance)). Another reason for constructing a hybrid dataset was the fact that the generation process of synthetic images was noted to produes 1. fairly unrealistic looking examples and 2. considerably less suitable than natural data for supporting subitizing performance [@zhang2016salient]. A further intuition behind this dataset is thus that the representation of the VAE must always be at least a little supportive of natural images, instead of settling on some optimum for synthetic images. A final reason for including natural images is that any tested growth in dataset size during pretraining resulted into lower losses. The ratio of natural to synthethic images is increased over time, defined by a bezier curve with parameters $u_0=0, u_1=-0.01, u_2=0.02, u_3=1.0$ shown in figure X.X. We grow the original dataset into a hybrid dataset by roughly 8 times, pretraining with a total of 80000 hybrid samples per epoch. Testing many different parameters for the hybrid dataset was not given much priority as the total loss seemed to shrink with dataset expansion and training and testing a full model was time expansive.
+We follow @zhang2016salient in pretraining our model with synthetic images and later fine-tuning on the SOS dataset. However, some small chances to their synthetic image pretraining setup are proposed. First, the synthetic dataset is extened with natural images from the SOS dataset such that the amount of examples per class per epoch is always equal (hopefully reducing problems encountered with class imbalance, see [section X.X](#imbalance)). Another reason for constructing a hybrid dataset was the fact that the generation process of synthetic images was noted to produes 1. fairly unrealistic looking examples and 2. considerably less suitable than natural data for supporting subitizing performance [@zhang2016salient]. A further intuition behind this dataset is thus that the representation of the VAE must always be at least a little supportive of natural images, instead of settling on some optimum for synthetic images. A final reason for including natural images is that any tested growth in dataset size during pretraining resulted into lower losses. The ratio of natural to synthethic images is increased over time, defined by a bezier curve with parameters $u_0=0, u_1=-0.01, u_2=0.02, u_3=1.0$ shown in figure X.X. We grow the riginal dataset into a hybrid dataset by roughly 8 times, pretraining with a total of 80000 hybrid samples per epoch. Testing many different parameters for the hybrid dataset was not given much priority as the total loss seemed to shrink with dataset expansion and training and testing a full model was time expansive.
 
 <!-- Make this a pdf when exporting, maybe in the generate figures.fish thing -->
 ![bezier_curve](https://github.com/rien333/numbersense-vae/blob/master/thesis/bezier.png "Bezier curve defining the ratio of natural images over syntethic images at time _t_")
@@ -141,6 +144,14 @@ Synthetic images are generated by pasting cutout objects from THUS10000 [@cheng2
 ### Classifier architecture ### {#classifierarch}
 
 <!-- Maybe or maybe not mention dropout probabilities (should be final tho) -->
+<!-- TODO
+    - [ ] Mention that the experiments used a slightly different architecture, with less conv. 
+      filters and fully conntected layers appended before and after the latent represntation
+          - so this is theoritical performance (not time avialable for extra test)
+    - [ ] Mention  per class performance being 10-20% higher depending how we skew the imbalance
+      ratio's and techniques
+-->
+
 
 To asses whether the learned latent space of the VAE showcases the emergent ability to perform in subitizing, a two layer fully-connected net is fed with latent activation vectors $z_{X_i}$ created by the encoder module of the VAE from an image $X_i$, and a corresponding subitizing class label $Y_i$, where $X_i$ and $Y_i$ are respectively an image and class label from the SOS training set. Both fully-connected layers contain 160 neurons. Each of the linear layers is followed by a batch normalization layer [@ioffe2015batch], a ReLU activation function and a dropout layer [@srivastava2014dropout] with dropout probability $x$ and $y$ respectively. A fully-connected net was chosen because using another connectionist module for read-outs of the hidden representation heightens the biological plausibility of the final approach [@zorzi2013modeling]. Namely, @zorzi2013modeling note that the appended connectionist classifier module can for example be concieved of as a cognitive response module (?), although the main reason behind training this classifier is to asses it's performance against other algorithmic and human data. 
 
@@ -155,9 +166,8 @@ Class imbalance is a phenomenon encountered in datasets whereby the number of in
 
 An ensemble of techniques was used to tackle the class imbalance in the SOS dataset. First, slight  random under-sampling with replacement of the two majority classes ($c_0$ and $c_1$) is performed [see @JMLR:v18:16-365], reducing their size by ~10%. Furthermore, as in practice many common sophisticated under- and oversampling techniques (e.g. data augmentation or outlier removal, for an overview see @fernandez2013) proved largely non-effective, a cost-sensitive class weighting was applied. Cost-senstive ... consists of .... The uneffectiveness of quantive sampling techniques is likely to be caused by that in addition to the quantitative difference in class examples, there is also a slight difficulty factor whereby assesing the class of latent vector $z$ is significantly if belongs to $c_2$ or $c_3$ versus any other class, for these two classes require rather precise contours to discern the invidual objects, in case they for example overlapping, which remains hard for VAEs given their tendency to produce blurred reconstructions. The classifier network therefore seems inclined to put all of its representational power towards the easier classes, as this will result in a lower total cost, whereby this inclination will become even stronger as the quantitative class imbalance grows. The class weights for cost sensitive learning are set according to the quantitative class imbalance ratio [@ref], but better accuracy was obtained by slightly altering the relative difference between the weight by raising all of them to some power $n$. In our experiments, $n=3$ resulted in a balance between high per class accuray scores and aforementioned scores roughly following the same shape as in other algorithms, which hopefully implies that the classifier is able to generalize in a manner comparable to previous approaches. For the SOS dataset with random majority class undersampling, if $n \gg 3$ the classifier accuracy for the majority classes shrinks towards chance, and, interestingly, accuracy for the minority classes becomes comparable to the state of the art.
 
-## Hybrid Dataset ##
-
 <!-- Some details? Or just move everything to methodology? -->
+<!-- ## Hybrid Dataset ## -->
 
 # Results & Discussion #
 
@@ -203,12 +213,13 @@ The subitizing performance of the VAE is comparable to highest scoring non-machi
         and then apparent inhibitory role of some neurons
 -->
 
-$$z_i = \beta_1 \log(N) + \beta_2\log(A) + \epsilon$$, with $N \in [0, 4]$
+$$z_i = \beta_1 \log(N) + \beta_2\log(A) + \textepsilon, (\textrm(with) N \in [0, 4])$$, 
 
+For the area neurons, more extreme cumaltative area samples bend the mean distribition either upwards or downwards, while response to cumaltative area in the case of numerosity neurons the  mean response distribution that stayed relatively centered. (neuron 35 is not a numerisoty neuron btw) (neuron 52 transparent and neuron 77 transparent)
 
 # Conclusion #
 
-# References
+We described a  setup for training a VAE satisfying various biological constraints. A possible consequence thereof is that our final model showcases properties also found in biological networks. Firstly, an ability to subitize emerged as an implicitly learned skill. Second of all, the learned encoding scheme indicates support for encoding numerosities without resorting to counting schemes relyiing to cumaltative (objective) area, and conversly encodes cumaltative area without using numerisity information, in accordance with previous (other?) comparables artificial models.
 
-<!--  LocalWords:  numbersections
- -->
+# References #
+

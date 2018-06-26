@@ -107,7 +107,10 @@ plausibility of the final model are:
 
 Another solution would be ommiting or replacing the two constraints, by for example stating about possibility for complex organisation, and in the case of artificial neurons those embedded in hierarchically structured, generative learning models
 
-"The generative basis of natural number concepts" vaguely supports the biological case for generative models and number sense (generation being some kind of innate skill or something)-->
+"The generative basis of natural number concepts" vaguely supports the biological case for generative models and number sense (generation being some kind of innate skill or something)
+
+(after biological:) under the probable assumption that the brain is also a preditive modeller/stochastic inferational device
+-->
 3.  Relatedly, visual sense of number is an emergent property of
     hierarchically organized neurons embedded in generative learning
     models, either artificial or biological (Stoianov and Zorzi 2012;
@@ -357,31 +360,31 @@ You could also just note two objectives, and so also introduce alpha and beta
 -->
 <p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1ce8859789816bd831df6a21198a44a3.svg?invert_in_darkmode" align=middle width=179.3380512pt height=37.90293045pt/></p>
 
-The more mathematical (?) intuition behind FPL is that whatever some
-hidden layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> of the VGG-19 network encodes should be retained in
-the reconstruction <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/33717a96ef162d4ca3780ca7d161f7ad.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=18.666631500000015pt/>, as the VGG-19 has proven to model
-important visual characteristics of a large variety of image types. In
-Hou et al. (2017)'s and our experiments
+The intuition behind FPL is that whatever some hidden layer <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> of the
+VGG-19 network encodes should be retained in the reconstruction
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/33717a96ef162d4ca3780ca7d161f7ad.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=18.666631500000015pt/>, as the VGG-19 has proven to model important visual
+characteristics of a large variety of image types. In Hou et al.
+(2017)'s and our experiments
 <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/502cc1e9fcfec07b3e1241ce483069b0.svg?invert_in_darkmode" align=middle width=258.04564005pt height=24.65753399999998pt/> resulted in the best
 reconstructions. One notable shortcoming of FPL is that although the
-layers from the VGG-19 represent important visual information, it is a
-known fact that the first few layers of deep CNNs only encode simple
-features such as edges and lines (i.e they support countours), which are
-only combined into more complex features deeper into the network (Liu et
-al. 2017; FPL's authors Hou et al. 2017 note something similair). This
-means that the optimization objective is somewhat unambitious, in that
-it will never try to learn any other visual features (for examples,
-refer to Liu et al. 2017, Fig. 6.) aside from what the set of predfined
-layers <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/bb29cf3d0decad4c2df62b08fbcb2d23.svg?invert_in_darkmode" align=middle width=9.55577369999999pt height=22.831056599999986pt/> represents. Indeed, although countour reconstruction has
-greatly improved with FPL, the reconstruction of detail such as facial
-features shows less improvement. Although Hou et al. (2017) show a
-successful application of FPL, they might have been unaware of this
-shortcoming due to using a more uniform dataset consisting only of
-centered faces. For a comparison between FPL loss and BCE reconstruction
-loss see the figure below.
+layers from VGG-19 represent important visual information, it is a known
+fact that the first few layers of deep CNNs only encode simple features
+such as edges and lines (i.e they support countours), which are only
+combined into more complex features deeper into the network (Liu et al.
+2017; FPL's authors Hou et al. 2017 note something similair). This means
+that the optimization objective is somewhat unambitious, in that it will
+never try to learn any other visual features (for examples, refer to Liu
+et al. 2017, Fig. 6.) aside from what the set of predefined layers <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ddcb483302ed36a59286424aa5e0be17.svg?invert_in_darkmode" align=middle width=11.18724254999999pt height=22.465723500000017pt/>
+represents. Indeed, although countour reconstruction has greatly
+improved with FPL, the reconstruction of detail such as facial features
+shows less improvement. Although Hou et al. (2017) show a successful
+application of FPL, they might have been unaware of this shortcoming due
+to using a more uniform dataset consisting only of centered faces. For a
+comparison between FPL loss and BCE reconstruction loss see the figure
+below.
 
-Dataset Extension with Syntethic Images
----------------------------------------
+Hybrid Dataset
+--------------
 
 <!-- TODO
     - [x] Hybrid dataset (intuition, settings graph etc, pretrain,)
@@ -406,7 +409,7 @@ images is that any tested growth in dataset size during pretraining
 resulted into lower losses. The ratio of natural to synthethic images is
 increased over time, defined by a bezier curve with parameters
 <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f2c5b82fa8ce51e3945414af55db9555.svg?invert_in_darkmode" align=middle width=277.18409235pt height=21.18721440000001pt/> shown in figure X.X. We grow the
-original dataset into a hybrid dataset by roughly 8 times, pretraining
+riginal dataset into a hybrid dataset by roughly 8 times, pretraining
 with a total of 80000 hybrid samples per epoch. Testing many different
 parameters for the hybrid dataset was not given much priority as the
 total loss seemed to shrink with dataset expansion and training and
@@ -443,6 +446,13 @@ Hidden Representation Classifier
 ### Classifier architecture
 
 <!-- Maybe or maybe not mention dropout probabilities (should be final tho) -->
+<!-- TODO
+    - [ ] Mention that the experiments used a slightly different architecture, with less conv. 
+      filters and fully conntected layers appended before and after the latent represntation
+          - so this is theoritical performance (not time avialable for extra test)
+    - [ ] Mention  per class performance being 10-20% higher depending how we skew the imbalance
+      ratio's and techniques
+-->
 To asses whether the learned latent space of the VAE showcases the
 emergent ability to perform in subitizing, a two layer fully-connected
 net is fed with latent activation vectors <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/8ec2ef7749d65d10a01bcd8e313835d4.svg?invert_in_darkmode" align=middle width=22.81049759999999pt height=14.15524440000002pt/> created by the
@@ -530,10 +540,8 @@ undersampling, if <img src="https://rawgit.com/rien333/numbersense-vae/master/sv
 classes shrinks towards chance, and, interestingly, accuracy for the
 minority classes becomes comparable to the state of the art.
 
-Hybrid Dataset
---------------
-
 <!-- Some details? Or just move everything to methodology? -->
+<!-- ## Hybrid Dataset ## -->
 Results & Discussion
 ====================
 
@@ -591,17 +599,30 @@ Qualitive Analysis
     - [ ] Largely just write what you wrote to Tom + info on obj/background selection
         and then apparent inhibitory role of some neurons
 -->
-<p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ade23ce7045d74d9712a2eb21f1c3f69.svg?invert_in_darkmode" align=middle width=216.07947405pt height=16.438356pt/></p>, with
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3bc73926c3631eaeaa6d7f3ad0791c76.svg?invert_in_darkmode" align=middle width=67.967856pt height=24.65753399999998pt/>
+<p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6112b9f04ef907b1529f748be1adcdce.svg?invert_in_darkmode" align=middle width=336.22721385pt height=16.438356pt/></p>,
+
+For the area neurons, more extreme cumaltative area samples bend the
+mean distribition either upwards or downwards, while response to
+cumaltative area in the case of numerosity neurons the mean response
+distribution that stayed relatively centered. (neuron 35 is not a
+numerisoty neuron btw) (neuron 52 transparent and neuron 77 transparent)
 
 Conclusion
 ==========
 
+We described a setup for training a VAE satisfying various biological
+constraints. A possible consequence thereof is that our final model
+showcases properties also found in biological networks. Firstly, an
+ability to subitize emerged as an implicitly learned skill. Second of
+all, the learned encoding scheme indicates support for encoding
+numerosities without resorting to counting schemes relyiing to
+cumaltative (objective) area, and conversly encodes cumaltative area
+without using numerisity information, in accordance with previous
+(other?) comparables artificial models.
+
 References
 ==========
 
-<!--  LocalWords:  numbersections
- -->
 Chattopadhyay, Prithvijit, Ramakrishna Vedantam, Ramprasaath R
 Selvaraju, Dhruv Batra, and Devi Parikh. 2016. "Counting Everyday
 Objects in Everyday Scenes." *arXiv Preprint arXiv:1604.03505*.
