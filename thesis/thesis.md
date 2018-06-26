@@ -213,13 +213,13 @@ The subitizing performance of the VAE is comparable to highest scoring non-machi
         and then apparent inhibitory role of some neurons
 -->
 
-$$z_i = \beta_1 \log(N) + \beta_2\log(A) + \textepsilon, (\textrm(with) N \in [0, 4])$$, 
+$$z_i = \beta_1 \log(N) + \beta_2\log(A) + \textepsilon, (\textrm{with} N \in [0, 4])$$, 
 
 For the area neurons, more extreme cumaltative area samples bend the mean distribition either upwards or downwards, while response to cumaltative area in the case of numerosity neurons the  mean response distribution that stayed relatively centered. (neuron 35 is not a numerisoty neuron btw) (neuron 52 transparent and neuron 77 transparent)
 
 # Conclusion #
 
-We described a  setup for training a VAE satisfying various biological constraints. A possible consequence thereof is that our final model showcases properties also found in biological networks. Firstly, an ability to subitize emerged as an implicitly learned skill. Second of all, the learned encoding scheme indicates support for encoding numerosities without resorting to counting schemes relyiing to cumaltative (objective) area, and conversly encodes cumaltative area without using numerisity information, in accordance with previous (other?) comparables artificial models.
+We described a  setup for training a VAE satisfying various biological constraints. A possible consequence thereof is that our final model showcases properties also found in biological networks. Firstly, an ability to subitize emerged as an implicitly learned skill. Second of all, the learned encoding scheme indicates support for encoding numerosities without resorting to counting schemes relying to cumaltative (objective) area, and conversly encodes cumaltative area without using numerisity information, in accordance with previous (other?) comparables artificial models [@stoianov2012].
 
 # References #
 
