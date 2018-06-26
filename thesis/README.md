@@ -639,7 +639,7 @@ The regression was accomplised with linear regression algorithms taken
 from (Newville et al. 2016) (Levenberg--Marquardt proved best). The
 criteria set by Stoianov and Zorzi (2012) for being a good fit are
 **(1)** the regression explaining at least 10% of the varience
-(<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/fb5210a16eededef1ee1580ee889dd24.svg?invert_in_darkmode" align=middle width=40.98757244999999pt height=26.76175259999998pt/>) **(2)** and a "ideal" detector of some property should
+(<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/689c953c229748bd489397076f23b867.svg?invert_in_darkmode" align=middle width=62.90520389999999pt height=26.76175259999998pt/>) **(2)** and a "ideal" detector of some property should
 have a low (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ed447abaf96248c199e24b5fc45f761a.svg?invert_in_darkmode" align=middle width=71.39158124999999pt height=24.65753399999998pt/>) regression coefficient for the
 complementary property. We slightly altered these criteria to fit our
 training setup. The complexity of the SOS dataset in comparison to the
