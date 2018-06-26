@@ -213,7 +213,7 @@ The subitizing performance of the VAE is comparable to highest scoring non-machi
         and then apparent inhibitory role of some neurons
 -->
 
-$$z_i = \beta_1 \log(N) + \beta_2\log(A) + \textepsilon, (\textrm{with} N \in [0, 4])$$, 
+$$z_i = \beta_1 \log(N) + \beta_2\log(A) + \textepsilon \, (\textrm{with} N \in [0, 4])$$, 
 
 For the area neurons, more extreme cumaltative area samples bend the mean distribition either upwards or downwards, while response to cumaltative area in the case of numerosity neurons the  mean response distribution that stayed relatively centered. (neuron 35 is not a numerisoty neuron btw) (neuron 52 transparent and neuron 77 transparent)
 
