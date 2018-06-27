@@ -79,29 +79,30 @@ plausibility of the final model are:
     of visual number sense being preattentive) or symbolic processing
     (visual numerosity percepts are understood non-verbally,
     Nieder 2016). Furthermore, the existence of visual sense of number
-    in human newborns (Lakoff and Núñez 2000), animals (Davis and
-    Pérusse 1988) and cultures without exact counting systems (Dehaene
-    2011, 261; Franka et al. 2008) further strengthens the idea that
-    specific kinds of sense of number do not require much mediation and
-    can purely function as an interplay between perceptual capabilities
-    and neural encoding schemes, given the aforementioned groups lack of
-    facilities for abstract reasoning about number (see Everett 2005,
-    626; Lakoff and Núñez 2000, chap. 3, for a discussion on how
-    cultural facilitaties such as fixed symbols and linguistic practices
-    can facilitate the existence of discrete number in humans). Indeed,
-    Harvey et al. (2013) show that earlier mentioned neural populations
-    did not display their characteristic response profile when
-    confronted with Arabic numerals, that is, symbolic representations
-    of number. These populations thus show the ability to function
-    seperately from higer-order representational facilities. Visual
-    number sense being a immediate and purely perceptual process implies
-    that our model should not apply external computational techniques
-    often used in computer vision research on numerical determination
-    task such as counting-by-detection (which requires both arithmetic
-    and iterative attention to all group members, see J. Zhang, Ma, et
-    al. 2016; J. Zhang, Sclaroff, et al. 2016) or segmenting techniques
-    (e.g. Chattopadhyay et al. 2016). Instead, we want to our model to
-    operate in an autonomous and purely sensory fashion.
+    in human newborns (Lakoff and Núñez 2000, chap. 1), animals (Davis
+    and Pérusse 1988) and cultures without exact counting systems
+    (Dehaene 2011, 261; Franka et al. 2008) further strengthens the idea
+    that specific kinds of sense of number do not require much mediation
+    and can purely function as an interplay between perceptual
+    capabilities and neural encoding schemes, given the aforementioned
+    groups lack of facilities for abstract reasoning about number (see
+    Everett 2005, 626; Lakoff and Núñez 2000, chap. 3, for a discussion
+    on how cultural facilitaties such as fixed symbols and linguistic
+    practices can facilitate the existence of discrete number in
+    humans). Indeed, Harvey et al. (2013) show that earlier mentioned
+    neural populations did not display their characteristic response
+    profile when confronted with Arabic numerals, that is, symbolic
+    representations of number. These populations thus show the ability
+    to function seperately from higer-order representational facilities.
+    Visual number sense being a immediate and purely perceptual process
+    implies that our model should not apply external computational
+    techniques often used in computer vision research on numerical
+    determination task such as counting-by-detection (which requires
+    both arithmetic and iterative attention to all group members, see J.
+    Zhang, Ma, et al. 2016; J. Zhang, Sclaroff, et al. 2016) or
+    segmenting techniques (e.g. Chattopadhyay et al. 2016). Instead, we
+    want to our model to operate in an autonomous and purely sensory
+    fashion.
 
 <!-- I'm not sure if this holds in the biological case, but you could argue that "Comparable to how some research describes the brain as Bayesian machine [for a discussion see @bayesianbrain; @bayes2], VAEs learn a stochastic model of sensory input data by optimizing the parameters of a probability distribution such that the probability distribution maximizes the likelihood of the input (or "training") data." 🌸 Maybe after the blosssom: although not specifically true for numerosity learning, the brain is suggestively organized in a similair fashion as some research suggests ... 
 
@@ -114,55 +115,57 @@ Another solution would be ommiting or replacing the two constraints, by for exam
 3.  Relatedly, visual sense of number is an emergent property of
     hierarchically organized neurons embedded in generative learning
     models, either artificial or biological (Stoianov and Zorzi 2012;
-    [**???**]{.citeproc-not-found data-reference-id="ref"}). 🌸 The fact
-    that visual number sense exist in animals and human newborns
-    suggests that it is an implicitly learned skill learned at the
-    neural level, for animals do not exhibit a lot of vertical learning,
-    let alone human newborns having received much numerical training.
-    Deemed as a generally unrealistic trope of artificial learning by AI
-    critics (Dreyfus 2007) and research into the human learning process
-    (Zorzi, Testolin, and Stoianov 2013a), modeling visual number
-    necessitates non-researcher depended features. This will restrict
-    the choice of algorithm to so called *unsupervised* learning
-    algorithms, as such an algorithm will learn its own particular
-    representation of the data distribution. Given their ability to
-    infer the underlying stochastic representation of the data,
-    i.e. perform in autonomous feature determination, *Varitional
-    Autoencoders* (VAEs) seem fit to tackle this problem ([**section
-    x.x**](#vae) details their precise working). Moreover, VAEs are
-    trained in an unsupervised manner similar to how, given appropriate
-    circumstances, visual numoristy abilities are implictly learned
-    skills that emerge without "labeled data". Another interesting
-    aspect of VAEs is their relatively interpretable and overseeable
-    learned feature space, which might tell something about how it deals
-    with visual numerosity, and thus allows us to evaluate the
-    properties of the VAE's encoding against biological data.
+    the brain can be characterized as building a predictive model of
+    it's world, or a "bayesian machine", Knill and Pouget 2004; Pezzulo
+    and Cisek 2016). The fact that visual number sense exist in animals
+    and human newborns suggests that it is an implicitly learned skill
+    learned at the neural level, for animals do not exhibit a lot of
+    vertical learning, let alone human newborns having received much
+    numerical training. Deemed as a generally unrealistic trope of
+    artificial learning by AI critics (Dreyfus 2007) and research into
+    the human learning process (Zorzi, Testolin, and Stoianov 2013a),
+    modeling visual number necessitates non-researcher depended
+    features. This will restrict the choice of algorithm to so called
+    *unsupervised* learning algorithms, as such an algorithm will learn
+    its own particular representation of the data distribution. Given
+    their ability to infer the underlying stochastic representation of
+    the data, i.e. perform in autonomous feature determination,
+    *Varitional Autoencoders* (VAEs) seem fit to tackle this problem
+    ([**section x.x**](#vae) details their precise working). Moreover,
+    VAEs are trained in an unsupervised manner similar to how, given
+    appropriate circumstances, visual numoristy abilities are implictly
+    learned skills that emerge without "labeled data". Another
+    interesting aspect of VAEs is their relatively interpretable and
+    overseeable learned feature space, which might tell something about
+    how it deals with visual numerosity, and thus allows us to evaluate
+    the properties of the VAE's encoding against biological data.
 
-Unfortunately, no dataset fit for visual numerosity estimation satisfied
-above requirements (sizable collections of natural image with large and
-varied, precisely labeled objects groups are hard to construct), forcing
-present research towards *subitizing*, a type of visual number sense
-which had a catered dataset readily available. Subitizing is the ability
-of many animals to immediately perceive the number of items in a group
-without resorting to counting or enumeration, given that the number of
-items falls within the subitizing range of 1-4 (Kaufman et al. 1949;
-Davis and Pérusse 1988) Most of the research above was conducted on
-approximate numerical cognition, but the aforementioned characterisics
-of visual sense of number hold equally well for a more distinct sense of
-number such as subitizing. Similarly, subitizing is suggested to be a
-parallel preattentive process in the visual system (Dehaene 2011, 57),
-the visual system likely relying on it's ability to recognize holistic
-patterns for a final subitizing count (Jansen et al. 2014; Dehaene 2011,
-57; Piazza et al. 2002). This means that the "sudden" character of
-subitizing is caused by the visual system's ability to process simple
-geometric configurations of objects in parallel, whereby increasing the
-size of a group behind the subitizing range deprives perceiving this
-group of it's sudden and distinct numerical perceptual character for
-this would strain our parallelization capabilities too much. The
-difference in perceptual character is due to a recourse to enumeration
-techniques (and possibly others) whenever the subizting parallelization
-threshold is exceeded, which differ from suddenness in being a
-consciously guided (i.e. attentive) patterned type of activity.
+Unfortunately, no dataset fit for visual numerosity estimation task
+similair to Stoianov and Zorzi (2012) satisfied above requirements
+(sizable collections of natural image with large and varied, precisely
+labeled objects groups are hard to construct), forcing present research
+towards *subitizing*, a type of visual number sense which had a catered
+dataset readily available. Subitizing is the ability of many animals to
+immediately perceive the number of items in a group without resorting to
+counting or enumeration, given that the number of items falls within the
+subitizing range of 1-4 (Kaufman et al. 1949; Davis and Pérusse 1988)
+Most of the research above was conducted on approximate numerical
+cognition, but the aforementioned characterisics of visual sense of
+number hold equally well for a more distinct sense of number such as
+subitizing. Similarly, subitizing is suggested to be a parallel
+preattentive process in the visual system (Dehaene 2011, 57), the visual
+system likely relying on it's ability to recognize holistic patterns for
+a final subitizing count (Jansen et al. 2014; Dehaene 2011, 57; Piazza
+et al. 2002). This means that the "sudden" character of subitizing is
+caused by the visual system's ability to process simple geometric
+configurations of objects in parallel, whereby increasing the size of a
+group behind the subitizing range deprives perceiving this group of it's
+sudden and distinct numerical perceptual character for this would strain
+our parallelization capabilities too much. The difference in perceptual
+character is due to a recourse to enumeration techniques (and possibly
+others) whenever the subizting parallelization threshold is exceeded,
+which differ from suddenness in being a consciously guided
+(i.e. attentive), patterned type of activity.
 
 Present research therefore asks: how can artificial neural networks be
 applied to learning the emergent neural skill of subitizing in a manner
@@ -177,9 +180,9 @@ performance of our unsupervised approach is comparable with supervised
 approaches using handcrafted features, although performance is still
 behind state of the art supervised machine learning approaches due to
 problems inherent to the particulair VAE implementation. Finally,
-testing the final models robustness to changes in visual features shows
-the emergence of a property similar to biological neurons, that is to
-say, the VAE's encoding scheme specifically supports particulair
+measuring the final models robustness to changes in visual features
+shows the emergence of a property similar to biological neurons, that is
+to say, the VAE's encoding scheme specifically supports particulair
 numerosity percepts invariant to visual features other than quantity.
 
 Related Work
@@ -192,7 +195,9 @@ Visual Number Sense
 -------------------
 
 <!-- Probably skip, but the arxiv paper and stoianov2012 can be reharsed -->
-<!-- Investigate the goodfellow2016deep reference as to why it is somewhat computationally expensive -->
+<!-- TODO
+    - [ ] Investigate the goodfellow2016deep reference as to why it is somewhat computationally expensive
+-->
 As previously described, Stoianov and Zorzi (2012) applied artificial
 neural netwoks to visual numerosity estimation, although without using
 natural images. They discoverd neural populations concerned with
@@ -206,12 +211,15 @@ images already shows a fairly abstract representation of number, as the
 objects therein already contain varied visual features.
 
 Some simplicity of the dataset used by Stoianov and Zorzi (2012) is due
-their use of the relatively computationally expensive restricted
-boltzmann machine (Goodfellow et al. 2016, vol. 1, chap. 20). Given
-developments in generative algorithms and the availablity of more
-computational power, we will therefore opt for a different algorithmic
-approach (as discussed in the introduction) that will hopefully scale
-better to natural images.
+their use of the relatively computationally expensive Restricted
+Boltzmann Machine (RBM) (with the exception of exploiting prior
+knowledge of regularities in the probability distribution over the
+observered data, equation <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/40a3674c9358d0becab2b3c56aaeab67.svg?invert_in_darkmode" align=middle width=8.21920935pt height=14.15524440000002pt/> from Goodfellow et al. 2016 shows
+that computational cost grows as a multiple of the size of hidden and
+observered units in the RBM). Given developments in generative
+algorithms and the availablity of more computational power, we will
+therefore opt for a different algorithmic approach (see [section
+X.X](vae)) that will hopefully scale better to natural images.
 
 Salient Object Subitizing Dataset
 ---------------------------------
@@ -474,11 +482,11 @@ algorithmic data.
 ### Class imbalance
 
 Class imbalance is a phenomenon encountered in datasets whereby the
-number of instances belonging to at least one of the class is
-significantly higher than the amount of instances belonging to any of
-the other classes. Although there is no consensus on an exact definition
-of what constitutes a dataset with class imbalance, we follow Fernández
-et al. (2013) in that given over-represented class <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e710976777475b48fa8cd4acca538748.svg?invert_in_darkmode" align=middle width=18.778654949999993pt height=14.15524440000002pt/> the number of
+number of instances belonging to on or more classes is significantly
+higher than the amount of instances belonging to any of the other
+classes. Although there is no consensus on an exact definition of what
+constitutes a dataset with class imbalance, we follow Fernández et al.
+(2013) in that given over-represented class <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e710976777475b48fa8cd4acca538748.svg?invert_in_darkmode" align=middle width=18.778654949999993pt height=14.15524440000002pt/> the number of
 instances <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/a20a9547a59ab0b2b1981cdbae565bd3.svg?invert_in_darkmode" align=middle width=23.46794504999999pt height=22.465723500000017pt/> of one the classes <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3bc6fc8b86b6c61889f4e572c7546b8e.svg?invert_in_darkmode" align=middle width=11.76470294999999pt height=14.15524440000002pt/> should satisfy
 <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4bc2a2d82a13d9f7cd3aceb96521c510.svg?invert_in_darkmode" align=middle width=112.73481449999998pt height=22.465723500000017pt/> for a dataset to be considered imbalanced. For
 the SOS dataset, <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/5e7857afed85618077f516aef1f83f5d.svg?invert_in_darkmode" align=middle width=81.11441909999999pt height=22.465723500000017pt/>, <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ccf450d9f9b37675e9737077577750e4.svg?invert_in_darkmode" align=middle width=81.11441909999999pt height=22.465723500000017pt/>, <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/a5df93fc55d423f6f51cfbb403f3d6a7.svg?invert_in_darkmode" align=middle width=81.11441909999999pt height=22.465723500000017pt/>
@@ -490,15 +498,14 @@ discussion, see Fernández et al. 2013). The first two rebalance the
 class distribution by altering the amount of examples per class.
 However, class imbalance can not only be conceived of in terms of
 quantitative difference, but also as qualitative difference, whereby the
-relative importance of some class is (weighted?) higher than others
+relative importance of some class is weighted higher than others
 (e.g. in classification relating to malignant tumors, misclassifying
-malignant examples as nonmalignant could be weighted more strongly, see
-([**???**]{.citeproc-not-found data-reference-id="ref"})) Qualitive
-difference might be relevant to the SOS dataset, because examples with
-overlapping (i.e. multiple) objects make subitizing more difficult (see
-section X.X (\#hybrid), and previous results on subitizing show that
-some classes are more difficult to classify than others (J. Zhang, Ma,
-et al. 2016).
+malignant examples as nonmalignant could be weighted stonger than other
+misclassifications) Qualitive difference might be relevant to the SOS
+dataset, because examples with overlapping (i.e. multiple) objects make
+subitizing inherently more difficult (see section X.X (\#hybrid)), and
+previous results on subitizing show that some classes are more difficult
+to classify than others (J. Zhang, Ma, et al. 2016).
 
 1.  *Oversampling techniques* are a particularly well performing set of
     solutions to class imbalance. Oversampling alters the class
@@ -510,12 +517,14 @@ et al. 2016).
     distribution by discarding examples from the majority class.
     Elimination of majority class instances can for example ensue by
     removing those instances that are highly similar (e.g. Tomek 1976)
-3.  *Cost sensitive techniques.* Cost sensitive techqniques are
-    especially useful for dealing with minority classes that are
-    inherently more difficult (or "costly") to classify correctly, as
-    optimisation towards easier classes could minimize cost even in
-    quantitatively balanced datasets if the easier classes for example
-    require lesser representational resources of the learning model.
+3.  *Cost sensitive techniques.* Cost sensitive learning does not alter
+    the distribution of class instances, but penalizes misclassification
+    of certain classes. Cost sensitive techqniques are especially useful
+    for dealing with minority classes that are inherently more difficult
+    (or "costly") to correctly classify, as optimisation towards easier
+    classes could minimize cost even in quantitatively balanced datasets
+    if the easier classes for example require lesser representational
+    resources of the learning model.
 
 An ensemble of techniques was used to tackle the class imbalance in the
 SOS dataset. First, slight random under-sampling with replacement of the
@@ -524,30 +533,31 @@ Nogueira, and Aridas 2017), reducing their size by \~10%. Furthermore,
 as in practice many common sophisticated under- and oversampling
 techniques (e.g. data augmentation or outlier removal, for an overview
 see Fernández et al. (2013)) proved largely non-effective, a
-cost-sensitive class weighting was applied. Cost-senstive ... consists
-of .... The uneffectiveness of quantive sampling techniques is likely to
-be caused by that in addition to the quantitative difference in class
-examples, there is also a slight difficulty factor whereby assesing the
-class of latent vector <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/> is significantly if belongs to <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e355414b8774603011922d600510b1df.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/> or <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c2411b9678590eb9d75c90bfebb7c5c1.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/>
-versus any other class, for these two classes require rather precise
-contours to discern the invidual objects, in case they for example
-overlapping, which remains hard for VAEs given their tendency to produce
-blurred reconstructions. The classifier network therefore seems inclined
-to put all of its representational power towards the easier classes, as
-this will result in a lower total cost, whereby this inclination will
-become even stronger as the quantitative class imbalance grows. The
-class weights for cost sensitive learning are set according to the
-quantitative class imbalance ratio ([**???**]{.citeproc-not-found
-data-reference-id="ref"}), but better accuracy was obtained by slightly
-altering the relative difference between the weight by raising all of
-them to some power <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/55a049b8f161ae7cfeb0197d75aff967.svg?invert_in_darkmode" align=middle width=9.86687624999999pt height=14.15524440000002pt/>. In our experiments, <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/aa6905d780872f0007f642420d7a2d9c.svg?invert_in_darkmode" align=middle width=40.00371704999999pt height=21.18721440000001pt/> resulted in a balance
-between high per class accuray scores and aforementioned scores roughly
-following the same shape as in other algorithms, which hopefully implies
-that the classifier is able to generalize in a manner comparable to
-previous approaches. For the SOS dataset with random majority class
+cost-sensitive class weighting was applied. The uneffectiveness of
+quantive sampling techniques is likely to be caused by that in addition
+to the quantitative difference in class examples, there is also a slight
+difficulty factor whereby assesing the class of latent vector <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/> is
+significantly if belongs to <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e355414b8774603011922d600510b1df.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/> or <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/c2411b9678590eb9d75c90bfebb7c5c1.svg?invert_in_darkmode" align=middle width=13.666351049999989pt height=14.15524440000002pt/> versus any other class, for
+these two classes require rather precise contours to discern invidual
+objects, even more so with overlapping objects, while precise contours
+remain hard for VAEs given their tendency to produce blurred
+reconstructions (Larsen et al. 2015). The classifier network therefore
+seems inclined to put all of its representational power towards the
+easier classes, as this will result in a lower total cost, whereby this
+inclination will become even stronger as the quantitative class
+imbalance grows. The class weights for cost sensitive learning are set
+according to the quantitative class imbalance ratio (equivalent to
+section 3.2 in Fernández et al. 2013), but better accuracy was obtained
+by slightly altering the relative difference between the weights by
+raising them to some power <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/55a049b8f161ae7cfeb0197d75aff967.svg?invert_in_darkmode" align=middle width=9.86687624999999pt height=14.15524440000002pt/>. In our experiments, <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/aa6905d780872f0007f642420d7a2d9c.svg?invert_in_darkmode" align=middle width=40.00371704999999pt height=21.18721440000001pt/> resulted in a
+balance between high per class accuray scores and aforementioned scores
+roughly following the same shape as in other algorithms, which hopefully
+implies that the classifier is able to generalize in a manner comparable
+to previous approaches. For the SOS dataset with random majority class
 undersampling, if <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/4df892aafd70851e6daaeca903b9acf1.svg?invert_in_darkmode" align=middle width=43.65668669999999pt height=21.18721440000001pt/> the classifier accuracy for the majority
 classes shrinks towards chance, and, interestingly, accuracy for the
-minority classes becomes comparable to the state of the art.
+minority classes becomes comparable to the state of the art machine
+learning techqniques.
 
 Results & Discussion
 ====================
@@ -591,7 +601,8 @@ other less if they lose detail).
 ![latent\_representation](https://github.com/rien333/numbersense-vae/blob/master/thesis/bird_varied.png)
 "Reconstructions of the image in the top-left made by slightly
 increasing the reponse value of the VAE's latent representation <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/>, at
-different individual dimenions <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/>.")
+different individual dimenions <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/> Some of these dimensions give you a
+slight idea of what they encode (e.g. a light source at a location)."
 
 Subitizing Read-Out
 -------------------
@@ -762,6 +773,13 @@ variables ), there is room for improvement in the VAE's reconstrional
 abilities, i.e. efficiency of coding scheme. These two problems also
 indicate room for improvent in the subitizing classification task, which
 has the additional improvement of solving the class imbalance problem.
+Nevertheless, visual numerisoity-like skills have emerged during the
+training of the VAE, showning the overall ability to percieve numerisoty
+within the subitizing range without using information provided by visual
+features other than quantitiy. We can thus speak of a fairly abstract
+sense of number, as the qualitive analysis of the encoding yielded
+promosing results over a large variation of images, whereby espcially
+abstracttion in regard to scale has been demonstrated.
 
 References
 ==========
@@ -842,6 +860,10 @@ Discrimination of Visual Number." *The American Journal of Psychology*
 Kingma, Diederik P, and Max Welling. 2013. "Auto-Encoding Variational
 Bayes." *arXiv Preprint arXiv:1312.6114*.
 
+Knill, David C, and Alexandre Pouget. 2004. "The Bayesian Brain: The
+Role of Uncertainty in Neural Coding and Computation." *TRENDS in
+Neurosciences* 27 (12). Elsevier: 712--19.
+
 Krizhevsky, Alex, Ilya Sutskever, and Geoffrey E Hinton. 2012. "Imagenet
 Classification with Deep Convolutional Neural Networks." In *Advances in
 Neural Information Processing Systems*, 1097--1105.
@@ -887,6 +909,10 @@ Source Code Library*.
 Nieder, Andreas. 2016. "The Neuronal Code for Number." *Nature Reviews
 Neuroscience* 17 (6). Springer Nature: 366--82.
 <https://doi.org/10.1038/nrn.2016.40>.
+
+Pezzulo, Giovanni, and Paul Cisek. 2016. "Navigating the Affordance
+Landscape: Feedback Control as a Process Model of Behavior and
+Cognition." *Trends in Cognitive Sciences* 20 (6). Elsevier: 414--24.
 
 Piazza, Manuela, and Véronique Izard. 2009. "How Humans Count:
 Numerosity and the Parietal Cortex." *The Neuroscientist* 15 (3). Sage
