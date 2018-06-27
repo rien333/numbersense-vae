@@ -514,7 +514,7 @@ et al. 2016).
     especially useful for dealing with minority classes that are
     inherently more difficult (or "costly") to classify correctly, as
     optimisation towards easier classes could minimize cost even in
-    quantitatively balanced datasets, if the easier classes for example
+    quantitatively balanced datasets if the easier classes for example
     require lesser representational resources of the learning model.
 
 An ensemble of techniques was used to tackle the class imbalance in the
@@ -575,19 +575,21 @@ reconstrion, there are a few reoccuring visual disperaties between
 original and reconstruction. First of, novel patterns often emerge in
 the reconstructions, possibly caused by a implementational glitch, or a
 considerable difference in tested datasets (FPL is frequently paired
-with the celebdataset ([**???**]{.citeproc-not-found
-data-reference-id="ref"})). Datasets other than the SOS dataset showed
-slightly better performance, indicating that the SOS dataset is either
-to small, too varied or requires non standard tweaking for FPL to work
-in it's current form. Most of the improvent in more uniform datasets
-came from the fact that the VAE learned to create more local patterns to
-give the appereance of uniformly colored regions, but upon closer
-inspection placed pixels of colors in a grid such that they gave the
-appereance of just one color, similair to how for example LED screens
-function. Another reconstrional problem is that small regions (maybe
-provide an example) such as details are sometimes left out, which could
-possibly distort class labels (object might start to resemble each other
-less if they lose detail).
+with the celebdataset (Liu et al. 2015)). Datasets other than the SOS
+dataset showed slightly better performance, indicating that the SOS
+dataset is either to small, too varied or requires non standard tweaking
+for FPL to work in it's current form. Most of the improvent in more
+uniform datasets came from the fact that the VAE learned to create more
+local patterns to give the appereance of uniformly colored regions, but
+upon closer inspection placed pixels of colors in a grid such that they
+gave the appereance of just one color, similair to how for example LED
+screens function. Another reconstrional problem is that small regions
+(maybe provide an example) such as details are sometimes left out, which
+could possibly distort class labels (object might start to resemble each
+other less if they lose detail).
+
+<!-- Make this a pdf when exporting, maybe in the generate figures.fish thing -->
+![latent\_representation](https://github.com/rien333/numbersense-vae/blob/master/thesis/bezier.png "Reconstructions of the image in the top-left made by slightly increasing the reponse value of the VAE's latent representation <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/>, at different individual dimenions <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/>.")
 
 Subitizing Read-Out
 -------------------
@@ -604,7 +606,8 @@ used in this experiment and the one that is used throughout the rest of
 this research is it places intermedtiate fully connected layers (with
 size 3096) between the latent representation and the convolutional
 stacks. Accuracy scores of other algorithms were copied over from J.
-Zhang, Ma, et al. (2016).
+Zhang, Ma, et al. (2016). For their implementation, refer to J. Zhang,
+Ma, et al. (2016).
 
 |            | 0    | 1    | 2    | 3    | 4+   | mean |
 |-----------:|------|------|------|------|------|------|
@@ -635,7 +638,7 @@ trained by J. Zhang, Ma, et al. (2016). This can be explained by a
 number of factors. First of all, the `CNN_ft` algorithm used by J.
 Zhang, Ma, et al. (2016) has been pretrained on a large, well tested and
 more varied dataset, namely ImageNet (Russakovsky et al. 2015), which
-contains <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/aad13b2319c8fe7c8f7c9b2fef9a6490.svg?invert_in_darkmode" align=middle width=50.22836939999999pt height=21.18721440000001pt/> times more images. Additionaly, their model is
+contains <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/66f1f450f0c7a9025ad5fa60853b6051.svg?invert_in_darkmode" align=middle width=59.62335719999999pt height=21.18721440000001pt/> more images. Additionaly, their model is
 capable of more complex representations due its depth and the amount of
 modules it contains (the applied model from Szegedy et al. 2015 uses 22,
 compared to the 12 in our approach). Moreover, all their alogirhtms are
@@ -864,6 +867,10 @@ Liu, Mengchen, Jiaxin Shi, Zhen Li, Chongxuan Li, Jun Zhu, and Shixia
 Liu. 2017. "Towards Better Analysis of Deep Convolutional Neural
 Networks." *IEEE Transactions on Visualization and Computer Graphics* 23
 (1). IEEE: 91--100.
+
+Liu, Ziwei, Ping Luo, Xiaogang Wang, and Xiaoou Tang. 2015. "Deep
+Learning Face Attributes in the Wild." In *Proceedings of the Ieee
+International Conference on Computer Vision*, 3730--8.
 
 Mnih, Volodymyr, Koray Kavukcuoglu, David Silver, Andrei A Rusu, Joel
 Veness, Marc G Bellemare, Alex Graves, et al. 2015. "Human-Level Control
