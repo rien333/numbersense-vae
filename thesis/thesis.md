@@ -250,11 +250,11 @@ The regression was accomplised with linear regression algorithms taken from @new
 Figure X.x (a) provide characteristic reponse profiles for dimensions encoding either cumalative area or a subitizing count. For the area dimensions, extreme cumaltative area samples bend the mean distribition either upwards or downwards, while the response distribition to cumaltative area for numerosity encoding dimensions stays relatively centered. (neuron 35 is not a numerisoty neuron btw) (neuron 88 transparent and neuron 77 transparent) For the numerosity dimension, (Figure X.x (b)) both the total reponse of and the center of the response distribution increased with numerisoty. In contrast, the dimension that was sensitive shows a fairly static response to changes in subizing count. With some extra time, the visual clarity and overall performance of this qualitative analysis could probably be greatly improved, given that only a short focus on reducing response varience increased $R$ by almost a factor of 10 in some cases.
 
 <!-- Include more/better figures -->
-![num_dim](https://github.com/rien333/numbersense-vae/blob/master/thesis/Nn-z77.png "Example images from the SOS dataset")
+![num_dim](https://github.com/rien333/numbersense-vae/blob/master/thesis/Nn-z77.png)
 <!-- (figure caption) -->
-![area_dim](https://github.com/rien333/numbersense-vae/blob/master/thesis/Na-z88.png "Example images from the SOS dataset")
+![area_dim](https://github.com/rien333/numbersense-vae/blob/master/thesis/Na-z88.png "(a) shows a typical response profile for a numerosity detector ($R=0.055$).  Subitizing label $N$ was normalized. (b) shows a typical response profile of dimension that encodes cumaltive area while being invarience to numeriosity information ($R=0.056$). Cumalative area ($A$) was normalized and is displayed across a logirithmic scale. For visual convenience, examples with $A=0$ were shifted next to lowest value of A in the dataset. 
+")
 <!-- (figure caption) -->
-Figure X.X (a) shows a typical response profile for a numerosity detector ($R=0.055$).  Subitizing label N was normalized. Figure X.x (b) shows a typical response profile of dimension that encodes cumaltive area while being invarience to numeriosity information ($R=0.056$). Cumalative area (A) was normalized and is displayed across a logirithmic scale. For visual convenience, examples with A=0 were shifted next to lowest value of A in the dataset. 
 
 # Conclusion #
 

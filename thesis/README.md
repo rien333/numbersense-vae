@@ -757,16 +757,10 @@ improved, given that only a short focus on reducing response varience
 increased <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1e438235ef9ec72fc51ac5025516017c.svg?invert_in_darkmode" align=middle width=12.60847334999999pt height=22.465723500000017pt/> by almost a factor of 10 in some cases.
 
 <!-- Include more/better figures -->
-![num\_dim](https://github.com/rien333/numbersense-vae/blob/master/thesis/Nn-z77.png "Example images from the SOS dataset")
+![num\_dim](https://github.com/rien333/numbersense-vae/blob/master/thesis/Nn-z77.png)
 <!-- (figure caption) -->
-![area\_dim](https://github.com/rien333/numbersense-vae/blob/master/thesis/Na-z88.png "Example images from the SOS dataset")
-<!-- (figure caption) --> Figure X.X (a) shows a typical response
-profile for a numerosity detector (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/55adb01cbe8bf05b3f3be8b6be725c42.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/>). Subitizing label N was
-normalized. Figure X.x (b) shows a typical response profile of dimension
-that encodes cumaltive area while being invarience to numeriosity
-information (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/d205b9bea34bcad42c2ea22970868dca.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/>). Cumalative area (A) was normalized and is
-displayed across a logirithmic scale. For visual convenience, examples
-with A=0 were shifted next to lowest value of A in the dataset.
+![area\_dim](https://github.com/rien333/numbersense-vae/blob/master/thesis/Na-z88.png "(a) shows a typical response profile for a numerosity detector (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/55adb01cbe8bf05b3f3be8b6be725c42.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/>). Subitizing label <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f9c4988898e7f532b9f826a75014ed3c.svg?invert_in_darkmode" align=middle width=14.99998994999999pt height=22.465723500000017pt/> was normalized. (b) shows a typical response profile of dimension that encodes cumaltive area while being invarience to numeriosity information (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/d205b9bea34bcad42c2ea22970868dca.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/>). Cumalative area (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/53d147e7f3fe6e47ee05b88b166bd3f6.svg?invert_in_darkmode" align=middle width=12.32879834999999pt height=22.465723500000017pt/>) was normalized and is displayed across a logirithmic scale. For visual convenience, examples with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/3efd8f56b9a4de7cd1da2f06d49c6a54.svg?invert_in_darkmode" align=middle width=42.46563914999999pt height=22.465723500000017pt/> were shifted next to lowest value of A in the dataset.")
+<!-- (figure caption) -->
 
 Conclusion
 ==========
