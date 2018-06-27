@@ -409,11 +409,11 @@ images is that any tested growth in dataset size during pretraining
 resulted into lower losses. The ratio of natural to synthethic images is
 increased over time, defined by a bezier curve with parameters
 <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f2c5b82fa8ce51e3945414af55db9555.svg?invert_in_darkmode" align=middle width=277.18409235pt height=21.18721440000001pt/> shown in figure X.X. We grow the
-riginal dataset into a hybrid dataset by roughly 8 times, pretraining
-with a total of 80000 hybrid samples per epoch. Testing many different
-parameters for the hybrid dataset was not given much priority as the
-total loss seemed to shrink with dataset expansion and training and
-testing a full model was time expansive.
+original data size by roughly 8 times, pretraining with a total of 80000
+hybrid samples per epoch. Testing many different parameters for the
+hybrid dataset was not given much priority as the total loss seemed to
+shrink with dataset expansion and training and testing a full model was
+time expensive.
 
 <!-- Make this a pdf when exporting, maybe in the generate figures.fish thing -->
 ![bezier\_curve](https://github.com/rien333/numbersense-vae/blob/master/thesis/bezier.png "Bezier curve defining the ratio of natural images over syntethic images at time _t_")
@@ -464,11 +464,12 @@ function and a dropout layer (Srivastava et al. 2014) with dropout
 probability <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/332cc365a4987aacce0ead01b8bdcc0b.svg?invert_in_darkmode" align=middle width=9.39498779999999pt height=14.15524440000002pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/deceeaf6940a8c7a5a02373728002b0f.svg?invert_in_darkmode" align=middle width=8.649225749999989pt height=14.15524440000002pt/> respectively. A fully-connected net was chosen
 because using another connectionist module for read-outs of the hidden
 representation heightens the biological plausibility of the final
-approach (Zorzi, Testolin, and Stoianov 2013b). Namely, Zorzi, Testolin,
-and Stoianov (2013b) note that the appended connectionist classifier
-module can for example be concieved of as a cognitive response module
-(?), although the main reason behind training this classifier is to
-asses it's performance against other algorithmic and human data.
+approach (Zorzi, Testolin, and Stoianov 2013b). Additionaly, Zorzi,
+Testolin, and Stoianov (2013b) note that the appended connectionist
+classifier module be concieved of as a cognitive response module
+supporting a particular behavioral task, although the main reason behind
+training this classifier is to asses it's performance against other
+algorithmic data.
 
 ### Class imbalance
 
@@ -492,11 +493,15 @@ quantitative difference, but also as qualitative difference, whereby the
 relative importance of some class is (weighted?) higher than others
 (e.g. in classification relating to malignant tumors, misclassifying
 malignant examples as nonmalignant could be weighted more strongly, see
-([**???**]{.citeproc-not-found data-reference-id="ref"})).
-<!-- mention the relevance of qualitative difference to SOS? -->
+([**???**]{.citeproc-not-found data-reference-id="ref"})) Qualitive
+difference might be relevant to the SOS dataset, because examples with
+overlapping (i.e. multiple) objects make subitizing more difficult (see
+section X.X (\#hybrid), and previous results on subitizing show that
+some classes are more difficult to classify than others (J. Zhang, Ma,
+et al. 2016).
 
 1.  *Oversampling techniques* are a particularly well performing set of
-    solutions to class imbalance are . Oversampling alters the class
+    solutions to class imbalance. Oversampling alters the class
     distribution by producing more examples of the minority class, for
     example generating synthetic data that resembles minority examples
     (e.g. He et al. 2008; Chawla et al. 2002), resulting in a more
@@ -505,7 +510,12 @@ malignant examples as nonmalignant could be weighted more strongly, see
     distribution by discarding examples from the majority class.
     Elimination of majority class instances can for example ensue by
     removing those instances that are highly similar (e.g. Tomek 1976)
-3.  *Cost sensitive techniques.*
+3.  *Cost sensitive techniques.* Cost sensitive techqniques are
+    especially useful for dealing with minority classes that are
+    inherently more difficult (or "costly") to classify correctly, as
+    optimisation towards easier classes could minimize cost even in
+    quantitatively balanced datasets, if the easier classes for example
+    require lesser representational resources of the learning model.
 
 An ensemble of techniques was used to tackle the class imbalance in the
 SOS dataset. First, slight random under-sampling with replacement of the
@@ -539,13 +549,11 @@ undersampling, if <img src="https://rawgit.com/rien333/numbersense-vae/master/sv
 classes shrinks towards chance, and, interestingly, accuracy for the
 minority classes becomes comparable to the state of the art.
 
-<!-- Some details? Or just move everything to methodology? -->
-<!-- ## Hybrid Dataset ## -->
 Results & Discussion
 ====================
 
-VAE performance
----------------
+Variational Autoencoder performance
+-----------------------------------
 
 <!-- TODO
     - [x] graphs of loss (eh niey zo boeied)
@@ -587,10 +595,16 @@ Subitizing Read-Out
 <!-- TODO
     - [ ] Mention something about what other alogithms do -->
 Accuray of the `zclassifier` (i.e. the classifier as described in
-[**section x.x**](#classifierarch) that learns to classify latent
-activation patterns to subitizing labels) is reported over the witheld
-SOS test set. Accuracy scores of other algorithms were copied over from
-J. Zhang, Ma, et al. (2016).
+[**section x.x**](#classifierarch) concerned with classifcation of
+latent activation patterns to subitizing labels) is reported over the
+witheld SOS test set. We report best performances using a slightly
+different VAE architecture than the one described in [section X.X](#vae)
+(scoring a mean accuray of 40.4). The main difference between the VAE
+used in this experiment and the one that is used throughout the rest of
+this research is it places intermedtiate fully connected layers (with
+size 3096) between the latent representation and the convolutional
+stacks. Accuracy scores of other algorithms were copied over from J.
+Zhang, Ma, et al. (2016).
 
 |            | 0    | 1    | 2    | 3    | 4+   | mean |
 |-----------:|------|------|------|------|------|------|
@@ -619,14 +633,16 @@ The subitizing performance of the VAE is comparable to highest scoring
 non-machine learning algorithm, and performs worse overall than the CNNs
 trained by J. Zhang, Ma, et al. (2016). This can be explained by a
 number of factors. First of all, the `CNN_ft` algorithm used by J.
-Zhang, Ma, et al. (2016) has been pretrained on the large, well tested
-databese of images it is trained on (i.e. ImageNet, which contains N
-images, while our procedure uses M syntethic and N2 natural images).
-Additionaly, their model is capable of more complex representations due
-its depth and the amount of modules it contains (). Moreover, all their
-alogirhtms are trained in a supervised manner, which can sometimes be a
-lot easier than unsupervised training ([**???**]{.citeproc-not-found
-data-reference-id="ref"})
+Zhang, Ma, et al. (2016) has been pretrained on a large, well tested and
+more varied dataset, namely ImageNet (Russakovsky et al. 2015), which
+contains <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/aad13b2319c8fe7c8f7c9b2fef9a6490.svg?invert_in_darkmode" align=middle width=50.22836939999999pt height=21.18721440000001pt/> times more images. Additionaly, their model is
+capable of more complex representations due its depth and the amount of
+modules it contains (the applied model from Szegedy et al. 2015 uses 22,
+compared to the 12 in our approach). Moreover, all their alogirhtms are
+trained in a supervised manner, providing optimization algorithms such
+as stochastic gradient descent with a more directly guided optimization
+objective, an advantage over present research's unsupervised training
+setup.
 
 Qualitive Analysis
 ------------------
@@ -653,10 +669,10 @@ that each dimension <img src="https://rawgit.com/rien333/numbersense-vae/master/
 (see figure Y.Y) special care was undertaken to reduce <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/>'s response
 varience by only generating data with 15 randomly sampled objects from
 the object cut-out set, and one random background class from the
-background dataset (performance is reported on the "sand desserts"
-class, which contains particularly visually uniform examples). A
-dimension <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/> is said to be able to perform as either a numerical or
-area detector when regressing it's reponse over novel synthetic dataset
+background dataset (performance is reported on the "sand deserts" class,
+which contains particularly visually uniform examples). A dimension
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/> is said to be able to perform as either a numerical or area
+detector when regressing it's reponse over novel synthetic dataset
 (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/e3b0e5bb817a6d275abc4a9720726da9.svg?invert_in_darkmode" align=middle width=72.88055444999999pt height=21.18721440000001pt/>) supports the following relationship between normalized
 variables <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/53d147e7f3fe6e47ee05b88b166bd3f6.svg?invert_in_darkmode" align=middle width=12.32879834999999pt height=22.465723500000017pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f9c4988898e7f532b9f826a75014ed3c.svg?invert_in_darkmode" align=middle width=14.99998994999999pt height=22.465723500000017pt/> (Stoianov and Zorzi 2012):
 
@@ -677,49 +693,60 @@ have more noise as no dimension <img src="https://rawgit.com/rien333/numbersense
 an overview). Moreover, the syntethic data we use for the regression
 includes more complex information than the dataset used by Stoianov and
 Zorzi (2012). Nevertheless, we still found a small number of reoccuring
-detectors of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/53d147e7f3fe6e47ee05b88b166bd3f6.svg?invert_in_darkmode" align=middle width=12.32879834999999pt height=22.465723500000017pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f9c4988898e7f532b9f826a75014ed3c.svg?invert_in_darkmode" align=middle width=14.99998994999999pt height=22.465723500000017pt/>, with an R value higher than (all <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/> with
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/0b47087c766b52e6dc2e3d0c75fe067d.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/> resulted in an <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/75b2520cc78fcb9fcb51ceb86a0a707b.svg?invert_in_darkmode" align=middle width=91.14736619999998pt height=22.465723500000017pt/>) Due to randomisation in
-the fitting process (and data distribition problems?) the role
-distribution varied slighty with both properties being encoded by about
-1-2 dimensions (latent dimensions that provide a better fit of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/876af6dcdadde76f9725f4e40ba6d535.svg?invert_in_darkmode" align=middle width=8.21920935pt height=14.15524440000002pt/>
-exist, but don't satisfy the low coefficient criteria). An interesting
-note is that whenever the regression showed multiple dimensions encoding
-area, they either exhibited or positive a negative responses to area
-increase, in accordance with how visual numerisoty migt rely on a
-(inhibitory?) size normalisation signal according to some theories on
-the neurocomputational basis for numerisoty (see Stoianov and Zorzi 2012
-for a discussion). For the area neurons, more extreme cumaltative area
-samples bend the mean distribition either upwards or downwards, while
-response to cumaltative area in the case of numerosity neurons the mean
-response distribution that stayed relatively centered. (neuron 35 is not
-a numerisoty neuron btw) (neuron 52 transparent and neuron 77
-transparent) It's slight strong negative response for more extreme
-values might indicate a inhibitory role in area detection, for example
-providing a signal to numerisity that normalizes area (idk what the sign
-of these numbers means later on tho). Both the total reponse center of
-response distribution increased with numerisoty, although the difference
-between 3 and 4 is not extremely apparanent. This might be due to the
-fact that 4 being outside of the subitizing range means that a different
-encoding scheme or techqnique is used, as the case if for humans
-(Dehaene 2011, 57)
+detectors of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/53d147e7f3fe6e47ee05b88b166bd3f6.svg?invert_in_darkmode" align=middle width=12.32879834999999pt height=22.465723500000017pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f9c4988898e7f532b9f826a75014ed3c.svg?invert_in_darkmode" align=middle width=14.99998994999999pt height=22.465723500000017pt/>, with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ff1d203db819ac4e917233cceea0ee81.svg?invert_in_darkmode" align=middle width=129.50341469999998pt height=22.465723500000017pt/> (all <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/> with
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/0b47087c766b52e6dc2e3d0c75fe067d.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/> resulted in an average <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ef6fae64c77bebb97f843149d5586a18.svg?invert_in_darkmode" align=middle width=113.06499599999998pt height=22.465723500000017pt/>). Due to
+randomisation in the fitting process (synthetic examples are randomly
+generated at each run) the role distribution varied slighty with each
+properties being encoded by about 1-2 dimensions, out of the total of
+182 (anymore would indicate an unlikely reduncancy, given that the small
+latent space should provide an efficient encoding scheme). Latent
+dimensions that provide a better fit of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/876af6dcdadde76f9725f4e40ba6d535.svg?invert_in_darkmode" align=middle width=8.21920935pt height=14.15524440000002pt/> exist, but don't
+satisfy the low coefficient criteria. An interesting note is that
+whenever the regression showed multiple dimensions encoding area, they
+either exhibited positive or negative responses (i.e. positive or
+negative regression coefficients) to area increase, in accordance with
+how visual numerisoty migt rely on a size normalisation signal,
+according to some theories on the neurocomputational basis for
+numerisoty (see Stoianov and Zorzi 2012 for a discussion). A large
+negative reponse (in constrast to a positive) to cumalative area might
+for example be combined with other respones in the VAE's decoder network
+as an indicatatory or inhibitory signal that the area density does not
+come from just one object, but from multiple.
 
+Figure X.x (a) provide characteristic reponse profiles for dimensions
+encoding either cumalative area or a subitizing count. For the area
+dimensions, extreme cumaltative area samples bend the mean distribition
+either upwards or downwards, while the response distribition to
+cumaltative area for numerosity encoding dimensions stays relatively
+centered. (neuron 35 is not a numerisoty neuron btw) (neuron 88
+transparent and neuron 77 transparent) For the numerosity neuron,
+(Figure X.x (b)) both the total reponse of and the center of the
+response distribution increased with numerisoty. With some extra time,
+the visual clarity and overall performance of this qualitative analysis
+could probably be greatly improved, given that only a short focus on
+reducing response varience increased <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1e438235ef9ec72fc51ac5025516017c.svg?invert_in_darkmode" align=middle width=12.60847334999999pt height=22.465723500000017pt/> by almost a factor of 10 in
+some cases.
+
+<!-- Include more/better figures -->
 <!-- (figure caption) -->
 Figure X.X (a) shows a typical response profile for a numerosity
-detector. Figure X.x (b) shows a typical response profile of dimension
-that encodes area with invarience to numeriosity information. Cumalative
-area (A) was normalized and is displayed across a logirithmic scale. For
-visual convenience, examples with A=0 were shifted next to lowest value
-of A in the dataset.
+detector (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/55adb01cbe8bf05b3f3be8b6be725c42.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/>). Subitizing label N was normalized. Figure X.x (b)
+shows a typical response profile of dimension that encodes cumaltive
+area while being invarience to numeriosity information (\$R=0.056).
+Cumalative area (A) was normalized and is displayed across a logirithmic
+scale. For visual convenience, examples with A=0 were shifted next to
+lowest value of A in the dataset.
 
 Conclusion
 ==========
 
-We described a setup for training a VAE satisfying various biological
-constraints. A possible consequence thereof is that our final model
-showcases properties also found in biological networks. Firstly, an
-ability to subitize emerged as an implicitly learned skill. Second of
-all, the learned encoding scheme indicates support for encoding
-numerosities without resorting to counting schemes relying to
+We described a setup for training a VAE on a subitizing task, while
+satisfying some important biological constraints. A possible consequence
+thereof is that our final model showcases properties also found in
+biological neural networks (as well as other artificial algorithms).
+Firstly, an ability to subitize emerged as an implicitly learned skill.
+Second of all, the learned encoding scheme indicates support for
+encoding numerosities without resorting to counting schemes relying to
 cumaltative (objective) area, and conversly encodes cumaltative area
 without using numerisity information, in accordance with previous
 (other?) comparables artificial models (Stoianov and Zorzi 2012).
@@ -877,6 +904,10 @@ Networks from Overfitting." *The Journal of Machine Learning Research*
 Stoianov, Ivilin, and Marco Zorzi. 2012. "Emergence of a'visual Number
 Sense'in Hierarchical Generative Models." *Nature Neuroscience* 15 (2).
 Nature Publishing Group: 194.
+
+Szegedy, Christian, Wei Liu, Yangqing Jia, Pierre Sermanet, Scott Reed,
+Dragomir Anguelov, Dumitru Erhan, Vincent Vanhoucke, Andrew Rabinovich,
+and others. 2015. "Going Deeper with Convolutions." In. Cvpr.
 
 Tomek, Ivan. 1976. "Two Modifications of Cnn." *IEEE Trans. Systems, Man
 and Cybernetics* 6: 769--72.
