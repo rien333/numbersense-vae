@@ -71,7 +71,8 @@ As seen in the [figure](#sub) below, the goal of the _Salient Object Subitizing_
     TODO 
     - [ ] Image of complete vae architecture
 -->
-<! --
+
+<!--
                                               ┌───┐
                                               │ z⁰│
                                               │ . │
@@ -89,8 +90,9 @@ As seen in the [figure](#sub) below, the goal of the _Salient Object Subitizing_
                                               │ zⁿ│
                                               └───┘
 
-                                  Latent vector z, with zⁱ ∈ R
+                                  Latent vector z, with zⁱ ∈ R  
 --> 
+
 ![autoencoder](https://github.com/rien333/numbersense-vae/blob/master/thesis/ae-small.svg "Schematic architecture of an autoencoder")
 
 

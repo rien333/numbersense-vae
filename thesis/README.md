@@ -249,16 +249,26 @@ Variational Autoencoder
     TODO 
     - [ ] Image of complete vae architecture
 -->
-\<! -- ┌───┐ │ z⁰│ │ . │ ┌─────────────────┐ │ . │ ┌─────────────────┐ │
-│ │ . │ │ │ │ │ │ . │ │ │ ┏━━━━━━━━┓ │ │ │ . │ │ │ ┏━━━━━━━━┓ ┃●●●●●●●●┃
-│ │ │ . │ │ │ ┃■■■■■■■■┃ ┃●●●●●●●●┃────▶│ Encoder Network │───────────▶│
-. │───────────▶│ Decoder Network │────▶┃■■■■■■■■┃ ┃●●●●●●●●┃ │ │ │ . │ │
-│ ┃■■■■■■■■┃ ┗━━━━━━━━┛ │ │ │ . │ │ │ ┗━━━━━━━━┛ X │ │ │ . │ │ │ X' │ │
-│ . │ │ │ └─────────────────┘ │ . │ └─────────────────┘ │ zⁿ│ └───┘
+<!--
+                                              ┌───┐
+                                              │ z⁰│
+                                              │ . │
+               ┌─────────────────┐            │ . │            ┌─────────────────┐
+               │                 │            │ . │            │                 │
+               │                 │            │ . │            │                 │
+┏━━━━━━━━┓     │                 │            │ . │            │                 │     ┏━━━━━━━━┓
+┃●●●●●●●●┃     │                 │            │ . │            │                 │     ┃■■■■■■■■┃
+┃●●●●●●●●┃────▶│ Encoder Network │───────────▶│ . │───────────▶│ Decoder Network │────▶┃■■■■■■■■┃
+┃●●●●●●●●┃     │                 │            │ . │            │                 │     ┃■■■■■■■■┃
+┗━━━━━━━━┛     │                 │            │ . │            │                 │     ┗━━━━━━━━┛
+    X          │                 │            │ . │            │                 │         X'
+               │                 │            │ . │            │                 │
+               └─────────────────┘            │ . │            └─────────────────┘
+                                              │ zⁿ│
+                                              └───┘
 
-                                  Latent vector z, with zⁱ ∈ R
-
---\>
+                                  Latent vector z, with zⁱ ∈ R  
+-->
 ![autoencoder](https://github.com/rien333/numbersense-vae/blob/master/thesis/ae-small.svg "Schematic architecture of an autoencoder")
 
 VAEs are part of the family of autoencoder algorithms, owing this title
