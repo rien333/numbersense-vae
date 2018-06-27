@@ -589,7 +589,7 @@ could possibly distort class labels (object might start to resemble each
 other less if they lose detail).
 
 <!-- Make this a pdf when exporting, maybe in the generate figures.fish thing -->
-![latent\_representation](https://github.com/rien333/numbersense-vae/blob/master/thesis/bezier.png "Reconstructions of the image in the top-left made by slightly increasing the reponse value of the VAE's latent representation <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/>, at different individual dimenions <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/>.")
+![latent\_representation](https://github.com/rien333/numbersense-vae/blob/master/thesis/bird_varied.png "Reconstructions of the image in the top-left made by slightly increasing the reponse value of the VAE's latent representation <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f93ce33e511096ed626b4719d50f17d2.svg?invert_in_darkmode" align=middle width=8.367621899999993pt height=14.15524440000002pt/>, at different individual dimenions <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/>.")
 
 Subitizing Read-Out
 -------------------
