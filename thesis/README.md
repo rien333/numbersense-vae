@@ -708,38 +708,38 @@ variables <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/53d14
 <p align="center"><img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/25927ca8c051e1831fdf4138c0bba2c8.svg?invert_in_darkmode" align=middle width=333.0826785pt height=16.438356pt/></p>
 
 The regression was accomplised with linear regression algorithms taken
-from (Newville et al. 2016) (Levenberg--Marquardt proved best). The
-criteria set by Stoianov and Zorzi (2012) for being a good fit are
-**(1)** the regression explaining at least 10% of the varience
-(<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/689c953c229748bd489397076f23b867.svg?invert_in_darkmode" align=middle width=62.90520389999999pt height=26.76175259999998pt/>) **(2)** and a "ideal" detector of some property should
-have a low (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ed447abaf96248c199e24b5fc45f761a.svg?invert_in_darkmode" align=middle width=71.39158124999999pt height=24.65753399999998pt/>) regression coefficient for the
-complementary property. We slightly altered criteria **(1)** to fit our
-training setup. The complexity of the SOS dataset in comparison to the
-binary images used by Stoianov and Zorzi (2012) requires our model to
-encode a higher variety of information, meaning that any fit is going to
-have more noise as no dimension <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/> has one role (see figure Y.Y for
-an overview). Moreover, the syntethic data we use for the regression
-includes more complex information than the dataset used by Stoianov and
-Zorzi (2012). Nevertheless, we still found a small number of reoccuring
-detectors of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/53d147e7f3fe6e47ee05b88b166bd3f6.svg?invert_in_darkmode" align=middle width=12.32879834999999pt height=22.465723500000017pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f9c4988898e7f532b9f826a75014ed3c.svg?invert_in_darkmode" align=middle width=14.99998994999999pt height=22.465723500000017pt/>, with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ff1d203db819ac4e917233cceea0ee81.svg?invert_in_darkmode" align=middle width=129.50341469999998pt height=22.465723500000017pt/> (all <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/> with
-<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/0b47087c766b52e6dc2e3d0c75fe067d.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/> resulted in an average <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ef6fae64c77bebb97f843149d5586a18.svg?invert_in_darkmode" align=middle width=113.06499599999998pt height=22.465723500000017pt/>). Due to
-randomisation in the fitting process (synthetic examples are randomly
-generated at each run) the role distribution varied slighty with each
-properties being encoded by about 1-2 dimensions, out of the total of
-182 (anymore would indicate an unlikely reduncancy, given that the small
-latent space should provide an efficient encoding scheme). Latent
-dimensions that provide a better fit of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/876af6dcdadde76f9725f4e40ba6d535.svg?invert_in_darkmode" align=middle width=8.21920935pt height=14.15524440000002pt/> exist, but don't
-satisfy criteria **(2)**. An interesting note is that whenever the
-regression showed multiple dimensions encoding area, they either
-exhibited positive or negative responses (i.e. positive or negative
-regression coefficients) to area increase, in accordance with how visual
-numerisoty migt rely on a size normalisation signal, according to some
-theories on the neurocomputational basis for numerisoty (see Stoianov
-and Zorzi 2012 for a discussion). A large negative reponse (in constrast
-to a positive) to cumalative area might for example be combined with
-other respones in the VAE's decoder network as an indicatatory or
-inhibitory signal that the area density does not come from just one
-object, but from multiple.
+from Newville et al. (2016) (Levenberg--Marquardt proved best). The
+criteria set by Stoianov and Zorzi (2012) for being a good fit of
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/876af6dcdadde76f9725f4e40ba6d535.svg?invert_in_darkmode" align=middle width=8.21920935pt height=14.15524440000002pt/> are **(1)** the regression explaining at least 10% of the
+varience (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/689c953c229748bd489397076f23b867.svg?invert_in_darkmode" align=middle width=62.90520389999999pt height=26.76175259999998pt/>) **(2)** and a "ideal" detector of some
+property should have a low (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ed447abaf96248c199e24b5fc45f761a.svg?invert_in_darkmode" align=middle width=71.39158124999999pt height=24.65753399999998pt/>) regression
+coefficient for the complementary property. We slightly altered criteria
+**(1)** to fit our training setup. The complexity of the SOS dataset in
+comparison to the binary images used by Stoianov and Zorzi (2012)
+requires our model to encode a higher variety of information, meaning
+that any fit is going to have more noise as no dimension <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/> has one
+role (see figure Y.Y for an overview). Moreover, the syntethic data we
+use for the regression includes more complex information than the
+dataset used by Stoianov and Zorzi (2012). Nevertheless, we still found
+a small number of reoccuring detectors of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/53d147e7f3fe6e47ee05b88b166bd3f6.svg?invert_in_darkmode" align=middle width=12.32879834999999pt height=22.465723500000017pt/> and <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/f9c4988898e7f532b9f826a75014ed3c.svg?invert_in_darkmode" align=middle width=14.99998994999999pt height=22.465723500000017pt/>, with
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ff1d203db819ac4e917233cceea0ee81.svg?invert_in_darkmode" align=middle width=129.50341469999998pt height=22.465723500000017pt/> (all <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode" align=middle width=12.29555249999999pt height=14.15524440000002pt/> with <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/0b47087c766b52e6dc2e3d0c75fe067d.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/> resulted in an average
+<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/ef6fae64c77bebb97f843149d5586a18.svg?invert_in_darkmode" align=middle width=113.06499599999998pt height=22.465723500000017pt/>). Due to randomisation in the fitting process
+(synthetic examples are randomly generated at each run) the role
+distribution varied slighty with each properties being encoded by about
+1-2 dimensions, out of the total of 182 (anymore would indicate an
+unlikely reduncancy, given that the small latent space should provide an
+efficient encoding scheme). Some latent dimensions that provide a better
+fit of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/876af6dcdadde76f9725f4e40ba6d535.svg?invert_in_darkmode" align=middle width=8.21920935pt height=14.15524440000002pt/> exist, but don't satisfy criteria **(2)**. An
+interesting note is that whenever the regression showed multiple
+dimensions encoding area, they either exhibited positive or negative
+responses (i.e. positive or negative regression coefficients) to area
+increase, in accordance with how visual numerisoty migt rely on a size
+normalisation signal, according to some theories on the
+neurocomputational basis for numerisoty (see Stoianov and Zorzi 2012 for
+a discussion). A large negative reponse (in constrast to a positive) to
+cumalative area might for example be combined with other respones in the
+VAE's decoder network as an indicatatory or inhibitory signal that the
+area density does not come from just one object, but from multiple.
 
 Figure X.x (a) provide characteristic reponse profiles for dimensions
 encoding either cumalative area or a subitizing count. For the area
@@ -757,14 +757,16 @@ improved, given that only a short focus on reducing response varience
 increased <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1e438235ef9ec72fc51ac5025516017c.svg?invert_in_darkmode" align=middle width=12.60847334999999pt height=22.465723500000017pt/> by almost a factor of 10 in some cases.
 
 <!-- Include more/better figures -->
+![num\_dim](https://github.com/rien333/numbersense-vae/blob/master/thesis/Nn-z77.png "Example images from the SOS dataset")
 <!-- (figure caption) -->
-Figure X.X (a) shows a typical response profile for a numerosity
-detector (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/55adb01cbe8bf05b3f3be8b6be725c42.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/>). Subitizing label N was normalized. Figure X.x (b)
-shows a typical response profile of dimension that encodes cumaltive
-area while being invarience to numeriosity information (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/d205b9bea34bcad42c2ea22970868dca.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/>).
-Cumalative area (A) was normalized and is displayed across a logirithmic
-scale. For visual convenience, examples with A=0 were shifted next to
-lowest value of A in the dataset.
+![area\_dim](https://github.com/rien333/numbersense-vae/blob/master/thesis/Na-z88.png "Example images from the SOS dataset")
+<!-- (figure caption) --> Figure X.X (a) shows a typical response
+profile for a numerosity detector (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/55adb01cbe8bf05b3f3be8b6be725c42.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/>). Subitizing label N was
+normalized. Figure X.x (b) shows a typical response profile of dimension
+that encodes cumaltive area while being invarience to numeriosity
+information (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/d205b9bea34bcad42c2ea22970868dca.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/>). Cumalative area (A) was normalized and is
+displayed across a logirithmic scale. For visual convenience, examples
+with A=0 were shifted next to lowest value of A in the dataset.
 
 Conclusion
 ==========
