@@ -719,13 +719,14 @@ dimensions, extreme cumaltative area samples bend the mean distribition
 either upwards or downwards, while the response distribition to
 cumaltative area for numerosity encoding dimensions stays relatively
 centered. (neuron 35 is not a numerisoty neuron btw) (neuron 88
-transparent and neuron 77 transparent) For the numerosity neuron,
+transparent and neuron 77 transparent) For the numerosity dimension,
 (Figure X.x (b)) both the total reponse of and the center of the
-response distribution increased with numerisoty. With some extra time,
-the visual clarity and overall performance of this qualitative analysis
-could probably be greatly improved, given that only a short focus on
-reducing response varience increased <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1e438235ef9ec72fc51ac5025516017c.svg?invert_in_darkmode" align=middle width=12.60847334999999pt height=22.465723500000017pt/> by almost a factor of 10 in
-some cases.
+response distribution increased with numerisoty. In contrast, the
+dimension that was sensitive shows a fairly static response to changes
+in subizing count. With some extra time, the visual clarity and overall
+performance of this qualitative analysis could probably be greatly
+improved, given that only a short focus on reducing response varience
+increased <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1e438235ef9ec72fc51ac5025516017c.svg?invert_in_darkmode" align=middle width=12.60847334999999pt height=22.465723500000017pt/> by almost a factor of 10 in some cases.
 
 <!-- Include more/better figures -->
 <!-- (figure caption) -->
