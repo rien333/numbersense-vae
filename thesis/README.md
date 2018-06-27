@@ -1,3 +1,6 @@
+<!-- TODO
+    - [ ] Write abstract
+-->
 Introduction
 ============
 
@@ -215,8 +218,8 @@ their use of the relatively computationally expensive Restricted
 Boltzmann Machine (RBM) (with the exception of exploiting prior
 knowledge of regularities in the probability distribution over the
 observered data, equation <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/40a3674c9358d0becab2b3c56aaeab67.svg?invert_in_darkmode" align=middle width=8.21920935pt height=14.15524440000002pt/> from Goodfellow et al. 2016 shows
-that computational cost grows as a multiple of the size of hidden and
-observered units in the RBM). Given developments in generative
+that computational cost in RBMS grows as a multiple of the size of it's
+hidden and observered units). Given developments in generative
 algorithms and the availablity of more computational power, we will
 therefore opt for a different algorithmic approach (see [section
 X.X](vae)) that will hopefully scale better to natural images.
@@ -726,17 +729,17 @@ properties being encoded by about 1-2 dimensions, out of the total of
 182 (anymore would indicate an unlikely reduncancy, given that the small
 latent space should provide an efficient encoding scheme). Latent
 dimensions that provide a better fit of <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/876af6dcdadde76f9725f4e40ba6d535.svg?invert_in_darkmode" align=middle width=8.21920935pt height=14.15524440000002pt/> exist, but don't
-satisfy the low coefficient criteria. An interesting note is that
-whenever the regression showed multiple dimensions encoding area, they
-either exhibited positive or negative responses (i.e. positive or
-negative regression coefficients) to area increase, in accordance with
-how visual numerisoty migt rely on a size normalisation signal,
-according to some theories on the neurocomputational basis for
-numerisoty (see Stoianov and Zorzi 2012 for a discussion). A large
-negative reponse (in constrast to a positive) to cumalative area might
-for example be combined with other respones in the VAE's decoder network
-as an indicatatory or inhibitory signal that the area density does not
-come from just one object, but from multiple.
+satisfy criteria **(2)**. An interesting note is that whenever the
+regression showed multiple dimensions encoding area, they either
+exhibited positive or negative responses (i.e. positive or negative
+regression coefficients) to area increase, in accordance with how visual
+numerisoty migt rely on a size normalisation signal, according to some
+theories on the neurocomputational basis for numerisoty (see Stoianov
+and Zorzi 2012 for a discussion). A large negative reponse (in constrast
+to a positive) to cumalative area might for example be combined with
+other respones in the VAE's decoder network as an indicatatory or
+inhibitory signal that the area density does not come from just one
+object, but from multiple.
 
 Figure X.x (a) provide characteristic reponse profiles for dimensions
 encoding either cumalative area or a subitizing count. For the area
