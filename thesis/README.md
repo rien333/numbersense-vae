@@ -733,7 +733,7 @@ increased <img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/1e438
 Figure X.X (a) shows a typical response profile for a numerosity
 detector (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/55adb01cbe8bf05b3f3be8b6be725c42.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/>). Subitizing label N was normalized. Figure X.x (b)
 shows a typical response profile of dimension that encodes cumaltive
-area while being invarience to numeriosity information (\$R=0.056).
+area while being invarience to numeriosity information (<img src="https://rawgit.com/rien333/numbersense-vae/master/svgs/d205b9bea34bcad42c2ea22970868dca.svg?invert_in_darkmode" align=middle width=71.96916209999999pt height=22.465723500000017pt/>).
 Cumalative area (A) was normalized and is displayed across a logirithmic
 scale. For visual convenience, examples with A=0 were shifted next to
 lowest value of A in the dataset.

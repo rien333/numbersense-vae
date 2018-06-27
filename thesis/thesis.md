@@ -234,7 +234,7 @@ Figure X.x (a) provide characteristic reponse profiles for dimensions encoding e
 
 <!-- Include more/better figures -->
 <!-- (figure caption) -->
-Figure X.X (a) shows a typical response profile for a numerosity detector ($R=0.055$).  Subitizing label N was normalized. Figure X.x (b) shows a typical response profile of dimension that encodes cumaltive area while being invarience to numeriosity information ($R=0.056). Cumalative area (A) was normalized and is displayed across a logirithmic scale. For visual convenience, examples with A=0 were shifted next to lowest value of A in the dataset. 
+Figure X.X (a) shows a typical response profile for a numerosity detector ($R=0.055$).  Subitizing label N was normalized. Figure X.x (b) shows a typical response profile of dimension that encodes cumaltive area while being invarience to numeriosity information ($R=0.056$). Cumalative area (A) was normalized and is displayed across a logirithmic scale. For visual convenience, examples with A=0 were shifted next to lowest value of A in the dataset. 
 
 # Conclusion #
 
