@@ -569,7 +569,7 @@ learning techqniques.
 Results & Discussion
 ====================
 
-Variational Autoencoder performance
+Variational Autoencoder Performance
 -----------------------------------
 
 <!-- TODO
