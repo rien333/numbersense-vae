@@ -115,10 +115,10 @@ Another solution would be ommiting or replacing the two constraints, by for exam
 3.  Relatedly, visual sense of number is an emergent property of
     hierarchically organized neurons embedded in generative learning
     models, either artificial or biological (Stoianov and Zorzi 2012;
-    the brain can be characterized as building a predictive model of
-    it's world, or a "bayesian machine", Knill and Pouget 2004; Pezzulo
-    and Cisek 2016). The fact that visual number sense exist in animals
-    and human newborns suggests that it is an implicitly learned skill
+    the brain can be characterized as building a predictive modeler, or
+    a "bayesian machine", Knill and Pouget 2004; Pezzulo and
+    Cisek 2016). The fact that visual number sense exist in animals and
+    human newborns suggests that it is an implicitly learned skill
     learned at the neural level, for animals do not exhibit a lot of
     vertical learning, let alone human newborns having received much
     numerical training. Deemed as a generally unrealistic trope of
@@ -196,7 +196,7 @@ Visual Number Sense
 
 <!-- Probably skip, but the arxiv paper and stoianov2012 can be reharsed -->
 <!-- TODO
-    - [ ] Investigate the goodfellow2016deep reference as to why it is somewhat computationally expensive
+    - [x] Investigate the goodfellow2016deep reference as to why it is somewhat computationally expensive
 -->
 As previously described, Stoianov and Zorzi (2012) applied artificial
 neural netwoks to visual numerosity estimation, although without using
@@ -249,20 +249,17 @@ Variational Autoencoder
     TODO 
     - [ ] Image of extact architecture
 -->
-                                              ┌───┐
-                                              │ z⁰│
-                                              │ . │
-               ┌─────────────────┐            │ . │            ┌─────────────────┐
-               │                 │            │ . │            │                 │
-               │                 │            │ . │            │                 │
-
-┏━━━━━━━━┓ │ │ │ . │ │ │ ┏━━━━━━━━┓ ┃●●●●●●●●┃ │ │ │ . │ │ │ ┃■■■■■■■■┃
-┃●●●●●●●●┃────▶│ Encoder Network │───────────▶│ . │───────────▶│ Decoder
-Network │────▶┃■■■■■■■■┃ ┃●●●●●●●●┃ │ │ │ . │ │ │ ┃■■■■■■■■┃ ┗━━━━━━━━┛
-│ │ │ . │ │ │ ┗━━━━━━━━┛ X │ │ │ . │ │ │ X' │ │ │ . │ │ │
-└─────────────────┘ │ . │ └─────────────────┘ │ zⁿ│ └───┘
+\<! -- ┌───┐ │ z⁰│ │ . │ ┌─────────────────┐ │ . │ ┌─────────────────┐ │
+│ │ . │ │ │ │ │ │ . │ │ │ ┏━━━━━━━━┓ │ │ │ . │ │ │ ┏━━━━━━━━┓ ┃●●●●●●●●┃
+│ │ │ . │ │ │ ┃■■■■■■■■┃ ┃●●●●●●●●┃────▶│ Encoder Network │───────────▶│
+. │───────────▶│ Decoder Network │────▶┃■■■■■■■■┃ ┃●●●●●●●●┃ │ │ │ . │ │
+│ ┃■■■■■■■■┃ ┗━━━━━━━━┛ │ │ │ . │ │ │ ┗━━━━━━━━┛ X │ │ │ . │ │ │ X' │ │
+│ . │ │ │ └─────────────────┘ │ . │ └─────────────────┘ │ zⁿ│ └───┘
 
                                   Latent vector z, with zⁱ ∈ R
+
+--\>
+![sos\_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/ae-small.svg "Schematic architecture of an autoencoder")
 
 VAEs are part of the family of autoencoder algorithms, owing this title
 to the majority of their structure consisting of an encoder and a
