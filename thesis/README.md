@@ -247,7 +247,7 @@ Variational Autoencoder
 
 <!--
     TODO 
-    - [ ] Image of extact architecture
+    - [ ] Image of complete vae architecture
 -->
 \<! -- ┌───┐ │ z⁰│ │ . │ ┌─────────────────┐ │ . │ ┌─────────────────┐ │
 │ │ . │ │ │ │ │ │ . │ │ │ ┏━━━━━━━━┓ │ │ │ . │ │ │ ┏━━━━━━━━┓ ┃●●●●●●●●┃
@@ -259,7 +259,7 @@ Variational Autoencoder
                                   Latent vector z, with zⁱ ∈ R
 
 --\>
-![sos\_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/ae-small.svg "Schematic architecture of an autoencoder")
+![autoencoder](https://github.com/rien333/numbersense-vae/blob/master/thesis/ae-small.svg "Schematic architecture of an autoencoder")
 
 VAEs are part of the family of autoencoder algorithms, owing this title
 to the majority of their structure consisting of an encoder and a

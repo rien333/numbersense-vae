@@ -69,7 +69,7 @@ As seen in the [figure](#sub) below, the goal of the _Salient Object Subitizing_
 
 <!--
     TODO 
-    - [ ] Image of extact architecture
+    - [ ] Image of complete vae architecture
 -->
 <! --
                                               ┌───┐
@@ -91,7 +91,7 @@ As seen in the [figure](#sub) below, the goal of the _Salient Object Subitizing_
 
                                   Latent vector z, with zⁱ ∈ R
 --> 
-![sos_example](https://github.com/rien333/numbersense-vae/blob/master/thesis/ae-small.svg "Schematic architecture of an autoencoder")
+![autoencoder](https://github.com/rien333/numbersense-vae/blob/master/thesis/ae-small.svg "Schematic architecture of an autoencoder")
 
 
 VAEs are part of the family of autoencoder algorithms, owing this title to the majority of their structure consisting of an encoder and a decoder module [@doersch2016tutorial] (see figure X for the schematics of an autoencoder). In an regular autoencoder, the encoder module learns to map features from data samples $X \in \mathbb{R}^{n}$ into latent variables $z \in \mathbb{R}^{m}$ often so that $m \ll n$ and thus performs in dimenstionality reduction, while the decoder function learns to reconstruct latent variables $z$ into $X' \in \mathbb{R}^{n}$ such that $X'$ matches $X$ according to some predefined similarity measure [@liou2014autoencoder]. Reducing the input to be of much lower dimenstionality forces the autoencoder to learn only the most emblematic regularities of the data, as these will minimize the reconstrution error. The latent space can thus be seen as an inferred hidden feature representation of the data.
