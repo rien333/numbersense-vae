@@ -395,8 +395,8 @@ improved with FPL, the reconstruction of detail such as facial features
 shows less improvement. Although Hou et al. (2017) show a successful
 application of FPL, they might have been unaware of this shortcoming due
 to using a more uniform dataset consisting only of centered faces. For a
-comparison between FPL loss and BCE reconstruction loss see the figure
-below.
+comparison between FPL and BCE-based reconstruction measures on the SOS
+dataset, refer to figure Y.Y.
 
 Hybrid Dataset
 --------------
@@ -586,6 +586,8 @@ reconstructions of a plain VAE and a VAE that uses FPL as it's
 reconstruction optimization objective are show in figure X.X. To get an
 idea of what sort of properties the latent space of the VAE encodes,
 refer to figure Z.z.
+
+![fpl\_vs\_bce](https://github.com/rien333/numbersense-vae/blob/master/thesis/dfc_bce.png "Comparison of BCE and FPL reconstruction loss measures. The top row are the original images from the SOS dataset, and the other two images are reconstuctions made by using FPL and BCE loss, respectively")
 
 Although the reconstructions show increased quaility of contour
 reconstrion, there are a few reoccuring visual disperaties between
