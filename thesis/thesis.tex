@@ -76,6 +76,8 @@
 \usepackage{titlesec}
 \usepackage{subcaption}
 \usepackage{caption}
+
+
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{tipa}
@@ -546,6 +548,7 @@ labels. Refer to figure \ref{fig:syn} for examples of generated synthetic images
 \hypertarget{readout}{%
 \subsection{Hidden Representation Classifier}\label{readout}}
 
+ % "Training setup"? Mention something about data augmentation here as well?
 \hypertarget{classifierarch}{%
 \subsubsection{Classifier architecture}\label{classifierarch}}
 
@@ -739,11 +742,13 @@ implementation, refer to \citet{zhang2016salient}.
 Chance & 27.5 & 46.5 & 18.6 & 11.7 & 9.7 & 22.8\tabularnewline
 SalPry & 46.1 & 65.4 & 32.6 & 15.0 & 10.7 & 34.0\tabularnewline
 GIST & 67.4 & 65.0 & 32.3 & 17.5 & 24.7 & 41.4\tabularnewline
-SIFT+IVF & 83.0 & 68.1 & 35.1 & 26.6 & 38.1 & 50.1\tabularnewline
 zclasifier & 76 & 49 & 40 & 27 & 30 & 44.4\tabularnewline
+SIFT+IVF & 83.0 & 68.1 & 35.1 & 26.6 & 38.1 & 50.1\tabularnewline
 CNN\_FT & 93.6 & 93.8 & 75.2 & 58.6 & 71.6 & 78.6\tabularnewline
 \bottomrule
 \end{longtable}
+
+%% Check if SIFT+IVF is completely non machine learning
 
 The subitizing performance of the VAE is comparable to highest scoring
 non-machine learning algorithm, and performs worse overall than the CNNs
