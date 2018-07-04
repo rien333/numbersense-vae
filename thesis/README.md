@@ -119,30 +119,30 @@ Another solution would be ommiting or replacing the two constraints, by for exam
     hierarchically organized neurons embedded in generative learning
     models, either artificial or biological (Stoianov and Zorzi 2012;
     the brain can be characterized as building a predictive modeler, or
-    a "Bayesian machine", Knill and Pouget 2004; Pezzulo and
-    Cisek 2016). The fact that visual number sense exist in animals and
-    human newborns suggests that it is an implicitly learned skill
-    learned at the neural level, for animals do not exhibit a lot of
-    vertical learning, let alone human newborns having received much
-    numerical training. Deemed as a generally unrealistic trope of
-    artificial learning by AI critics (Dreyfus 2007) and research into
-    the human learning process (Zorzi, Testolin, and Stoianov 2013a),
-    modeling visual number necessitates non-researcher depended
-    features. This will restrict the choice of algorithm to so called
-    *unsupervised* learning algorithms, as such an algorithm will learn
-    its own particular representation of the data distribution. Given
-    their ability to infer the underlying stochastic representation of
-    the data, i.e. perform in autonomous feature determination,
-    *Variational Autoencoders* (VAEs) seem fit to tackle this problem
-    ([**section x.x**](#vae) details their precise working). Moreover,
-    VAEs are trained in an unsupervised manner similar to how, given
-    appropriate circumstances, visual numerosity abilities are
-    implicitly learned skills that emerge without "labeled data".
-    Another interesting aspect of VAEs is their relatively interpretable
-    and overseeable learned feature space, which might tell something
-    about how it deals with visual numerosity, and thus allows us to
-    evaluate the properties of the VAE's encoding against biological
-    data.
+    a "Bayesian machine", Knill and Pouget 2004;
+    [**???**]{.citeproc-not-found data-reference-id="bayes2"}). The fact
+    that visual number sense exist in animals and human newborns
+    suggests that it is an implicitly learned skill learned at the
+    neural level, for animals do not exhibit a lot of vertical learning,
+    let alone human newborns having received much numerical training.
+    Deemed as a generally unrealistic trope of artificial learning by AI
+    critics (Dreyfus 2007) and research into the human learning process
+    (Zorzi, Testolin, and Stoianov 2013a), modeling visual number
+    necessitates non-researcher depended features. This will restrict
+    the choice of algorithm to so called *unsupervised* learning
+    algorithms, as such an algorithm will learn its own particular
+    representation of the data distribution. Given their ability to
+    infer the underlying stochastic representation of the data,
+    i.e. perform in autonomous feature determination, *Variational
+    Autoencoders* (VAEs) seem fit to tackle this problem ([**section
+    x.x**](#vae) details their precise working). Moreover, VAEs are
+    trained in an unsupervised manner similar to how, given appropriate
+    circumstances, visual numerosity abilities are implicitly learned
+    skills that emerge without "labeled data". Another interesting
+    aspect of VAEs is their relatively interpretable and overseeable
+    learned feature space, which might tell something about how it deals
+    with visual numerosity, and thus allows us to evaluate the
+    properties of the VAE's encoding against biological data.
 
 Unfortunately, no dataset fit for visual numerosity estimation task
 similar to Stoianov and Zorzi (2012) satisfied above requirements
@@ -193,7 +193,7 @@ Related Work
 ============
 
 <!-- TODO
-    - [ ] Related work is often structured with line subsection, do that as it also saves space
+    - [x] Related work is often structured with line subsection, do that as it also saves space
 -->
 Visual Number Sense
 -------------------
@@ -918,10 +918,6 @@ Source Code Library*.
 Nieder, Andreas. 2016. "The Neuronal Code for Number." *Nature Reviews
 Neuroscience* 17 (6). Springer Nature: 366--82.
 <https://doi.org/10.1038/nrn.2016.40>.
-
-Pezzulo, Giovanni, and Paul Cisek. 2016. "Navigating the Affordance
-Landscape: Feedback Control as a Process Model of Behavior and
-Cognition." *Trends in Cognitive Sciences* 20 (6). Elsevier: 414--24.
 
 Piazza, Manuela, and Véronique Izard. 2009. "How Humans Count:
 Numerosity and the Parietal Cortex." *The Neuroscientist* 15 (3). Sage
