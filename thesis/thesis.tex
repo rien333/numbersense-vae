@@ -365,7 +365,7 @@ in the introduction whereby visual numerosity related skills are shown to emerge
 generative learning models. To fully satisfy this constraint, the final
 architecture uses deep convolutional networks for both the encoder and decoder
 module (see Fig. \ref{fig:vae-arch} for the VAE architecture), making the
-implementation an hierarchical model as well. The VAE is trained by reconstructing samples from the hybrid dataset outlined in section \ref{hybrid}) until the loss converges. As a VAE's latent space
+implementation an hierarchical model. The VAE is trained by reconstructing samples from the hybrid dataset (outlined in section \ref{hybrid}) and SOS dataset until the loss converges. As a VAE's latent space
 encodes the most important features of the data, it is hoped the samples
 drawn from the encoder provide information regarding it's subitizing
 performance (see section \ref{readout}). 
@@ -379,7 +379,7 @@ Because the frequently used pixel-by-pixel reconstruction loss measures
 in VAEs (such as a BCE based loss) do not necessarily comply with human perceptual similarity
 judgments, \citet{hou2017deep} therefore propose optimizing the reconstructions (i.e. \(\mathcal{L}_{rec}\)) with help of the hidden layers of a pretrained deep CNN, a particular advantage of these models being their ability to better capture spatial correlation relative to pixel-by-pixel measurements \citep{hou2017deep}. For example, a pixel-by-pixel based measure yields a high difference between an image and it's slightly shifted version as none of the pixels align anymore, while these two images will be deemed highly similar by humans.
 Additionally, CNNs haven proven to model visual characteristics of
-images deemed important by humans, by being able to for example perform
+images deemed important by humans, given their ability to for example perform
 complex image classification tasks \citep{krizhevsky2012imagenet}, which should help our VAE in retaining the most important of information.  The ability
 of the proposed \emph{Feature Perceptual Loss} (FPL) to retain spatial
 correlation should reduce the noted blurriness
@@ -403,25 +403,7 @@ the VGG-19 network encodes should be retained in the reconstruction
 characteristics of a large variety of image types. In
 \citet{hou2017deep}'s and our experiments
 \(L = \{\texttt{relu1\_1, relu2\_1, relu3\_1\}}\) resulted in the best
-reconstructions. One notable shortcoming of FPL is that although the
-layers from VGG-19 represent important visual information, it is a known
-fact that the first few layers of deep CNNs only encode simple features
-such as edges and lines (i.e they support contours), which are only
-combined into more complex features deeper into the network
-\citetext{\citealp{liu2017towards}; \citealp[FPL's authors][ note
-something similar]{hou2017deep}}. This means that the optimization
-objective is somewhat unambitious, in that it will never try to learn
-any other visual features \citep[for examples, refer to][Fig.
-6.]{liu2017towards} aside from what the set of predefined layers \(L\)
-represents. Indeed, although contour reconstruction has greatly improved
-with FPL, the reconstruction of detail such as facial features shows
-less improvement. Although \citet{hou2017deep} show a successful
-application of FPL, they might have been unaware of this shortcoming due
-to using a more uniform dataset consisting only of centered faces. For a
-comparison between FPL and BCE-based reconstruction measures on the SOS
-dataset, refer to Fig. \ref{fig:dfc_comp}.
-
-%% Mention something about data augmentation
+reconstructions. 
 
 \hypertarget{hybrid}{%
 \subsection{Hybrid Dataset}\label{hybrid}}
@@ -462,7 +444,7 @@ counting by object enumeration \citep[p.~57.]{dehaene2011number},
 implying that significant paste object overlap should be avoided.
 \citet{zhang2016salient} avoid object overlap by defining a threshold
 \(t \in \lbrack0,1\rbrack\) whereby an object's visible pixels
-\(P_{visible}\) and total pixel amount \(P_{total}\) should satisfy
+\(P_{visible}\) and total amount of pixels \(P_{total}\) should satisfy
 \(P_{visible} > t * P_{total}\). For reasons given above, we define the
 object overlap threshold as \(t = \sum_{n=0}^{N} 0.5 + n_i * 0.1\) with
 \(N \in \lbrack0,4\rbrack\) compared to \citet{zhang2016salient}'s
@@ -474,7 +456,7 @@ labels. Refer to Fig. \ref{fig:syn} for examples of generated synthetic images.
 \begin{figure}
 \centering
 \includegraphics{syn.png}
-\caption{Synthetic images generated for the pre-training stage. The images receive class labels 2, 3 and 4, from left to right. Although unrealistic looking, synthetic data generation counters class imbalance, displays a more extensive distribution of spatial configurations of objects, and familiarizes the model with a larger variety of object and background types. This is especially relevant for subitizing because it is abstract in regard to spatial information and the visual complexities of objects.}
+\caption{Synthetic images generated for the pre-training stage. Images receive class labels 2, 3 and 4, from left to right. Although unrealistic looking, synthetic data generation counters class imbalance, displays a more extensive distribution of spatial configurations of objects, and familiarizes the model with a larger variety of object and background types. This is especially relevant for subitizing because it is abstract in regard to spatial information and the visual complexities of objects.}
 \label{fig:syn}
 \end{figure}
 
@@ -493,7 +475,7 @@ labels. Refer to Fig. \ref{fig:syn} for examples of generated synthetic images.
 \end{figure}
 
 The fully convolutional (see section \ref{related-work}) architecture of our VAE is presented in Fig. \ref{fig:vae-arch}. Subitizing results (Table \ref{tab:sub-performance}) are reported on a second VAE with a slightly different architecture, for reasons outlined in section \ref{subitizing-read-out}.
-The pre-training stage consist of feeding the VAE samples from the hybrid dataset (defined in section \ref{hybrid}). The sampling ratio of natural to synthetic images from the hybrid dataset is increased at each epoch, and is defined by the Bézier curve shown in Fig. \ref{fig:bezier}. After the loss converges on the hybrid dataset, the VAE is fine-tuned using only the SOS dataset by freezing the first three convolutional modules from Fig. \ref{fig:vae-arch}. We perform data augmentation on each image sample, as the SOS dataset is relatively small in size (see section \ref{imbalance} and \ref{variational-autoencoder-performance}).  All sampled images are first resized to 183x183, after which a crop to 161x161 size is performed at a random location in the image. Additionally, each sample had 50\% probability being horizontally mirrored. Finally, the reconstructions of the VAE were observed to contain an abundance of primary color, so we forced more complex color reconstruction by shifting each sample's R, G and B color channels (with values is in range 0-255) by a small value drawn from a normal distribution with \(\mu=0\) and \(\sigma=10\) \citep[the G channel uses \(\sigma=3.5\) because heavy green shifts produced unrealistic samples, possibly because green lighting contributes most to human color intensity perception][]{anderson1996proposal}. The loss weighting parameters from equation (1) are set as \(\alpha=1.0\) and \(\beta=0.03\). Although \citet{hou2017deep} set \(\beta\) significantly closer to \(\alpha\), larger values of \(\beta\) were found to optimize FPL at the expense of the \(\mathcal{KL}\) divergence loss \(\mathcal{L}_{kl}\) under the SOS dataset. The size of the latent dimension is set to 182. The VAE was implemented\footnote{The code of the full implementation is hosted on \href{https://github.com/rien333/numbersense-vae}{Github}.} in PyTorch \citep{paszke2017automatic}. 
+The pre-training stage consist of feeding the VAE samples from the hybrid dataset (defined in section \ref{hybrid}). The sampling ratio of natural to synthetic images within the hybrid dataset is increased at each epoch, and is defined by the Bézier curve shown in Fig. \ref{fig:bezier}. After the loss converges on the hybrid dataset, the VAE is fine-tuned using only the SOS dataset by freezing the first three convolutional modules from Fig. \ref{fig:vae-arch}.  Data augmentation is performed on all sampled images, as the SOS dataset is relatively small in size (see section \ref{imbalance} and \ref{variational-autoencoder-performance}).  Images are first resized to 183x183, after which a crop to 161x161 size is performed at a random location in the image. Additionally, each sample had 50\% probability of being horizontally mirrored. Finally, the reconstructions of the VAE were observed to contain an abundance of primary color, so we forced more complex color reconstruction by shifting each sample's R, G and B color channels (with values is in range 0-255) by a small value drawn from a normal distribution with \(\mu=0\) and \(\sigma=10\) \citep[the G channel uses \(\sigma=3.5\) because heavy green shifts produced unrealistic samples, possibly because green lighting contributes most to human color intensity perception][]{anderson1996proposal}. The loss weighting parameters from equation (1) are set as \(\alpha=1.0\) and \(\beta=0.03\). Although \citet{hou2017deep} set \(\beta\) significantly closer to \(\alpha\), larger values of \(\beta\) were found to optimize FPL at the expense of the \(\mathcal{KL}\) divergence loss \(\mathcal{L}_{kl}\) under the SOS dataset. The size of the latent dimension is set to 182. The VAE was implemented\footnote{The code of the full implementation is hosted on \href{https://github.com/rien333/numbersense-vae}{Github}.} in PyTorch \citep{paszke2017automatic}. 
 
 \begin{figure}
 \centering
@@ -641,6 +623,24 @@ properties the latent space of the VAE encodes, refer to Fig. \ref{fig:latent}.
 \caption{Comparison between BCE and FPL reconstruction loss measures. The top row consist of original images from the SOS dataset, and the other two rows are reconstructions made by using FPL and BCE loss, respectively. The VAE using BCE shared the training setup of the VAE outlined in section \ref{vae-train}, with the pre-training stage lasting 40 epochs, and the fine-tuning stage lasting 35 epochs. Some of these reconstructions support the claim that using FPL loss retains more numerical information.}
 \label{fig:dfc_comp}
 \end{figure}
+
+One notable shortcoming of FPL is that although the
+layers from VGG-19 represent important visual information, it is a known
+fact that the first few layers of deep CNNs only encode simple features
+such as edges and lines (i.e they support contours), which are only
+combined into more complex features deeper into the network
+\citetext{\citealp{liu2017towards}; \citealp[FPL's authors][ note
+something similar]{hou2017deep}}. This means that the optimization
+objective is somewhat unambitious, in that it will never try to learn
+any other visual features \citep[for examples, refer to][Fig.
+6.]{liu2017towards} aside from what the set of predefined layers \(L\)
+represents. Indeed, although contour reconstruction greatly improved
+with FPL, the reconstruction of detail such as facial features shows
+less improvement (Fig. \ref{fg:dfc_comp}). Although \citet{hou2017deep} show a successful
+application of FPL, they might have been unaware of this shortcoming due
+to using a more uniform dataset consisting only of centered faces. For a
+comparison between FPL and BCE-based reconstruction measures on the SOS
+dataset, refer to Fig. \ref{fig:dfc_comp}.
 
 Although the reconstructions show increased quality of contour
 reconstruction, there are a few reoccurring visual disparities between
