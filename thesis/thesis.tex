@@ -191,13 +191,13 @@ visual system's ability to process simple geometric configurations of
 objects in parallel, whereby increasing the size of a group behind the
 subitizing range deprives perceiving this group of it's sudden and
 distinct numerical perceptual character for this would strain our
-parallelization capabilities too much. Groups exceeding the subitizing parallelization threshold force recourse to numerical judgment techniques with a less sudden perceptual character, such as counting by enumeration. Finally, above descriptions of subitizing have a supposed distinct neuronal correlate in the form of capacity-limited multiple object individuation mechanism whose response profile obeys the perceptual subitizing range \citep{poncet2016individuation}, comparable with how the approximate numerosity system functions as an interplay between perception and coding properties of neurons.\\
+parallelization capabilities too much. Groups exceeding the subitizing parallelization threshold force recourse to numerical judgment techniques with a less sudden perceptual character, such as counting by enumeration. Finally, above descriptions of subitizing have a supposed distinct neuronal correlate in the form of capacity-limited multiple object individuation mechanism whose response profile obeys the perceptual subitizing range \citep{poncet2016individuation}, comparable to how the approximate numerosity system functions as an interplay between perception and coding properties of neurons.\\
 \indent Apart from the usage of natural images, present study will further improve biological plausibility by restricting the class of algorithm based on findings about visual sense of number. One such constraint is that an ability to perceive numerosity is shown to emerge in hierarchically organized neural networks embedded in generative learning models, either artificial or biological (as discussed above). Furthermore, the fact that visual number sense exists across species \citep{animalsnumericalcognition}, human newborns newborns \citep[chap. 1]{lakoff} and innumerate cultures \citetext{\citealp[p.~261]{dehaene2011number}; \citealp{franka2008number}} provides strong evidence for the claim that it is an implicitly developed skill at lower cognitive levels, given aforementioned groups lack of exposure to numerical training. Deemed as a general unrealistic trope of artificial learning \citep{dreyfus2007heideggerian} and research into the human learning process \citep{Zorzi2013}, modeling visual number sense therefore necessitates non-researcher depended features. This will restrict the choice of algorithm to so called \emph{unsupervised} learning algorithms, as such an algorithm will learn its own particular representation of the data distribution. Given their ability to infer the underlying stochastic representation of the data in an unsupervised manner, i.e.~perform in autonomous feature determination, \emph{Variational Autoencoders} (VAEs) seem fit to tackle this problem, additional to VAEs being a generative algorithm (section \ref{vae} details their precise working). Moreover, VAEs are trained fully unsupervised similar to how, given appropriate circumstances, visual numerosity related abilities are implicitly learned skills that emerge without ``labeled data''. Another interesting aspect of VAEs is their relatively interpretable and overseeable learned feature space, which might tell something about how it deals with visual numerosity, and thus allows to evaluate the properties of the VAE's encoding against biological data.
 
 Present study therefore asks: how can neural networks provided with natural images be applied within biologically informed models to develop the emergent neuronal skill of subitizing in a manner comparable to their biological equivalents? To answer this, we start % section numbers chronological
-with discussing a dataset constructed for modeling subitizing in section \ref{related-work}, and then detail how we implemented our VAE algorithm to learn a representation of this dataset in \ref{vae}.  Slight problems during training and evaluation that arose from properties of our applied dataset and algorithm and appropriate solutions are examined in section \ref{hybrid}  and \ref{imbalance}.  Next, as the subitizing task is essentially an image classification task, a full
+with discussing a dataset constructed for modeling subitizing in section \ref{related-work}, and then detail how we implemented our VAE algorithm to learn a representation of this dataset in \ref{vae}.  Slight problems during training and evaluation that arose from properties of our applied dataset and algorithm and appropriate solutions are examined in section \ref{hybrid}, \ref{deep-feature-consistent-perceptual-loss}} and \ref{imbalance}.  Next, as the subitizing task is essentially an image classification task, a full
 methodology for evaluating the unsupervised VAE model's performance on
-the subitizing classification task is described in section \ref{readout}. Finally, section \ref{qualitative-analysis} highlights measurements of the final models robustness to changes in visual features.\\ \\
+the subitizing classification task is described in section \ref{readout}. Subitizing performance is reported in section \ref{readout}. Finally, section \ref{qualitative-analysis} highlights measurements of the final models robustness to changes in visual features.\\ \\
 \noindent The contributions of our work are the following:
 \begin{enumerate}[noitemsep,]
 \item An unsupervised training setup in which a variational autoencoder algorithm spontaneously develops an ability to subitize is described. Our unsupervised approach seemed to require some specific countermeasures against problematic properties of the applied subitizing dataset, namely class imbalance and data scarcity. Although their appliance proved only partly successful, further investigation could theoretically improve results. 
@@ -222,16 +222,16 @@ percepts invariant to visual features other than quantity.
 \relatedss{Visual Number Sense}{Important characteristics of numerosity perception inspire algorithm architecture, evaluative measures and the  training setup of present study. Firstly, visual sense of number is an \emph{automatic} appreciation of the sensory world. It can be characterized as ``sudden'', or as visible at a glance \citetext{\citealp[p.~57]{dehaene2011number}; \citealp{zhang2016salient}}. \emph{Convolutional neural networks} (CNNs) not only showcase excellent performance in extracting visual features from complex natural images \citetext{\citealp{GoogleDeepMind}; \citealp{krizhevsky2012imagenet}; \citealp[for visual number sense and CNNs see][]{zhang2016salient}}, but are furthermore functionally inspired by the visual cortex of animals \citep[specifically cats, see][]{lecun1995convolutional}. CNNs mimicking aspects of the animal visual cortex thus make them an excellent candidate for modeling biologically plausible automatic neural coding of numerosity percepts. 
 Secondly, the directness of visual numerosity entails that it does not require the interposition of external processes, or at least no other than lower-level sensory neural processes. For example, numerosity perception has been shown to function independently from mathematical knowledge of number, as numerosity detecting neuronal populations do not display their characteristic response profiles when confronted with Arabic numerals \citep{harvey2013topographic, poncet2016individuation}. This independence partly motivates the assessment of numerisoty detectors solely encoding numerisoty information. Visual number sense being a immediate and purely perceptual process implies that our model should not apply external computational techniques sometimes used in computer vision research on numerical determination task such as counting-by-detection \citep[which requires both arithmetic and iterative attention to all group members, see][]{zhang2016salient, detection2016unconstrained} or segmenting techniques \citep[e.g.][]{chattopadhyay2016counting}. Instead, we want to our model to operate in an autonomous and purely sensory fashion.}
 
-\relatedss{Modeling approximate numerosity perception}{\citet{stoianov2012} applied neural networks to learning visual numerosity estimation, although without the usage of natural
+\relatedss{Modeling approximate numerosity perception}{\citet{stoianov2012} apply neural networks to learning visual numerosity estimation, although without using natural
 images. \citet{stoianov2012} discovered neural populations concerned with numerosity
 estimation that shared multiple properties with biological populations
 participating in similar tasks, most prominently an encoding scheme that
 was invariant to the cumulative surface area of the objects present in
 the provided images. Present study hopes to discover a similar kind
 of invariance to surface area. Likewise, we will employ the same surface area
-invariance test, although a successful application to natural images
-already shows a fairly abstract representation of number, as the objects
-therein already contain varied visual features.
+invariance test (section \ref{qualitative-analysis}), although a successful application to natural images
+already implies a fairly abstract representation of number, as the objects
+therein are of varying visual complexity.
 Some simplicity of the dataset used by \citet{stoianov2012} is due their
 use of the relatively computationally expensive Restricted Boltzmann
 Machine (RBM) \citep[except when exploiting prior knowledge of
@@ -252,7 +252,7 @@ objects, \citet{zhang2016salient} also introduce images with no salient
 objects, as well as images where the number of salient objects lies
 outside of the subitizing range. The SOS dataset was
 constructed from an ensemble of other datasets to avoid potential
-dataset bias, and contains approximately 14K natural images. \citet{zhang2016salient} also report subitizing performance of multiple classification algorithms on images from the SOS dataset, although none of the algorithms are trained unsupervised.}
+dataset bias, and contains approximately 14K natural images. \citet{zhang2016salient} also report subitizing performance of multiple classification algorithms on images from the SOS dataset, although none are trained unsupervised.}
 
 \begin{figure}
 \centering
@@ -318,15 +318,15 @@ makes VAEs a \emph{generative} algorithm.
 %% - yes this is it 🌸 (wikipedia)
 %% - but where do mu and sigma come from?
 
-The task of the encoder network in a VAE is to infer the mean and
-variance parameters, implemented as arbitrary deterministic functions $\mu$ and $\Sigma$, of a multivariate Gaussian distribution of the latent space, such that the latent vectors
-\(z\) drawn from this multivariate Gaussian \(\mathcal{N}(z \mathbin{\vert} \mu(X), \Sigma(X))\) facilitate reconstruction of data samples \(X\)
+The task of the VAE's encoder network is to infer mean and
+variance parameters $\mu$ and $\Sigma$ of a multivariate Gaussian distribution of the latent space, with \(\mu\) and \(\Sigma\) arbitrary deterministic functions, such that latent vectors
+\(z\) drawn from this multivariate Gaussian \(\mathcal{N}(\mu(X), \Sigma(X))\) facilitate reconstruction of data samples \(X\)
 \citep{doersch2016tutorial}. Novel sampled \(z\) vectors can then be fed
 into the decoder network as usual. \(\mu(X)\) and \(\Sigma(X)\) are
 constrained to roughly follow a unit Gaussian by minimizing the
 Kullback-Leibler divergence (denoted as \(\mathcal{KL}\)) between unit Gaussian
 \(\mathcal{N}(0, I)\) and
-\(\mathcal{N}(z \mathbin{\vert} \mu(X), \Sigma(X))\), where
+\(\mathcal{N}(\mu(X), \Sigma(X))\), where
 \(\mathcal{KL}\) measures the distance between probability
 distributions. Normally distributed latent variables capture the
 intuition behind generative algorithms that they should support sampling
@@ -815,7 +815,7 @@ some cases.
    \caption{}
   \label{fig:za}
 \end{subfigure}
-\caption{(a) shows a typical response profile for a numerosity detector ($R=0.055$).  (b) shows a typical response profile of dimension that encodes cumulative area while being invariant to numerosity information ($R=0.056$). In the violin plots, dotted lines indicate mean and variance of the response distribution, while thickness indicates frequency. Cumulative area ($A$) was normalized and is displayed across a logarithmic scale. For visual convenience, examples with $A=0$ were shifted next to lowest value of A in the dataset.}
+\caption{(a) shows a typical response profile for a numerosity detector ($R=0.055$).  (b) shows a typical response profile of dimension that encodes cumulative area while being invariant to numerosity information ($R=0.056$). In the top violin plots, dotted lines indicate mean and variance of the response distribution, while thickness indicates frequency. Cumulative area ($A$) was normalized and is displayed across a logarithmic scale. For visual convenience, examples with $A=0$ were shifted next to lowest value of A in the dataset.}
 \label{fig:linear}
 \end{figure*}
 
