@@ -169,7 +169,7 @@ Numerosity-selective neurons have been shown to spontaneously emerge in dedicate
 Similarly, computational models of numerical cognition provided only with sensory-like information  show that an approximate visual sense of number can emerge as a property of hierarchically organized neural populations embedded in a generative learning model \citep{stoianov2012}. An interesting biological motivation for such a model could be that biological numerosity detectors are organized in a similar hierarchical fashion \citep{nieder2016neuronal, viswanathan2013neuronal}, as well as aforementioned numerosity networks residing in the neo-cortex \citep{nieder2016neuronal}, a brain area with an anatomical structure displaying likeness to hierarchical Bayesian generative models
 \citetext{\citealp{friston2003learning}; although the brain in general is sometimes characterized as a probabilistic modeler of it's sensory world, e.g. \citealp{bayesianbrain, griffiths2006optimal}}, resembling \citet{stoianov2012}'s model ability to distribute stochastic representations of sensory input across a multilayered, hierarchical network. Interestingly, the neurocognitively inspired model of \citet{stoianov2012} developed an encoding scheme that shared multiple similarities with the functional characteristics of biological neuronal populations performing in visual numerosity judgments, among which an invariance to occupied visual area when judging numerosity.
 
-Notwithstanding the success of previous biologically informed approaches to modeling numerical cognition with artificial neural networks, \citet{stoianov2012} note that more work is to be done in applying such models to natural images. The main reason behind pursuing natural images is improving the biological plausibility over previous approaches relying on binary images containing only if simple geometric shapes \citep[for examples, see][]{stoianov2012, wu2018two, peterson2000computational}, given that natural images are closer to everyday sensations than binary images. Furthermore, any dataset with visually uniform objects does not capture how visual number sense in animals is abstract in regard to the perceived objects \citep{nieder2016neuronal}, implying that a model should be able show that it performs equally well between objects of different visual complexities.
+Notwithstanding the success of previous biologically informed approaches to modeling numerical cognition with artificial neural networks, \citet{stoianov2012} note that more work is to be done in applying such models to natural images. The main reason behind pursuing natural images is improving the biological plausibility over previous approaches relying on binary images containing only simple geometric shapes \citep[for examples, see][]{stoianov2012, wu2018two, peterson2000computational}, given that natural images are closer to everyday sensations than binary images. Furthermore, any dataset with visually uniform objects does not capture how visual number sense in animals is abstract in regard to the perceived objects \citep{nieder2016neuronal}, implying that a model should be able show that it performs equally well between objects of different visual complexities.
 
 Unfortunately, no dataset fit for visual numerosity estimation task
 similar to \citet{stoianov2012} satisfied above requirements (sizable
@@ -651,9 +651,9 @@ with the CelebA \citep{liu2015deep} dataset). Datasets other than the
 SOS dataset showed slightly better performance, indicating that the SOS
 dataset is either too small, too varied or requires non standard tweaking
 for FPL to work in it's current form. Most of the improvement in more
-uniform datasets came from the fact that the VAE learned to create more
+uniform datasets came from the fact that the VAE learned to create 
 local patterns to give the appearance of uniformly colored regions, but
-upon closer inspection placed pixels of colors in a grid such that they
+upon closer inspection placed colors in a grid such that they
 gave the appearance of just one color, similar to how for example LED
 screens function. Another reconstructional problem is that small regions such as details are sometimes left out, which
 could possibly distort class labels (for example, figure-ground contrast might decrease when detail is lost).
@@ -805,17 +805,17 @@ some cases.
 \centering
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=1.0\linewidth, height=10cm]{Nn-z77.png}
+  \includegraphics[width=1.0\linewidth, height=10cm]{NN.pdf}
   \caption{}
   \label{fig:zn}
 \end{subfigure}%
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=1.0\linewidth, height=10cm]{Na-z88.png}
+  \includegraphics[width=1.0\linewidth, height=10cm]{NA.pdf}
    \caption{}
   \label{fig:za}
 \end{subfigure}
-\caption{(a) shows a typical response profile for a numerosity detector ($R=0.055$).  Subitizing label $N$ was normalized. (b) shows a typical response profile of dimension that encodes cumulative area while being invariant to numerosity information ($R=0.056$). Cumulative area ($A$) was normalized and is displayed across a logarithmic scale. For visual convenience, examples with $A=0$ were shifted next to lowest value of A in the dataset.}
+\caption{(a) shows a typical response profile for a numerosity detector ($R=0.055$).  (b) shows a typical response profile of dimension that encodes cumulative area while being invariant to numerosity information ($R=0.056$). In the violin plots, dotted lines indicate mean and variance of the response distribution, while thickness indicates frequency. Cumulative area ($A$) was normalized and is displayed across a logarithmic scale. For visual convenience, examples with $A=0$ were shifted next to lowest value of A in the dataset.}
 \label{fig:linear}
 \end{figure*}
 
@@ -829,7 +829,7 @@ biological neural networks (as well as other artificial algorithms).
 Firstly, an ability to subitize emerged as an implicitly learned skill.
 Second of all, the learned encoding scheme indicates support for
 encoding numerosities without resorting to counting schemes relying on
-cumulative (object) area, and conversely encodes cumulative area
+cumulative object area, and conversely encodes cumulative area
 without using numerosity information, in accordance with findings in artificial models \citep{stoianov2012} and biological neuronal populations \citep{harvey2013topographic, nieder2016neuronal}. However,
 more research is needed to assess the coding properties of area and numerisoty detecting dimensions, given that some important properties of the input to this task remain unexhausted, such as visual variation in synthetic images and the distribution of regression variables.
 There is also room for improvement in the VAE's reconstructional abilities,
