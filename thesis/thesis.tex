@@ -10,12 +10,12 @@
 % 				- scale/visual feature invarience? (independt and dedicated to numerisoty, no arabic numerals)
 % 					- This indepedence is assumed because...
 % 				- niet gebruiken van andere techniecken dan visuele troep (sluit aan op vorige)
-% - [ ] Have al figures named "Fig." and refer to them as such
-% - [ ] abstract
-% - [ ] Cite robolab (this is kinda mandatory, acknowledgements?)
+% - [x] Have al figures named "Fig." and refer to them as such
+% - [x] abstract
+% - [x] Cite robolab (this is kinda mandatory, acknowledgements?)
 % - [ ] Subtitle?
-% - [ ] Add training parameters section (bezier, prepossecing, VAE architecture)
-% - [ ] You could decide to say we trained our VAE for blah blah (in pytorch)
+% - [x] Add training parameters section (bezier, prepossecing, VAE architecture)
+% - [x] You could decide to say we trained our VAE for blah blah (in pytorch)
 % - [ ] If appropiate, make section headings a little bit small (and then subsubsection not bold?)
 
 \PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
@@ -59,7 +59,8 @@
             urlcolor=cyan,
             breaklinks=true}
 \urlstyle{same}  % don't use monospace font for urls
-\usepackage[margin=0.42in, bottom=0.5in]{geometry}
+%% \usepackage[margin=0.42in, bottom=0.5in]{geometry}
+\usepackage[margin=0.68in]{geometry}
 \usepackage{longtable,booktabs}
 % Fix footnotes in tables (requires footnote package)
 \IfFileExists{footnote.sty}{\usepackage{footnote}\makesavenoteenv{longtable}}{}
@@ -104,7 +105,7 @@
 
 %% \setlength{\parindent}{0pt}
 %% \setlength{\parskip}{\baselineskip}
-\setlength{\parindent}{2em}
+\setlength{\parindent}{1.6em}
 
 \usepackage{float}
 \usepackage{titlesec}
@@ -126,7 +127,55 @@
 \date{\today}
 
 \begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        %% \vspace*{1cm}
+      	\topskip0pt
+        \vspace*{\fill} % Center
+        \Huge
+        \textbf{Modeling Subitizing with Variational Autoencoders}
+        
+        \vspace{0.5cm}
+        \textit{Bachelor Thesis Subtitle}
+        
+        \vspace{1.5cm}
+        \Large
+        \textbf{Rijnder Wever \(\cdot\) Tom Runia (Supervisor)}\\
+        
+        \vfill
+        
+        A thesis presented for the degree of\\
+        Doctor of Philosophy
+        
+        \vspace{0.8cm}
+        
+        \includegraphics[width=0.4\textwidth]{uva}
+        
+        Artificial Intelligence\\
+        Country\\
+        \today
+        
+    \end{center}
+\end{titlepage}
+
+\onecolumn % table of contents stuff
+{
+  \hypersetup{linkcolor=black}
+  \topskip0pt
+  \vspace*{\fill} % Center
+  \tableofcontents
+  \section*{Acknowledgements}
+
+  Special thanks to Tom Runia, my bachelor thesis supervisor, for assisting me throughout this project and prodiving me with the nessecary computing facillities. Furthermore, I want to thank the UvA RoboLab for granting me acces to their prototyping machine. Finally, the Lisa Cluster provided me with all the computing power one could ever need, bringing peace of mind when I was worried I was using other's resources. 
+
+  \vspace*{\fill}
+}
+\newpage
+\twocolumn
+
 \maketitle
+
 
 \begin{abstract}
 Many animals develop the perceptual ability to \emph{subitize}, allowing them to instantly and accurately assess the number of items in a small group. Such a visual number sense is shown to emerge in hierarchical generative models provided with spatial configurations of homogeneous rectangles in various sizes. A promising recent set of generative algorithms,  \emph{variational autoencoders} (VAEs), might allow training on more complex natural images, invariance to visual complexity being an essential aspect of any abstract sense of number. We show that our unsupervised VAE algorithm is able to spontaneously perform in subitizing judgments when provided with natural images from a dataset catered to subitizing. Although the VAE's subitizing performance is behind some supervised algorithms, it encodes numerical information related to subitizing separately from other visual information, similar to the functioning of neuronal correlates of visual number sense. In particular, we show that the learned subitizing encoding is likely invariant to object area, comparable to how biological networks neglect area information when judging numerosity.
@@ -155,15 +204,6 @@ number found in mathematics \citetext{\citealp[ chap.
 perceptual capability of many animals to immediately perceive a group of items as
 having either a distinct or approximate cardinality, hereafter \emph{numerosity} \citep{feigenson2004core}. 
 
-% (For example, species with distinct brain organisations but equivalent neuronal coding schemes for number exist, indicating that visual numerisoty discrimination is a evolutionary beneficial skill that forces neurons to automatically converge into a configuration that supports numerisoty perception as a perceptual category [@nieder2016neuronal]. ) (The existence of numerical abilities in innumerate cultures and human newbords further strengthens this point) Visual sense of number has been noted  to function independently from higher cogntive proceesses, such as. THis indepedence is assumed because .. Similairy, computiational models of numerical cognition provided only with sensory-like information (doing this and this) show that visual number sense is an emergent property of neurons (or neural populations) embedded in complex learning models that are not unlike the brain [for brains and hierachy, see zhou2006hierarchical, monkeys show hieracally organized brain regions performing in number processsing @nieder2016neuronal].
-
-%% The experientially instantaneous capability to discriminate (judge?) visual numerisoties is an automatically developed property of neural populations found in many animals. The instantaneousness is product of the low-level (sometimes neural) cognitive facilitates, such as the neural populations that show tuning to a prefered numerosities in visual numerisoty estimation tasks.
-
-% Mention the indepedence and invarience in related work? (yeah to further motivate a scale test)
-%% 🐝 The experientially instantaneous capability to discriminate visual numerosities found in some animals is automatically developed at a neuronal level, and operates as an indepedent (indepedent whereof? it surely can't be 100\% independent) neuronal process by it omitting higher cogntive processes such as conscious representations \citep[p.~58 points to types of visual number sense being pre-attentive]{dehaene2011number} and symbolic processing [visual numerosity percepts are understood non-verbally, @nieder2016neuronal]. This indepedence is assumed because of the discovery of neural populations tuned to a preferred visual numerosity, whose response profiles remained invariant to all sensory modalities except quantity. The development of these neural populations numerosity performance being seperate from non-perceptual or symbolic knowledge of number is supported by the finding that these neural populations did not respond to their prefered numerosity when displayed in arabic numeral form [@harvey2013topographic], as well as the the existence of relatively uniformly functioning populations and related numerical abilities being present across different species, human newborns and innumerate cultures. For example, species with distinct brain organisations have shown the same neuronal coding for number, indicating that visual numerisoty discrimination is a evolutionary beneficial skill that forces neurons to automatically converge into a configuration that supports numerisoty perception as a perceptual category [@nieder2016neuronal]. '
-
-% capability to perform numerisoties judgements...
-% judge visual numerisoty
 Numerosity-selective neurons have been shown to spontaneously emerge in dedicated neuronal networks, possibly as a result of numerosity being an integral part of the sensory world \citep{viswanathan2013neuronal}. As such, visual number sense can be said to emerge as a perceptual category in an interplay between numerosity-percepts and neural populations' tuning to some preferred visual numerosity \citep{nieder2016neuronal}. The experientially instantaneous capability to discriminate visual numerosity that many animals share \citep{nieder2016neuronal, animalsnumericalcognition} can thus be explained by it primarily relying on a neuronal coding scheme, so avoiding a dependence on higher-cognitive processes such as conscious representations \citep[p.~58 points to types of visual number sense being pre-attentive]{dehaene2011number} or symbolic processing \citep[visual numerosity percepts are understood non-verbally,][]{nieder2016neuronal}. The response profile of neural populations detecting numerosity was found to be invariant to all visual features except quantity \citep{nieder2016neuronal, harvey2013topographic}.
 
 Similarly, computational models of numerical cognition provided only with sensory-like information  show that an approximate visual sense of number can emerge as a property of hierarchically organized neural populations embedded in a generative learning model \citep{stoianov2012}. An interesting biological motivation for such a model could be that biological numerosity detectors are organized in a similar hierarchical fashion \citep{nieder2016neuronal, viswanathan2013neuronal}, as well as aforementioned numerosity networks residing in the neo-cortex \citep{nieder2016neuronal}, a brain area with an anatomical structure displaying likeness to hierarchical Bayesian generative models
@@ -219,8 +259,8 @@ percepts invariant to visual features other than quantity.
 
 % okay but don't you have two sections doing the same thing now
 % Properties of Visual Number Sense
-\relatedss{Visual Number Sense}{Important characteristics of numerosity perception inspire algorithm architecture, evaluative measures and the  training setup of present study. Firstly, visual sense of number is an \emph{automatic} appreciation of the sensory world. It can be characterized as ``sudden'', or as visible at a glance \citetext{\citealp[p.~57]{dehaene2011number}; \citealp{zhang2016salient}}. \emph{Convolutional neural networks} (CNNs) not only showcase excellent performance in extracting visual features from complex natural images \citetext{\citealp{GoogleDeepMind}; \citealp{krizhevsky2012imagenet}; \citealp[for visual number sense and CNNs see][]{zhang2016salient}}, but are furthermore functionally inspired by the visual cortex of animals \citep[specifically cats, see][]{lecun1995convolutional}. CNNs mimicking aspects of the animal visual cortex thus make them an excellent candidate for modeling biologically plausible automatic neural coding of numerosity percepts. 
-Secondly, the directness of visual numerosity entails that it does not require the interposition of external processes, or at least no other than lower-level sensory neural processes. For example, numerosity perception has been shown to function independently from mathematical knowledge of number, as numerosity detecting neuronal populations do not display their characteristic response profiles when confronted with Arabic numerals \citep{harvey2013topographic, poncet2016individuation}. This independence partly motivates the assessment of numerisoty detectors solely encoding numerisoty information. Visual number sense being a immediate and purely perceptual process implies that our model should not apply external computational techniques sometimes used in computer vision research on numerical determination task such as counting-by-detection \citep[which requires both arithmetic and iterative attention to all group members, see][]{zhang2016salient, detection2016unconstrained} or segmenting techniques \citep[e.g.][]{chattopadhyay2016counting}. Instead, we want to our model to operate in an autonomous and purely sensory fashion.}
+\relatedss{Visual Number Sense}{Important characteristics of numerosity perception inspire algorithm architecture, evaluative measures and the  training setup of present study. Firstly, visual sense of number is an \emph{automatic} appreciation of the sensory world. It can be characterized as ``sudden'', or as visible at a glance \citetext{\citealp[p.~57]{dehaene2011number}; \citealp{zhang2016salient}}. \emph{Convolutional neural networks} (CNNs) not only showcase excellent performance in extracting visual features from complex natural images \citetext{\citealp{GoogleDeepMind}; \citealp{krizhevsky2012imagenet}; \citealp[for visual number sense and CNNs see][]{zhang2016salient}}, but are furthermore functionally inspired by the visual cortex of animals \citep[specifically cats, see][]{lecun1995convolutional}. CNNs mimicking aspects of the animal visual cortex thus make them an appropriate candidate for modeling biologically plausible automatic neural coding of numerosity percepts. 
+Secondly, the directness of visual numerosity entails that it does not require the interposition of external processes, or at least no other than lower-level sensory neural processes. For example, numerosity perception has been shown to function independently from mathematical knowledge of number, as numerosity detecting neuronal populations do not display their characteristic response profiles when confronted with Arabic numerals \citep{harvey2013topographic, poncet2016individuation}. This independence partly motivates the assessment of numerisoty detectors solely encoding numerisoty information. Visual number sense being a immediate and purely perceptual process implies that our model should not apply external computational techniques sometimes used in computer vision research on numerical determination task such as counting-by-detection \citep[which requires both arithmetic and iterative attention to all group members, see][]{zhang2016salient, detection2016unconstrained} or segmenting techniques \citep[e.g.][]{chattopadhyay2016counting}. Instead, we want the model to operate in an autonomous and purely sensory fashion.}
 
 \relatedss{Modeling approximate numerosity perception}{\citet{stoianov2012} apply neural networks to learning visual numerosity estimation, although without using natural
 images. \citet{stoianov2012} discovered neural populations concerned with numerosity
@@ -253,8 +293,8 @@ objects, as well as images where the number of salient objects lies
 outside of the subitizing range. The SOS dataset was
 constructed from an ensemble of other datasets to avoid potential
 dataset bias, and contains approximately 14K natural images. \citet{zhang2016salient} also report subitizing performance of multiple classification algorithms on images from the SOS dataset, although none are trained unsupervised.}
-
-\begin{figure}
+%% \vspace*{-4.2pt}
+\begin{figure}[H]
 \centering
     \subfloat{\includegraphics[height=2cm, width=4.0cm]{s1}}% label zero
     \quad
@@ -266,7 +306,7 @@ dataset bias, and contains approximately 14K natural images. \citet{zhang2016sal
     \subfloat{\includegraphics[height=2cm, width=4.0cm]{s0}}%
     \quad
     \subfloat{\includegraphics[height=2cm, width=4.0cm]{s4}}%
-    \caption{Example images from the SOS dataset. Each image shows a number of salient objects. The top row of images correspond to class labels 1-3, whereas the bottom two images receive labels 0 and 4+, respectively.}
+    \caption{Example images from the SOS dataset. Each image shows a number of salient objects. The top row of images correspond to class labels 1-3, whereas the other two receive labels 0 and 4\(+\).}
 \label{fig:sub}
 \end{figure}
 
@@ -461,6 +501,7 @@ labels. Refer to Fig. \ref{fig:syn} for examples of generated synthetic images.
 \end{figure}
 
 %% - [ ] Add training parameters section (hybrid/bezier, data prepossecing, VAE architecture, finetuing)
+\newpage
 \hypertarget{experiments}{%
 \section{Experiments}\label{experiments}}
 
@@ -469,7 +510,7 @@ labels. Refer to Fig. \ref{fig:syn} for examples of generated synthetic images.
 
 \begin{figure}
 \centering
-\includegraphics{vae_arch.pdf}
+\includegraphics[]{vae_arch.pdf}
 \caption{Fully convolutional architecture of the decoder (left) and encoder (right) networks from the Variation Autoencoder. Note that this figure was simplified by omitting the reparameterization trick \citep{kingma2013auto}, which enforces that latent samples are not drawn from \(\mathcal{N}(\mu(x), \Sigma(x)\) directly. \texttt{BN} indicates a batch normalisation layer \citep{ioffe2015batch} and \texttt{FC} indicates a fully connected layer. The dimensions before the CNN indicate filter and kernel size, respectively.}
 \label{fig:vae-arch}
 \end{figure}
@@ -479,8 +520,8 @@ The pre-training stage consist of feeding the VAE samples from the hybrid datase
 
 \begin{figure}
 \centering
-\includegraphics[height=6.2cm]{bezier.pdf}
-%% \includegraphics{bezier.pdf}
+%% \includegraphics[height=7.0cm]{bezier.pdf}
+\includegraphics{bezier.pdf}
 \caption{Bézier curve with parameters
 \(u_0=0, u_1=-0.01, u_2=0.02, u_3=1.0\) defining the sampling ratio of natural images to synthetic images at time \(t\). }
 \label{fig:bezier}
@@ -654,8 +695,6 @@ gave the appearance of just one color, similar to how for example LED
 screens function. Another reconstructional problem is that small regions such as details are sometimes left out, which
 could possibly distort class labels (for example, figure-ground contrast might decrease when detail is lost).
 
-%% What might be more so interesting is to show this type of figure but with every collumn a different input.  (and varying dimennsions? idk)
-
 \begin{figure*}
 \centering
 \includegraphics[width=\textwidth, height=8cm]{bird_varied_crop.png}
@@ -680,7 +719,7 @@ intermediate fully connected layers (with size 3096) between the latent
 representation and the convolutional stacks, as well as utilizing less convolutional filters. It is theorized that although the VAE with a fully convolutional architecture achieved a lower total loss and better reconstructional quality, a more complex model of the latent space does not necessarily facilitate an easier readout, and could possibly even degrade performance given the same classification algorithm (i.e. latent dimensions of the simpler VAE supporting in subitizing now also encode a variety of other information, as seen in Fig. \ref{fig:latent}, adding noise to the classification task). 
 
 \begin{longtable}[]{@{}rllllll@{}}
-\caption{Average Precision (\%) of various algorithms classifying subitize labels to images from the SOS test set. Accuracy scores of algorithms other than our \texttt{zclassifier} were copied over from \citet{zhang2016salient}. For their
+\caption{Average Precision (\%) of various algorithms classifying subitizing labels to images from the SOS test set. Accuracy scores of algorithms other than our \texttt{zclassifier} were copied over from \citet{zhang2016salient}. For their
 implementation, refer to \citet{zhang2016salient}. }\label{tab:sub-performance}\\
 \toprule
 & 0 & 1 & 2 & 3 & 4+ & mean\tabularnewline
@@ -694,9 +733,7 @@ SIFT+IVF & 83.0 & 68.1 & 35.1 & 26.6 & 38.1 & 50.1\tabularnewline
 CNN\_FT & 93.6 & 93.8 & 75.2 & 58.6 & 71.6 & 78.6\tabularnewline
 \bottomrule
 \end{longtable}
-
-%% Check if SIFT+IVF is completely non machine learning
-
+%% \newpage
 The subitizing performance of the VAE is comparable to highest scoring
 non-machine learning algorithm, and performs worse overall than the CNNs
 trained by \citet{zhang2016salient}. This can be explained by a number
@@ -745,6 +782,25 @@ following relationship between normalized variables \(A\) and \(N\)
 
 \[z_i = \beta_1 \log(N) + \beta_2\log(A) + \varepsilon \quad (\textrm{with }\, N \in [0, 4]) \tag{2} \]
 
+\begin{figure*}[ht]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1.0\linewidth, height=14cm]{NN.pdf}
+  \caption{}
+  \label{fig:zn}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1.0\linewidth, height=14cm]{NA.pdf}
+   \caption{}
+  \label{fig:za}
+\end{subfigure}
+\caption{(a) shows a typical response profile for a numerosity detector ($R=0.055$).  (b) shows a typical response profile of dimension that encodes cumulative area while being invariant to numerosity information ($R=0.056$). In the top violin plots, dotted lines indicate mean and variance of the response distribution, while thickness indicates frequency. Cumulative area ($A$) was normalized and is displayed across a logarithmic scale. For visual convenience, examples with $A=0$ were shifted next to lowest value of A in the dataset.}
+\label{fig:linear}
+\end{figure*}
+
+
 \noindent The regression was accomplished with linear regression algorithms taken
 from \citet{newville2016lmfit} (Levenberg--Marquardt proved best). The
 criteria set by \citet{stoianov2012} for being a good fit of (2)
@@ -792,27 +848,6 @@ could probably be greatly improved, given that only a short focus on
 reducing response variance increased \(R\) by almost a factor of 10 in
 some cases.
 
-%% Make every plot it's own figure (i.e. a-d?)
-% Cumalative is still spelled wrong here
-% export as pdf
-\begin{figure*}[ht]
-\centering
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=1.0\linewidth, height=10cm]{NN.pdf}
-  \caption{}
-  \label{fig:zn}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=1.0\linewidth, height=10cm]{NA.pdf}
-   \caption{}
-  \label{fig:za}
-\end{subfigure}
-\caption{(a) shows a typical response profile for a numerosity detector ($R=0.055$).  (b) shows a typical response profile of dimension that encodes cumulative area while being invariant to numerosity information ($R=0.056$). In the top violin plots, dotted lines indicate mean and variance of the response distribution, while thickness indicates frequency. Cumulative area ($A$) was normalized and is displayed across a logarithmic scale. For visual convenience, examples with $A=0$ were shifted next to lowest value of A in the dataset.}
-\label{fig:linear}
-\end{figure*}
-
 \hypertarget{conclusion}{%
 \section{Conclusion}\label{conclusion}}
 
@@ -836,10 +871,6 @@ sense of number, as the qualitative analysis of the encoding yielded
 promising results over a large variation of images, whereby especially
 abstraction in regard to object area has been demonstrated.
 
-%% \section*{acknowledgements}
-
-%%  Thanks to Robolab \citep{} for granting me access to their computing facilities. And special thanks to Tom for assisting me throughout this thesis, as well as helping me access the computer power that I need, (in the form of super computer cluster LISA). 
-\newpage
 \bibliography{thesis}
 
 \end{document}
