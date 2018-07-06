@@ -511,12 +511,12 @@ labels. Refer to Fig. \ref{fig:syn} for examples of generated synthetic images.
 \begin{figure}
 \centering
 \includegraphics[]{vae_arch.pdf}
-\caption{Fully convolutional architecture of the encoder (left) and decoder (right) networks from the Variation Autoencoder. Note that this figure was simplified by omitting the reparameterization trick \citep{kingma2013auto}, which enforces that latent samples are not drawn from \(\mathcal{N}(\mu(x), \Sigma(x)\) directly. \texttt{BN} indicates a batch normalisation layer \citep{ioffe2015batch} and \texttt{FC} indicates a fully connected layer. The dimensions before the CNN indicate filter and kernel size, respectively.}
+\caption{Fully convolutional architecture of the encoder (left) and decoder (right) networks from the Variation Autoencoder. Note that this figure was simplified by omitting the reparameterization trick \citep{kingma2013auto}, which enforces that latent samples are not drawn from \(\mathcal{N}(\mu(x), \Sigma(x))\) directly. \texttt{BN} indicates a batch normalisation layer \citep{ioffe2015batch} and \texttt{FC} indicates a fully connected layer. The dimensions before the CNN indicate filter and kernel size, respectively.}
 \label{fig:vae-arch}
 \end{figure}
 
 \noindent The fully convolutional (see section \ref{related-work}) architecture of our VAE is presented in Fig. \ref{fig:vae-arch}. Subitizing results (Table \ref{tab:sub-performance}) are reported on a second VAE with a slightly different architecture, for reasons outlined in section \ref{subitizing-read-out}.
-The pre-training stage consist of feeding the VAE samples from the hybrid dataset (defined in section \ref{hybrid}). The sampling ratio of natural to synthetic images within the hybrid dataset is increased at each epoch, and is defined by the Bézier curve shown in Fig. \ref{fig:bezier}. After the loss converges on the hybrid dataset, the VAE is fine-tuned using only the SOS dataset by freezing the first three convolutional modules of the encoder network shown in Fig. \ref{fig:vae-arch}.  Data augmentation is performed on all sampled images, as the SOS dataset is relatively small in size (see section \ref{imbalance} and \ref{variational-autoencoder-performance}).  Images are first resized to 183x183, after which a crop to 161x161 size is performed at a random location in the image. Additionally, each sample had 50\% probability of being horizontally mirrored. Finally, the reconstructions of the VAE were observed to contain an abundance of primary color, so we forced more complex color reconstruction by shifting each sample's R, G and B color channels (with values is in range 0-255) by a small value drawn from a normal distribution with \(\mu=0\) and \(\sigma=10\) \citep[the G channel uses \(\sigma=3.5\) because heavy green shifts produced unrealistic samples, possibly because green lighting contributes most to human color intensity perception][]{anderson1996proposal}. The loss weighting parameters from equation (1) are set as \(\alpha=1.0\) and \(\beta=0.03\). Although \citet{hou2017deep} set \(\beta\) significantly closer to \(\alpha\), larger values of \(\beta\) were found to optimize FPL at the expense of the \(\mathcal{KL}\) divergence loss \(\mathcal{L}_{kl}\) under the SOS dataset. The size of the latent dimension is set to 182. The VAE was implemented\footnote{The code of the full implementation is hosted on \href{https://github.com/rien333/numbersense-vae}{Github}.} in PyTorch \citep{paszke2017automatic}. 
+The pre-training stage consist of feeding the VAE samples from the hybrid dataset (defined in section \ref{hybrid}). The sampling ratio of natural to synthetic images within the hybrid dataset is increased at each epoch, and is defined by the Bézier curve shown in Fig. \ref{fig:bezier}. After the loss converges on the hybrid dataset, the VAE is fine-tuned using only the SOS dataset by freezing the first three convolutional modules of the encoder network shown in Fig. \ref{fig:vae-arch}.  Data augmentation is performed on all sampled images, as the SOS dataset is relatively small in size (see section \ref{imbalance} and \ref{variational-autoencoder-performance}).  Images are first resized to 183x183, after which a crop to 161x161 size is performed at a random location in the image. Additionally, each sample had 50\% probability of being horizontally mirrored. Finally, the reconstructions of the VAE were observed to contain an abundance of primary color, so more complex color reconstruction was enforced by shifting each sample's R, G and B color channels (with values is in range 0-255) by a small value drawn from a normal distribution with \(\mu=0\) and \(\sigma=10\) \citep[the G channel uses \(\sigma=3.5\) because heavy green shifts produced unrealistic samples, possibly because green lighting contributes most to human color intensity perception][]{anderson1996proposal}. The loss weighting parameters from equation (1) are set as \(\alpha=1.0\) and \(\beta=0.03\). Although \citet{hou2017deep} set \(\beta\) significantly closer to \(\alpha\), larger values of \(\beta\) were found to optimize FPL at the expense of the \(\mathcal{KL}\) divergence loss \(\mathcal{L}_{kl}\) under the SOS dataset. The size of the latent dimension is set to 182. The VAE was implemented\footnote{The code of the full implementation is hosted on \href{https://github.com/rien333/numbersense-vae}{Github}.} in PyTorch \citep{paszke2017automatic}. 
 
 \begin{figure}
 \centering
@@ -555,7 +555,7 @@ algorithmic data.
 \subsubsection{Class imbalance}\label{imbalance}}
 
 Class imbalance is a phenomenon encountered in datasets whereby the
-number of instances belonging to on or more classes is significantly
+number of instances belonging to one or more classes is significantly
 higher than the amount of instances belonging to any of the other
 classes. Although there is no consensus on an exact definition of what
 constitutes a dataset with class imbalance, we follow
@@ -638,7 +638,7 @@ implies that the classifier is able to generalize in a manner comparable
 to previous approaches. For the SOS dataset with random majority class
 undersampling, if \(n \gg 3\) the classifier accuracy for the majority
 classes shrinks towards chance, and, interestingly, accuracy for the
-minority classes becomes comparable to the state of the art machine
+minority classes becomes comparable to state of the art machine
 learning techniques.
 
 
@@ -651,7 +651,7 @@ Performance}\label{variational-autoencoder-performance}}
 
 The VAE's loss converged after 102 pre-training epochs, and once more after 39 epochs of fine-tuning solely on the SOS dataset. For the specific purpose of subitizing, we can see that using FPL loss
 is beneficial (indeed, when comparing FPL to BCE loss in the classification task described in
-section \ref{readout}, the former performed better) For a
+section \ref{readout}, the former performed better). For a
 comparison between FPL and BCE-based reconstruction measures on the SOS
 dataset, refer to Fig. \ref{fig:dfc_comp}. To get an idea of what sort of
 properties the latent space of the VAE encodes, see Fig. \ref{fig:latent}.
@@ -675,7 +675,7 @@ any other visual features \citep[for examples, refer to][Fig.
 6.]{liu2017towards} aside from what the set of predefined layers \(L\)
 represents. Indeed, although contour reconstruction greatly improved
 with FPL, the reconstruction of detail such as facial features shows
-less improvement (Fig. \ref{fig:dfc_comp}). Although \citet{hou2017deep} show a successful
+less improvement (Fig. \ref{fig:dfc_comp}). While \citet{hou2017deep} show a successful
 application of FPL, they might have been unaware of this shortcoming due
 to using a more uniform dataset consisting only of centered faces. 
 
@@ -711,8 +711,8 @@ location)}
 Accuracy of the \texttt{zclassifier} (i.e.~the classifier described
 in section \ref{classifierarch} concerned
 with classification of latent activation patterns to subitizing labels)
-is reported in Table \ref{tab:sub-performance} over the withheld SOS test set. We report best performance using a slightly different VAE architecture than the one described in
-section \ref{vae} (which scored a mean accuracy of 40.4).
+is reported in Table \ref{tab:sub-performance} over the withheld SOS test set. We report best performance using a slightly different VAE architecture than the one presented in
+Fig. \ref{fig:vae-arch} (which scored a mean accuracy of 40.4).
 The main difference between the VAE used in this experiment and the one
 that is used throughout the rest of this research is the placement of
 intermediate fully connected layers (with size 3096) between the latent
@@ -761,7 +761,7 @@ whether our VAE's latent representation contained dimensions \(z_i\)
 encoding either one of these properties. To test this, we first created
 a dataset with synthetic examples containing \(N\) objects
 (\(N \in \lbrack 0, 4\rbrack\), with N uniformly distributed over the
-dataset and corresponding cumulative area values \(A\) that those \(N\)
+dataset) and corresponding cumulative area values \(A\) that those \(N\)
 objects occupied (measured in pixels, with \(A\) normally distributed
 over the dataset\footnote{An uniform distribution of cumulative area
   might have worked better, but required algorithmic changes to the
@@ -776,7 +776,7 @@ random background class from the background dataset (performance is
 reported on the ``sand deserts'' class, which contains particularly
 visually uniform examples). A dimension \(z_i\) is said to be able to
 perform as either a numerical or area detector when regressing it's
-response over novel synthetic dataset (\(n=33280\)) supports the
+response over the novel synthetic dataset (\(n=33280\)) supports the
 following relationship between normalized variables \(A\) and \(N\)
 \citep{stoianov2012}:
 
@@ -817,7 +817,7 @@ use for the regression includes more complex information than the
 dataset used by \citet{stoianov2012}. Nevertheless, we still found a
 small number of reoccurring detectors of \(A\) and \(N\), with
 \(R > 0.065 \pm 0.020\) (all \(z_i\) with \(R > 0.033\) resulted in an
-average \(R= 0.06 \pm 0.01\)). Due to randomization in the fitting
+average \(R= 0.07 \pm 0.015\)). Due to randomization in the fitting
 process (synthetic examples are randomly generated at each run) the role
 distribution varied slightly with each properties being encoded by about
 1-2 dimensions, out of the total of 182 (anymore would indicate an

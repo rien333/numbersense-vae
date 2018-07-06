@@ -942,13 +942,14 @@ and Ruslan Salakhutdinov. 2014. "Dropout: A Simple Way to Prevent Neural
 Networks from Overfitting." *The Journal of Machine Learning Research*
 15 (1). JMLR. org: 1929--58.
 
-Stoianov, Ivilin, and Marco Zorzi. 2012. "Emergence of a'visual Number
-Sense'in Hierarchical Generative Models." *Nature Neuroscience* 15 (2).
+Stoianov, Ivilin, and Marco Zorzi. 2012. "Emergence of a 'Visual Number
+Sense' in Hierarchical Generative Models." *Nature Neuroscience* 15 (2).
 Nature Publishing Group: 194.
 
 Szegedy, Christian, Wei Liu, Yangqing Jia, Pierre Sermanet, Scott Reed,
-Dragomir Anguelov, Dumitru Erhan, Vincent Vanhoucke, Andrew Rabinovich,
-and others. 2015. "Going Deeper with Convolutions." In. Cvpr.
+Dragomir Anguelov, Dumitru Erhan, Vincent Vanhoucke, and Andrew
+Rabinovich. 2015. "Going Deeper with Convolutions." In *Proceedings of
+the Ieee Conference on Computer Vision and Pattern Recognition*, 1--9.
 
 Tomek, Ivan. 1976. "Two Modifications of Cnn." *IEEE Trans. Systems, Man
 and Cybernetics* 6: 769--72.
