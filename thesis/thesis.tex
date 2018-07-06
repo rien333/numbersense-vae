@@ -220,7 +220,7 @@ dataset readily available. Subitizing is the ability of many animals to
 immediately perceive the number of items in a group without resorting to e.g. enumeration or arithmetic, given that the number of items falls within the
 subitizing range of 1-4 \citep{kaufman1949, animalsnumericalcognition}
 Aforementioned characteristics of visual sense of
-number hold equally well for more distinct types of numerisoty perception such as
+number hold equally well for more distinct types of numerosity perception such as
 subitizing. Similarly, subitizing is suggested to be a parallel
 pre-attentive process in the visual system
 \citep[p.~57]{dehaene2011number}, the visual system likely relying on
@@ -260,7 +260,7 @@ percepts invariant to visual features other than quantity.
 % okay but don't you have two sections doing the same thing now
 % Properties of Visual Number Sense
 \relatedss{Visual Number Sense}{Important characteristics of numerosity perception inspire algorithm architecture, evaluative measures and the  training setup of present study. Firstly, visual sense of number is an \emph{automatic} appreciation of the sensory world. It can be characterized as ``sudden'', or as visible at a glance \citetext{\citealp[p.~57]{dehaene2011number}; \citealp{zhang2016salient}}. \emph{Convolutional neural networks} (CNNs) not only showcase excellent performance in extracting visual features from complex natural images \citetext{\citealp{GoogleDeepMind}; \citealp{krizhevsky2012imagenet}; \citealp[for visual number sense and CNNs see][]{zhang2016salient}}, but are furthermore functionally inspired by the visual cortex of animals \citep[specifically cats, see][]{lecun1995convolutional}. CNNs mimicking aspects of the animal visual cortex thus make them an appropriate candidate for modeling biologically plausible automatic neural coding of numerosity percepts. 
-Secondly, the directness of visual numerosity entails that it does not require the interposition of external processes, or at least no other than lower-level sensory neural processes. For example, numerosity perception has been shown to function independently from mathematical knowledge of number, as numerosity detecting neuronal populations do not display their characteristic response profiles when confronted with Arabic numerals \citep{harvey2013topographic, poncet2016individuation}. This independence partly motivates the assessment of numerisoty detectors solely encoding visual numerisoty information. Visual number sense being a immediate and purely perceptual process implies that our model should not apply external computational techniques sometimes used in computer vision research on numerical determination task such as counting-by-detection \citep[which requires both arithmetic and iterative attention to all group members, see][]{zhang2016salient, detection2016unconstrained} or segmenting techniques \citep[e.g.][]{chattopadhyay2016counting}. Instead, we want the model to operate in an autonomous and purely sensory fashion.}
+Secondly, the directness of visual numerosity entails that it does not require the interposition of external processes, or at least no other than lower-level sensory neural processes. For example, numerosity perception has been shown to function independently from mathematical knowledge of number, as numerosity detecting neuronal populations do not display their characteristic response profiles when confronted with Arabic numerals \citep{harvey2013topographic, poncet2016individuation}. This independence partly motivates the assessment of numerosity detectors solely encoding visual numerosity information. Visual number sense being a immediate and purely perceptual process implies that our model should not apply external computational techniques sometimes used in computer vision research on numerical determination task such as counting-by-detection \citep[which requires both arithmetic and iterative attention to all group members, see][]{zhang2016salient, detection2016unconstrained} or segmenting techniques \citep[e.g.][]{chattopadhyay2016counting}. Instead, we want the model to operate in an autonomous and purely sensory fashion.}
 
 \relatedss{Modeling approximate numerosity perception}{\citet{stoianov2012} apply neural networks to learning visual numerosity estimation, although without using natural
 images. \citet{stoianov2012} discovered neural populations concerned with numerosity
@@ -511,7 +511,7 @@ labels. Refer to Fig. \ref{fig:syn} for examples of generated synthetic images.
 \begin{figure}
 \centering
 \includegraphics[]{vae_arch.pdf}
-\caption{Fully convolutional architecture of the encoder (left) and decoder (right) networks from the Variation Autoencoder. Note that this figure was simplified by omitting the reparameterization trick \citep{kingma2013auto}, which enforces that latent samples are not drawn from \(\mathcal{N}(\mu(x), \Sigma(x))\) directly. \texttt{BN} indicates a batch normalisation layer \citep{ioffe2015batch} and \texttt{FC} indicates a fully connected layer. The dimensions before the CNN indicate filter and kernel size, respectively.}
+\caption{Fully convolutional architecture of the encoder (left) and decoder (right) networks from the Variation Autoencoder. Note that this figure was simplified by omitting the reparameterization trick \citep{kingma2013auto}, which enforces that latent samples are not drawn from \(\mathcal{N}(\mu(x), \Sigma(x))\) directly. \texttt{BN} indicates a batch normalization layer \citep{ioffe2015batch} and \texttt{FC} indicates a fully connected layer. The dimensions before the CNN indicate filter and kernel size, respectively.}
 \label{fig:vae-arch}
 \end{figure}
 
@@ -594,7 +594,7 @@ others \citep{zhang2016salient}.
   \emph{Undersampling techniques}. Undersampling balances the class
   distribution by discarding examples from the majority class.
   Elimination of majority class instances can for example ensue by
-  removing highly similair instances.
+  removing highly similar instances.
   \citep[e.g.][]{tomek1976two}
 \item
   \emph{Cost sensitive techniques.} Cost sensitive learning does not
@@ -860,7 +860,7 @@ Second of all, the learned encoding scheme indicates support for
 encoding numerosities without resorting to counting schemes relying on
 cumulative object area, and conversely encodes cumulative area
 without using numerosity information, in accordance with findings in artificial models \citep{stoianov2012} and biological neuronal populations \citep{harvey2013topographic, nieder2016neuronal}. However,
-more research is needed to assess the coding properties of area and numerisoty detecting dimensions, given that some important properties of the input to this task remain unexhausted, such as visual variation in synthetic images and the distribution of regression variables.
+more research is needed to assess the coding properties of area and numerosity detecting dimensions, given that some important properties of the input to this task remain unexhausted, such as visual variation in synthetic images and the distribution of regression variables.
 There is also room for improvement in the VAE's reconstructional abilities,
 i.e.~efficiency of coding scheme, especially in regard to reconstruction of detail. A possible way to accomplish better coding of details is by experimenting with different optimization objectives \citep[e.g.][]{dosovitskiy2016generating}. An improved encoding might enhance performance in the subitizing classification task. Finally, other promising solutions to the class imbalance problem exist, such as dynamic cost-sensitive techniques, which were not implemented because the internal algorithmic chances they often require are time expensive. This class of algorithms looks promising because a static cost-sensitive approach yielded the best result out of all class imbalance countermeasures. 
 Nevertheless, visual numerosity-like skills have emerged during the
